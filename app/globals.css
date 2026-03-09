@@ -65,3 +65,45 @@ select {
 .title {
   @apply text-2xl sm:text-3xl font-serif font-bold text-heritage-red;
 }
+
+/* ── Rich Text Editor & Display Styles ── */
+.prose-editor h2,
+.rich-text-content h2 {
+  @apply text-lg font-serif font-bold text-stone-800 mt-4 mb-2;
+}
+.prose-editor h3,
+.rich-text-content h3 {
+  @apply text-base font-serif font-bold text-stone-700 mt-3 mb-1.5;
+}
+.prose-editor p,
+.rich-text-content p {
+  @apply mb-2 last:mb-0;
+}
+.prose-editor ul,
+.rich-text-content ul {
+  @apply list-disc pl-5 mb-2 space-y-1;
+}
+.prose-editor ol,
+.rich-text-content ol {
+  @apply list-decimal pl-5 mb-2 space-y-1;
+}
+.prose-editor blockquote,
+.rich-text-content blockquote {
+  @apply border-l-3 border-amber-300 pl-4 italic text-stone-500 my-3;
+}
+.prose-editor strong,
+.rich-text-content strong {
+  @apply font-bold text-stone-800;
+}
+.prose-editor em,
+.rich-text-content em {
+  @apply italic;
+}
+.prose-editor s,
+.rich-text-content s {
+  @apply line-through text-stone-400;
+}
+.prose-editor hr,
+.rich-text-content hr {
+  @apply border-stone-200 my-4;
+}

@@ -96,43 +96,44 @@ export default function PersonCard({ person }: PersonCardProps) {
             person.is_in_law ||
             person.birth_order != null ||
             person.generation != null) && (
-            <div className="flex flex-wrap items-center gap-1.5 shrink-0 mt-2">
-              {isDeceased && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold bg-stone-100 text-stone-500 uppercase tracking-widest border border-stone-200/60 shadow-xs">
-                  Đã mất
-                </span>
-              )}
-              {person.is_in_law && (
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold uppercase tracking-widest shadow-xs border ${
-                    person.gender === "male"
+              <div className="flex flex-wrap items-center gap-1.5 shrink-0 mt-2">
+                {isDeceased && (
+                  <>
+                    {/* <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold bg-stone-100 text-stone-500 uppercase tracking-widest border border-stone-200/60 shadow-xs">
+                      Đã mất
+                    </span> */}
+                  </>
+                )}
+                {person.is_in_law && (
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold uppercase tracking-widest shadow-xs border ${person.gender === "male"
                       ? "bg-sky-50 text-sky-700 border-sky-200/60"
                       : person.gender === "female"
                         ? "bg-rose-50 text-rose-700 border-rose-200/60"
                         : "bg-stone-50 text-stone-700 border-stone-200/60"
-                  }`}
-                >
-                  {person.gender === "male"
-                    ? "Rể"
-                    : person.gender === "female"
-                      ? "Dâu"
-                      : "Khách"}
-                </span>
-              )}
-              {person.birth_order != null && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 uppercase tracking-widest shadow-xs">
-                  {person.birth_order === 1
-                    ? "Con trưởng"
-                    : `Con thứ ${person.birth_order}`}
-                </span>
-              )}
-              {person.generation != null && (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase tracking-widest shadow-xs">
-                  Đời thứ {person.generation}
-                </span>
-              )}
-            </div>
-          )}
+                      }`}
+                  >
+                    {person.gender === "male"
+                      ? "Rể"
+                      : person.gender === "female"
+                        ? "Dâu"
+                        : "Khách"}
+                  </span>
+                )}
+                {person.birth_order != null && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 uppercase tracking-widest shadow-xs">
+                    {person.birth_order === 1
+                      ? "Con trưởng"
+                      : `Con thứ ${person.birth_order}`}
+                  </span>
+                )}
+                {person.generation != null && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase tracking-widest shadow-xs">
+                    Đời thứ {person.generation}
+                  </span>
+                )}
+              </div>
+            )}
         </div>
       </div>
     </button>

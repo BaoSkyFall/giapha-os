@@ -41,7 +41,9 @@ export default function DashboardViews({
     // If no rootId is provided, fallback to the earliest created person
     if (!finalRootId || !pMap.has(finalRootId)) {
       const rootsFallback = persons.filter((p) => !childIds.has(p.id));
-      if (rootsFallback.length > 0) {
+      if (rootsFallback.length > 1) {
+        finalRootId = rootsFallback[1].id;
+      } else if (rootsFallback.length > 0) {
         finalRootId = rootsFallback[0].id;
       } else if (persons.length > 0) {
         finalRootId = persons[0].id; // ultimate fallback

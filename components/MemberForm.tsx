@@ -17,6 +17,14 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import dynamic from "next/dynamic";
+
+const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[160px] rounded-xl border border-stone-300 bg-stone-50 animate-pulse" />
+  ),
+});
 
 interface MemberFormProps {
   initialData?: Person;
@@ -620,12 +628,10 @@ export default function MemberForm({
             <label className="block text-sm font-semibold text-stone-700 mb-1.5">
               Ghi chú
             </label>
-            <textarea
-              rows={3}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
+            <RichTextEditor
+              content={note}
+              onChange={setNote}
               placeholder="Thêm thông tin bổ sung, tiểu sử..."
-              className={`${inputClasses} resize-none`}
             />
           </div>
         </div>
