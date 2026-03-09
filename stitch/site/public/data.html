@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tộc Phạm Phú Data Import &amp; Export Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Playfair+Display:wght@700&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#ce2222",
+                        "heritage-red": "#B31D1D",
+                        "heritage-gold": "#D4AF37",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "serif"],
+                        "playfair": ["Playfair Display", "serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .gold-underline {
+            position: relative;
+        }
+        .gold-underline::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background-color: #D4AF37;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-slate-100">
+<div class="relative flex h-auto min-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Header Section -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/10 bg-white dark:bg-background-dark px-10 py-4 shadow-sm">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-heritage-red">
+<div class="size-8 flex items-center justify-center bg-heritage-red rounded-lg text-white">
+<span class="material-symbols-outlined">account_tree</span>
+</div>
+<h2 class="text-heritage-red text-xl font-bold font-display leading-tight tracking-tight">Tộc Phạm Phú</h2>
+</div>
+<nav class="hidden md:flex items-center gap-9">
+<a class="text-slate-800 dark:text-slate-200 text-sm font-medium hover:text-primary transition-colors" href="#">Gia Phả</a>
+<a class="text-slate-800 dark:text-slate-200 text-sm font-medium hover:text-primary transition-colors" href="#">Sự Kiện</a>
+<a class="text-slate-800 dark:text-slate-200 text-sm font-medium hover:text-primary transition-colors" href="#">Thành Viên</a>
+<a class="text-slate-800 dark:text-slate-200 text-sm font-medium hover:text-primary transition-colors" href="#">Tư Liệu</a>
+</nav>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<div class="hidden lg:flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg px-3 py-1.5 border border-slate-200 dark:border-slate-700">
+<span class="material-symbols-outlined text-slate-500 text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm p-0 w-48" placeholder="Tìm kiếm thành viên..." type="text"/>
+</div>
+<button class="flex min-w-[120px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-heritage-gold text-white text-sm font-bold shadow-md hover:bg-yellow-600 transition-all">
+<span class="truncate">Trung Tâm Số</span>
+</button>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-heritage-red/20" data-alt="User profile avatar of a family member" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuB4zI-AmtWsHRZmxlYe5eRflSWy39PZM2xmKMfrcpcW_4Npz3hGxjqK2cDP26_Xi05Ejq5DSdToX-lsh89YoGjiQSW9IBQM17xyb7DGWNxrxGiH55Gb2jZB4g2RQAJ4fbR0o-5eMeHsMh6PPquv-Y0dkoAHxeYHOS4N7oeHMLN4PERFcLrQAXhN68v7AJoazP0cMxsFeU77cCbCWKD1kvoocNOdTKeWiS3ST1C5wPgElytMlNB0gOZKcpA6sTJ2YdEX4sRPPRZ_ZsQ");'></div>
+</div>
+</header>
+<main class="flex-1 max-w-[1200px] mx-auto w-full px-6 py-10">
+<!-- Page Title -->
+<div class="mb-12">
+<h1 class="text-heritage-red text-5xl font-playfair font-bold gold-underline mb-4">Trung Tâm Dữ Liệu</h1>
+<p class="text-slate-600 dark:text-slate-400 text-lg mt-6 italic">Quản lý nhập và xuất dữ liệu gia phả dòng họ Phạm Phú bảo tồn di sản.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+<!-- Left Column: Export & Backup -->
+<div class="lg:col-span-2 space-y-12">
+<!-- Export Section -->
+<section>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-heritage-red">file_export</span>
+<h2 class="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">Xuất Dữ Liệu (Export)</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card: JSON -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-primary/10 text-primary p-2 rounded-lg font-bold">JSON</div>
+<span class="material-symbols-outlined text-slate-300">code</span>
+</div>
+<h3 class="text-lg font-bold mb-2">Định dạng JSON</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Cấu trúc dữ liệu đầy đủ, phù hợp cho lập trình và di chuyển hệ thống.</p>
+<div class="mb-6">
+<label class="block text-xs font-bold text-slate-400 uppercase mb-2">Tùy chọn chi:</label>
+<select class="w-full rounded-lg border-slate-200 text-sm focus:border-primary focus:ring-primary dark:bg-slate-900 dark:border-slate-600">
+<option>Tất cả các chi</option>
+<option>Chi 1 - Trưởng tộc</option>
+<option>Chi 2 - Phạm Phú Thứ</option>
+</select>
+</div>
+<button class="w-full bg-heritage-red hover:bg-red-800 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">download</span>
+                                        Xuất JSON
+                                    </button>
+</div>
+<!-- Card: CSV -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-green-100 text-green-700 p-2 rounded-lg font-bold">CSV</div>
+<span class="material-symbols-outlined text-slate-300">table_chart</span>
+</div>
+<h3 class="text-lg font-bold mb-2">Bảng tính CSV</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Danh sách thành viên chi tiết cho Excel hoặc Google Sheets.</p>
+<div class="mb-6 space-y-2">
+<label class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+<input checked="" class="rounded text-primary focus:ring-primary" type="checkbox"/> Bao gồm thông tin liên lạc
+                                        </label>
+</div>
+<button class="w-full bg-heritage-red hover:bg-red-800 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">download</span>
+                                        Xuất CSV
+                                    </button>
+</div>
+<!-- Card: GEDCOM -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-blue-100 text-blue-700 p-2 rounded-lg font-bold">GED</div>
+<span class="material-symbols-outlined text-slate-300">share</span>
+</div>
+<h3 class="text-lg font-bold mb-2">GEDCOM Standard</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Tiêu chuẩn quốc tế, tương thích MyHeritage và Ancestry.</p>
+<div class="mb-6 h-10 flex items-center">
+<span class="text-xs text-slate-400 italic">Phiên bản 5.5.1 (UTF-8)</span>
+</div>
+<button class="w-full bg-heritage-red hover:bg-red-800 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">download</span>
+                                        Xuất GEDCOM
+                                    </button>
+</div>
+<!-- Card: PDF -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-red-100 text-red-700 p-2 rounded-lg font-bold">PDF</div>
+<span class="material-symbols-outlined text-slate-300">picture_as_pdf</span>
+</div>
+<h3 class="text-lg font-bold mb-2">Bản In PDF</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Trình bày đẹp để lưu trữ vật lý hoặc in ấn đóng tập gia phả.</p>
+<div class="mb-6">
+<select class="w-full rounded-lg border-slate-200 text-sm focus:border-primary focus:ring-primary dark:bg-slate-900 dark:border-slate-600">
+<option>Khổ A4 (Chuẩn)</option>
+<option>Khổ A3 (Cây phả đồ)</option>
+</select>
+</div>
+<button class="w-full bg-heritage-red hover:bg-red-800 text-white font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">print</span>
+                                        Tạo Bản In
+                                    </button>
+</div>
+</div>
+</section>
+<!-- Recent Backups -->
+<section>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-heritage-red">history</span>
+<h2 class="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">Lịch Sử Sao Lưu</h2>
+</div>
+<div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+<table class="w-full text-left">
+<thead class="bg-slate-50 dark:bg-slate-900/50">
+<tr>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Ngày giờ</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Định dạng</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase">Dung lượng</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase text-right">Hành động</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+<tr>
+<td class="px-6 py-4 text-sm">12/10/2023 14:30</td>
+<td class="px-6 py-4 text-sm font-medium">JSON (Toàn bộ)</td>
+<td class="px-6 py-4 text-sm text-slate-500">2.4 MB</td>
+<td class="px-6 py-4 text-right">
+<button class="text-heritage-red hover:underline inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">download</span> Tải xuống
+                                                </button>
+</td>
+</tr>
+<tr>
+<td class="px-6 py-4 text-sm">08/10/2023 09:15</td>
+<td class="px-6 py-4 text-sm font-medium">PDF (In ấn)</td>
+<td class="px-6 py-4 text-sm text-slate-500">14.8 MB</td>
+<td class="px-6 py-4 text-right">
+<button class="text-heritage-red hover:underline inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">download</span> Tải xuống
+                                                </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Right Column: Import -->
+<div class="space-y-10">
+<section>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-heritage-red">file_upload</span>
+<h2 class="text-2xl font-display font-bold text-slate-900 dark:text-slate-100">Nhập Dữ Liệu</h2>
+</div>
+<!-- Import Card -->
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-8">
+<div class="border-2 border-dashed border-heritage-red/40 rounded-xl p-10 flex flex-col items-center justify-center text-center bg-slate-50/50 dark:bg-slate-900/20">
+<div class="size-16 bg-heritage-red/10 rounded-full flex items-center justify-center text-heritage-red mb-4">
+<span class="material-symbols-outlined size-10 flex items-center justify-center" style="font-size: 40px;">upload_file</span>
+</div>
+<p class="text-slate-700 dark:text-slate-300 font-bold mb-2">Kéo thả tệp vào đây</p>
+<p class="text-xs text-slate-400 mb-6 italic">Hỗ trợ: .json, .csv, .ged</p>
+<button class="bg-heritage-red text-white px-6 py-2.5 rounded-lg font-bold flex items-center gap-2 hover:bg-red-800 transition-colors">
+<span class="material-symbols-outlined">add</span>
+                                        Chọn tệp dữ liệu
+                                    </button>
+</div>
+<!-- Warning Box -->
+<div class="mt-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-lg flex gap-3">
+<span class="material-symbols-outlined text-red-600 shrink-0">warning</span>
+<div>
+<h4 class="text-red-700 dark:text-red-400 text-sm font-bold mb-1">Cảnh báo ghi đè</h4>
+<p class="text-red-600 dark:text-red-500 text-xs leading-relaxed">
+                                            Khi nhập tệp JSON toàn bộ, các dữ liệu hiện tại có thể bị thay thế hoàn toàn. Vui lòng sao lưu trước khi thực hiện.
+                                        </p>
+</div>
+</div>
+<div class="mt-10 space-y-4">
+<h4 class="text-sm font-bold text-slate-800 dark:text-slate-200">Hướng dẫn nhanh</h4>
+<ul class="text-xs text-slate-500 dark:text-slate-400 space-y-3">
+<li class="flex gap-2"><span class="material-symbols-outlined text-heritage-gold text-sm">check_circle</span> Kiểm tra mã định dạng UTF-8 để tránh lỗi font chữ tiếng Việt.</li>
+<li class="flex gap-2"><span class="material-symbols-outlined text-heritage-gold text-sm">check_circle</span> Đảm bảo các trường thông tin bắt buộc: Họ tên, Năm sinh.</li>
+</ul>
+</div>
+</div>
+</section>
+<!-- System Status -->
+<div class="bg-primary/5 dark:bg-primary/10 rounded-xl p-6 border border-primary/10">
+<h4 class="text-primary font-bold text-sm mb-4">Trạng thái hệ thống</h4>
+<div class="space-y-3">
+<div class="flex justify-between text-xs">
+<span class="text-slate-600 dark:text-slate-400">Dung lượng sử dụng:</span>
+<span class="font-bold">45.2 MB / 500 MB</span>
+</div>
+<div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+<div class="bg-heritage-red h-full w-[10%]"></div>
+</div>
+<div class="flex justify-between text-xs pt-2">
+<span class="text-slate-600 dark:text-slate-400">Thành viên:</span>
+<span class="font-bold">1,248 người</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-heritage-red dark:bg-background-dark border-t border-heritage-gold/20 mt-20">
+<div class="max-w-[1200px] mx-auto px-6 py-12">
+<div class="flex flex-col md:flex-row justify-between items-center gap-10">
+<div class="text-center md:text-left">
+<h3 class="text-heritage-gold font-playfair text-2xl font-bold mb-4">Dòng Họ Phạm Phú</h3>
+<p class="text-white/80 italic max-w-md font-display leading-relaxed">
+                                "Phúc đức tổ tiên truyền muôn thuở, <br/> Công ơn con cháu tạc ngàn thu."
+                            </p>
+</div>
+<div class="flex flex-wrap justify-center gap-12">
+<div class="text-center md:text-left">
+<h4 class="text-heritage-gold font-bold mb-4 text-sm uppercase tracking-widest">Liên kết</h4>
+<ul class="text-white/70 space-y-2 text-sm">
+<li><a class="hover:text-white" href="#">Quy chế hoạt động</a></li>
+<li><a class="hover:text-white" href="#">Ban liên lạc</a></li>
+<li><a class="hover:text-white" href="#">Đóng góp quỹ</a></li>
+</ul>
+</div>
+<div class="text-center md:text-left">
+<h4 class="text-heritage-gold font-bold mb-4 text-sm uppercase tracking-widest">Hỗ trợ kỹ thuật</h4>
+<ul class="text-white/70 space-y-2 text-sm">
+<li><a class="hover:text-white" href="#">Hướng dẫn sử dụng</a></li>
+<li><a class="hover:text-white" href="#">Báo cáo lỗi dữ liệu</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40">
+<p>© 2023 Hội đồng Tộc Phạm Phú. Bản quyền thuộc về dòng họ.</p>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-sm">shield</span>
+<span>Bảo mật dữ liệu gia đình tuyệt đối</span>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

@@ -247,7 +247,7 @@ export default function CustomEventModal({
                       <input
                         type="text"
                         className={`${inputClasses} pl-11`}
-                        placeholder="VD: Khu lăng mộ dòng họ"
+                        placeholder="VD: Nhà thờ Tộc Phạm Phú (Phạm Phú Thứ) Thành phố Hồ Chí Minh)"
                         value={location}
                         onChange={(e) => setLocation(e.target.value)}
                       />

@@ -1,4 +1,4 @@
-# Gia Phả OS (Gia Phả Open Source)
+# Tộc Phạm Phú (Gia Phả Open Source)
 
 Đây là mã nguồn mở cho ứng dụng quản lý gia phả dòng họ, cung cấp giao diện trực quan để xem sơ đồ phả hệ, quản lý thành viên và tìm kiếm danh xưng.
 

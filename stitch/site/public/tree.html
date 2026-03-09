@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tộc Phạm Phú Family Tree Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&amp;family=Playfair+Display:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "gold": "#e8b931",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#201212",
+                        "paper": "#f7f3ea",
+                        "female": "#d46a84",
+                        "male": "#1d4ed8"
+                    },
+                    fontFamily: {
+                        "display": ["Be Vietnam Pro", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .tree-line {
+            background-image: radial-gradient(circle, #e8b931 1.5px, transparent 1.5px);
+            background-size: 8px 8px;
+        }
+        .node-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 overflow-hidden h-screen flex flex-col">
+<header class="h-16 bg-primary text-white px-6 flex items-center justify-between z-30 shadow-md">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gold text-3xl">account_tree</span>
+<h1 class="text-xl font-bold tracking-tight">TỘC PHẠM PHÚ</h1>
+</div>
+<nav class="hidden md:flex gap-6 ml-8">
+<a class="relative py-5 text-sm font-medium hover:text-gold transition-colors" href="#">Trang chủ</a>
+<a class="relative py-5 text-sm font-medium text-white border-b-2 border-gold" href="#">Gia phả</a>
+<a class="relative py-5 text-sm font-medium hover:text-gold transition-colors" href="#">Thành viên</a>
+<a class="relative py-5 text-sm font-medium hover:text-gold transition-colors" href="#">Sự kiện</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg transition-all">
+<span class="material-symbols-outlined text-gold">notifications</span>
+</button>
+<div class="flex items-center gap-3 border-l border-white/20 pl-4">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-semibold">Phạm Phú Hùng</p>
+<p class="text-[10px] opacity-75">Trưởng tộc</p>
+</div>
+<div class="size-9 rounded-full bg-gold/20 border-2 border-gold overflow-hidden" data-alt="Avatar of the family head" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCmpt4NbK7KLigL-BVVeDRmDtovQuu3r3Rs183VLUffymDumSa5aj9T5jr_YvXbmm6D-hYaltRhDGCfDh_n3Y1irqUfWooKQ3XUKLYhUA4yP0gxAucTRDE6mCzz7u_R1KWVu4_UP9vQH6ScWMBO1QJo1MZleOK0wiTwTwxTOywQNVzWFFFZfR6YU8TFiDmEOWAT1DtsjhDZa4-cNhGXAScx0MzNmFQtjTCOgl6m8iEBZlWbpf-VTjptO-4bo5FyqESAr3Nla7e-EB8');"></div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<aside class="w-60 bg-primary flex flex-col border-t border-white/10 z-20">
+<div class="flex-1 py-4">
+<div class="px-3 mb-2">
+<p class="text-[10px] font-bold text-white/50 uppercase tracking-widest px-3">Hệ thống</p>
+</div>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-6 py-3 text-white/80 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-white border-l-4 border-gold bg-white/10" href="#">
+<span class="material-symbols-outlined text-xl text-gold">account_tree</span>
+<span class="text-sm font-medium">Gia phả</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-white/80 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">group</span>
+<span class="text-sm font-medium">Thành viên</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-white/80 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">analytics</span>
+<span class="text-sm font-medium">Thống kê</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-white/80 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">event</span>
+<span class="text-sm font-medium">Sự kiện</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-white/80 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">family_history</span>
+<span class="text-sm font-medium">Quan hệ</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-white/80 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">history_edu</span>
+<span class="text-sm font-medium">Dòng dõi</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-white/80 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">database</span>
+<span class="text-sm font-medium">Dữ liệu</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 text-white/80 hover:bg-white/10 hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="text-sm font-medium">Quản lý</span>
+</a>
+</nav>
+</div>
+<div class="p-6 bg-black/10">
+<div class="rounded-lg bg-white/10 p-3 text-center">
+<p class="text-[10px] text-white/60 mb-1 italic">"Cây có cội mới nảy cành xanh lá, nước có nguồn mới bể rộng sông sâu."</p>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col relative bg-paper overflow-hidden">
+<div class="h-16 border-b border-primary/10 bg-white/50 backdrop-blur-sm px-6 flex items-center justify-between z-10">
+<div class="flex items-center gap-4">
+<div class="flex bg-slate-200/50 p-1 rounded-lg">
+<button class="px-3 py-1.5 rounded-md text-xs font-semibold bg-white shadow-sm text-primary">Dọc</button>
+<button class="px-3 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-primary transition-all">Ngang</button>
+<button class="px-3 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-primary transition-all">Mindmap</button>
+<button class="px-3 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-primary transition-all">Danh sách</button>
+</div>
+<div class="h-8 w-[1px] bg-primary/10 mx-2"></div>
+<div class="relative">
+<button class="flex items-center gap-2 px-4 py-1.5 bg-primary text-white rounded-lg text-xs font-bold hover:bg-primary/90 transition-all">
+<span>Chọn gốc cây</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full pl-10 pr-4 py-1.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all" placeholder="Tìm thành viên..." type="text"/>
+</div>
+<div class="flex bg-white border border-slate-200 rounded-lg p-1">
+<button class="p-1 hover:bg-slate-100 rounded text-slate-600"><span class="material-symbols-outlined">zoom_in</span></button>
+<button class="p-1 hover:bg-slate-100 rounded text-slate-600"><span class="material-symbols-outlined">zoom_out</span></button>
+<button class="p-1 hover:bg-slate-100 rounded text-slate-600"><span class="material-symbols-outlined">center_focus_strong</span></button>
+</div>
+</div>
+</div>
+<div class="flex-1 overflow-auto p-12 flex justify-center items-start scrollbar-hide">
+<div class="flex flex-col items-center">
+<div class="relative flex flex-col items-center mb-24">
+<div class="node-card w-48 bg-white border-2 border-gold rounded-xl p-3 flex flex-col items-center text-center relative z-10 bg-blue-50/30">
+<div class="size-16 rounded-full border-2 border-gold mb-3 bg-cover bg-center" data-alt="Generation 1 - Male Head" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCXBBpFlLnRDNTS0_AzynleLhbahszrg0a-ykpGP0Gq4zR_L_Bwf_W3lk_xvuZiThVD-v7qmrRd5yaQm9zoQ01Ev1lOQ1SODENMSGoI0Dz3vxlaKoi9W2kKFJSK0AThM0fzA7vyQHX99wVVVgd-r9LeBsmk7Bc5uYJehIio9_QAAXX_1Fz_9W7sUwygqMmXjjPV7klvLD2ZwurV-pviAT-Dypoj_c8n99wDnThVmw01LWt1PrdYKzpXnW-JXfClYLSB-2LNBbpCI38');"></div>
+<h3 class="font-serif text-lg text-primary">Phạm Phú Thuận</h3>
+<p class="text-xs text-slate-500 mt-1">1920 - 1995</p>
+<div class="absolute -bottom-3 px-2 py-0.5 bg-gold text-white text-[10px] font-bold rounded-full">ĐỜI 1</div>
+</div>
+<div class="absolute h-24 w-[2px] bg-gold bottom-0 translate-y-full"></div>
+</div>
+<div class="relative flex justify-center gap-48">
+<div class="absolute top-0 h-[2px] w-full bg-gold -translate-y-px"></div>
+<div class="flex flex-col items-center">
+<div class="absolute h-12 w-[2px] bg-gold top-0 -translate-y-full"></div>
+<div class="relative flex flex-col items-center mb-20">
+<div class="node-card w-48 bg-white border-2 border-gold rounded-xl p-3 flex flex-col items-center text-center relative z-10 bg-blue-50/30">
+<div class="size-16 rounded-full border-2 border-gold mb-3 bg-cover bg-center" data-alt="Generation 2 - Son" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAVHU_UrKkGZXE-7pzCG_7KolTdSswn2xNr90JdOcAbhQXcND1P3iJNJqQ_6VTjRNf1-oSFfMYd81AKQsIUHdTr0V326xnCzMwasdkLDprEZjTFOGEZBFqefDEZzT-wL4gELe_9trELEpe3zRJ1tdeeGcIht2YDySUe1eitEr3qqlMlJQrjlnl-xBkAq3WCJUR6rS61v76DDoN3M5vEJswkPeXSwp5sVk0H-h71aoGMrgOryvsc2uh0e0TGGW3-lFqz-pIQXOgKW54');"></div>
+<h3 class="font-serif text-lg text-primary">Phạm Phú Hùng</h3>
+<p class="text-xs text-slate-500 mt-1">1952 - Hiện tại</p>
+<div class="absolute -bottom-3 px-2 py-0.5 bg-gold text-white text-[10px] font-bold rounded-full">ĐỜI 2</div>
+</div>
+<div class="absolute h-20 w-[2px] bg-gold bottom-0 translate-y-full"></div>
+<div class="flex justify-center gap-12 mt-16 pt-4">
+<div class="flex flex-col items-center">
+<div class="node-card w-40 bg-white border-2 border-gold rounded-xl p-3 flex flex-col items-center text-center relative z-10 bg-blue-50/30">
+<div class="size-12 rounded-full border-2 border-gold mb-2 bg-cover bg-center" data-alt="Generation 3 - Grandson 1" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuC6g5f5FAvWWePoaIrUIMzppO9qCa2PQxcX31V46ft4FOaZEuH0BHV1reeVbaQoOY05UhhadQw4Tbfkk50uEAFhVKM1LSsIesi27YvrZzVRanHawJoB-ZOjElB1YBkdipteoOtFApgrwzK2pkQi95j0ZkRPIJgjkNDo9wi5URlhKeCnv_JIBcReg_NiAp4aLFjBNTdeXbCTb8DJEqUL1s1t3bkjttciCelTcZxPCSfUNGjFUe_luhi59TvrJurPaw9woXw7V_0O2Ew');"></div>
+<h4 class="font-serif text-sm text-primary">Phạm Phú Nam</h4>
+<p class="text-[10px] text-slate-500">1980</p>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<div class="node-card w-40 bg-white border-2 border-gold rounded-xl p-3 flex flex-col items-center text-center relative z-10 bg-pink-50/30">
+<div class="size-12 rounded-full border-2 border-gold mb-2 bg-cover bg-center" data-alt="Generation 3 - Granddaughter 1" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDgNUaazi_wIAk15fnFUNGcj-baCr-YnEkjc3ilDcZLulrJvsNL4qiF-NqtiIVUyBDne_Xyfy3i3DQP95HsEyzz0bvj5QM_M2joeCJjlebSfcrmnQ5V6GpepNeojSYHXFqldW0UwMWtKC59c49qbbOlVGGgbk_P1GT6ULV4zF2KLXyFdMCtvlTrJBJBTnpLcPTtTyy0ZlgAfwgzlZLj0hUJIEYaxhEeVcaLq3jy3zEXZL8VPqUwLpesY8N6D1ew9FNG1sECoHuo3Io');"></div>
+<h4 class="font-serif text-sm text-female">Phạm Phú Lan</h4>
+<p class="text-[10px] text-slate-500">1985</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<div class="absolute h-12 w-[2px] bg-gold top-0 -translate-y-full"></div>
+<div class="relative flex flex-col items-center mb-20">
+<div class="node-card w-48 bg-white border-2 border-gold rounded-xl p-3 flex flex-col items-center text-center relative z-10 bg-pink-50/30">
+<div class="size-16 rounded-full border-2 border-gold mb-3 bg-cover bg-center" data-alt="Generation 2 - Daughter" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDKP1ixBuoxOJoAwWolNCs2FwBQebHyaznoA4vHp2Ok1LgMMioUanPKCLI7KEykcHfG1IgMbRLiU2HxHi-Ro_WGfN34Xm-FkrmmmvL7sOVuUdTakbn0O4VPOAoRU1oLfS9KLB4UeFyNChz21Er1rr2SlrZj4fwdBMGD9ASzCnDYpYTvFNU8aYHa7Zm_atplBRSbZFwKVWJqwBTiWdeoKDjvrnphsJLLzuunea6sqOEr6RoulMyVQbrHUgzfmEvFoObzlWbfW-8YojQ');"></div>
+<h3 class="font-serif text-lg text-female">Phạm Phú Mai</h3>
+<p class="text-xs text-slate-500 mt-1">1955 - Hiện tại</p>
+<div class="absolute -bottom-3 px-2 py-0.5 bg-gold text-white text-[10px] font-bold rounded-full">ĐỜI 2</div>
+</div>
+<div class="absolute h-20 w-[2px] bg-gold bottom-0 translate-y-full"></div>
+<div class="flex justify-center gap-12 mt-16 pt-4">
+<div class="flex flex-col items-center">
+<div class="node-card w-40 bg-white border-2 border-gold rounded-xl p-3 flex flex-col items-center text-center relative z-10 bg-blue-50/30">
+<div class="size-12 rounded-full border-2 border-gold mb-2 bg-cover bg-center" data-alt="Generation 3 - Grandson 2" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAWBAK8C5VpwSU3DqZVxRsC-ueUqRjKCWXueOgyso_LAyv_gmLwYPiKM3loc9Ci4yZNyj1v2Fy-Gfa-py5VM93cmbGpNRo6XSgdRib3qLlwNR5fTBlFONWqRqMBGodOOZulBrsFLcNuSkAx0W-HKV7GBArvzekQJWDX4e7x79p6dlZVJLuDNGSukhZKY-6ESHhQNMxEsEDLJbSTqoBpAdzMGKdAk-Ch2zdV8rkG2Z_y4TTAkJvonSMuTmSnTtXx-hKQdCxkoE3u28A');"></div>
+<h4 class="font-serif text-sm text-primary">Lê Phú Minh</h4>
+<p class="text-[10px] text-slate-500">1982</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<div class="absolute h-12 w-[2px] bg-gold top-0 -translate-y-full"></div>
+<div class="relative flex flex-col items-center mb-20">
+<div class="node-card w-48 bg-white border-2 border-gold rounded-xl p-3 flex flex-col items-center text-center relative z-10 bg-blue-50/30">
+<div class="size-16 rounded-full border-2 border-gold mb-3 bg-cover bg-center" data-alt="Generation 2 - Son 2" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCs2a2M5wIE8058DQq3vDlMlXjKhTu7rVAligGxVt9NZwmbRUmvmhvtvzJ6_gmOwXC4ewD5o5Ma_M7_nobOU6Pt8NIlz0XUhnTYu4yhJn4zGNGdUDyvVRYxwOsYJpOt_KmRWKSoSJmBxXI7gAZv-j3yIKKIe81UZ9TzBSrBtUSGbZi877MeB3XgsK7Unnnw6g7paPe_K-iAVSBwk69RyOiz3L2Q9TTEAM9JKKtIWT98e68MMaoPh1jIAtUFxAC6Ou88Q9PQu8MbBhQ');"></div>
+<h3 class="font-serif text-lg text-primary">Phạm Phú Dũng</h3>
+<p class="text-xs text-slate-500 mt-1">1958 - Hiện tại</p>
+<div class="absolute -bottom-3 px-2 py-0.5 bg-gold text-white text-[10px] font-bold rounded-full">ĐỜI 2</div>
+</div>
+<div class="absolute h-20 w-[2px] bg-gold bottom-0 translate-y-full"></div>
+<div class="flex justify-center gap-12 mt-16 pt-4">
+<div class="flex flex-col items-center">
+<div class="node-card w-40 bg-white border-2 border-gold rounded-xl p-3 flex flex-col items-center text-center relative z-10 bg-blue-50/30">
+<div class="size-12 rounded-full border-2 border-gold mb-2 bg-cover bg-center" data-alt="Generation 3 - Grandson 3" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDKpk2nutrJ0R0O31d0sTFz-hzEkEV7jqHZuJP1zeGmeeZ5PyC8hzLIiY40K20xskM4W6CavQfodsxPpLWR2_i9-onFSctS5uFixVedNh3FBU52_au4Zp4-fvCWUhaTs1Mg7iB-HLdYPgGQ46IsGzjaxKkw3tOvFHQVfXMlkXGhuhTgTwlUX5AGaU_X5W7prwHrw_PmuvbhQsjnqXWWornf7jV9GanBtg8_itcr1h2y420GDXkOHzgXDebCh7kRAWuwKbL9JUWMX-c');"></div>
+<h4 class="font-serif text-sm text-primary">Phạm Phú Quân</h4>
+<p class="text-[10px] text-slate-500">1988</p>
+</div>
+</div>
+<div class="flex flex-col items-center">
+<div class="node-card w-40 bg-white border-2 border-gold rounded-xl p-3 flex flex-col items-center text-center relative z-10 bg-blue-50/30">
+<div class="size-12 rounded-full border-2 border-gold mb-2 bg-cover bg-center" data-alt="Generation 3 - Grandson 4" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBPLsrGTSz0C538waKkMc1HzEAikT7ZfTYvq1GReDUdshnoUlIkL8JXuLARw2WcCOglsUP6zrE2i53dJKhxCyKSjmre-J76_6NgnYv84Bx48Z0LjwPhZA5yNV064IF2RxvuCqXnOc_0Pg7hiJM0vSllQXoS_iC3FnZ4x7L2PEC6ErvyY6I1QNUFBw5s6N-sbEYXS62BOOpE0XoA8p7EIVxOslQuDsLR8WKmk024kFUeZ4NTZU6dr8nTm_sSd3wCCUwGte5c5WPCtpM');"></div>
+<h4 class="font-serif text-sm text-primary">Phạm Phú Khánh</h4>
+<p class="text-[10px] text-slate-500">1992</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-6 right-6 flex flex-col gap-2">
+<button class="size-10 bg-white border border-slate-200 shadow-lg rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">add</span>
+</button>
+<button class="size-10 bg-white border border-slate-200 shadow-lg rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="size-10 bg-white border border-slate-200 shadow-lg rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</main>
+</div>
+<footer class="h-10 bg-[#8b1616] flex items-center justify-between px-6 text-white text-[11px] z-30 border-t border-gold/30">
+<div class="flex items-center gap-4">
+<span>© 2024 Gia tộc Phạm Phú - Quảng Nam</span>
+<span class="h-3 w-[1px] bg-white/20"></span>
+<span class="text-gold italic font-serif">"Ẩm thủy tri nguyên - Vạn đại quang vinh"</span>
+</div>
+<div class="flex items-center gap-6">
+<a class="hover:text-gold transition-colors" href="#">Hướng dẫn sử dụng</a>
+<a class="hover:text-gold transition-colors" href="#">Chính sách bảo mật</a>
+<a class="hover:text-gold transition-colors" href="#">Liên hệ Ban quản trị</a>
+</div>
+</footer>
+</body></html>

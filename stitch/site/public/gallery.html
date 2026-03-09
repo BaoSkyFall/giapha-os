@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Playfair+Display:wght@700&amp;family=Noto+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "gold": "#D4AF37",
+                        "heritage-red": "#b41d1d",
+                        "rice-paper": "#F7F3EA",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "serif"],
+                        "playfair": ["Playfair Display", "serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .vintage-frame {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #D4AF37;
+            padding: 12px;
+            background: #ffffff;
+        }
+        .decorative-underline {
+            position: relative;
+        }
+        .decorative-underline::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-primary/10 px-6 py-3 lg:px-20">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-primary rounded-full flex items-center justify-center text-white">
+<span class="material-symbols-outlined">history</span>
+</div>
+<div>
+<h1 class="font-display font-bold text-xl text-primary leading-tight">Tộc Phạm Phú</h1>
+<p class="text-[10px] uppercase tracking-widest text-gold font-bold">Gia Tộc Văn Hóa</p>
+</div>
+</div>
+<nav class="hidden md:flex items-center gap-6 ml-8">
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Trang chủ</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Gia phả</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors border-b-2 border-primary" href="#">Kho ảnh</a>
+<a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Sự kiện</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="hidden sm:flex items-center gap-2 bg-gold/10 text-gold px-4 py-2 rounded-full text-sm font-bold border border-gold/20 hover:bg-gold/20 transition-all">
+<span class="material-symbols-outlined text-sm">stars</span>
+                    Thành viên VIP
+                </button>
+<div class="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary cursor-pointer hover:bg-primary/20">
+<span class="material-symbols-outlined">person</span>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 lg:px-20 py-10">
+<!-- Title & Hero Section -->
+<div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
+<div class="max-w-2xl">
+<h2 class="font-playfair text-5xl md:text-6xl text-slate-900 dark:text-slate-100 decorative-underline">Kho Ảnh Gia Đình</h2>
+<p class="mt-8 text-lg text-slate-600 dark:text-slate-400 font-display italic">Lưu giữ những khoảnh khắc quý giá và tư liệu lịch sử qua nhiều thế hệ của dòng họ Phạm Phú.</p>
+</div>
+<button class="flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-full font-bold shadow-lg shadow-primary/30 hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">cloud_upload</span>
+                Tải ảnh lên
+            </button>
+</div>
+<!-- Upload Section (Collapsible) -->
+<div class="mb-12">
+<div class="bg-white/50 border-2 border-dashed border-primary/30 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-white/80 transition-all">
+<div class="size-16 rounded-full bg-primary/5 flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined text-4xl">add_photo_alternate</span>
+</div>
+<h3 class="font-bold text-lg">Kéo và thả tệp tin vào đây</h3>
+<p class="text-slate-500 text-sm mt-1">Hỗ trợ JPG, PNG, MP4. Dung lượng tối đa 50MB.</p>
+</div>
+</div>
+<!-- Filters & Search -->
+<div class="flex flex-col md:flex-row gap-6 justify-between items-center mb-10">
+<div class="flex flex-wrap gap-2">
+<button class="px-6 py-2 rounded-full bg-primary text-white font-bold text-sm shadow-md">Tất cả</button>
+<button class="px-6 py-2 rounded-full bg-white text-slate-600 font-semibold text-sm hover:bg-primary/5 border border-slate-200">Gia đình</button>
+<button class="px-6 py-2 rounded-full bg-white text-slate-600 font-semibold text-sm hover:bg-primary/5 border border-slate-200">Sự kiện</button>
+<button class="px-6 py-2 rounded-full bg-white text-slate-600 font-semibold text-sm hover:bg-primary/5 border border-slate-200">Tài liệu</button>
+<button class="px-6 py-2 rounded-full bg-white text-slate-600 font-semibold text-sm hover:bg-primary/5 border border-slate-200">Lịch sử</button>
+</div>
+<div class="relative w-full md:w-80">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-full border-slate-200 bg-white focus:ring-primary focus:border-primary" placeholder="Tìm kiếm kỷ niệm..." type="text"/>
+</div>
+</div>
+<!-- Gallery Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Photo Card 1 -->
+<div class="vintage-frame group cursor-pointer hover:-translate-y-2 transition-transform">
+<div class="aspect-[4/3] overflow-hidden bg-slate-100 mb-4">
+<img class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-500" data-alt="Large family gathering in traditional Vietnamese setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLUEnGkgQZLlMYkR71yWqm5oRCbk3mQv7rERlSvHAGFmrDkdyqVjMAQpKp6bXsl1UQFOhFjstR3xnjGoRO8KJSM7uXR6dTGFRNWNVAVImNG5lA2o_yBw_RGzrpkvcpL7MZEA2XbMZQ0hRJteul6Uh39stkGxcV0OLMmD7yNLmzeE35CMp2N5IKmKm8C2lcu38N3Pk3CbHvwycJBctzU3uYpxa6LVvmznKXkAsawPmxZ0-ahVSW9cXFluy7eZ2C6Zup9BhXvh2zHSw"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-display font-bold text-slate-800">Họp mặt dòng họ Xuân 2025</h4>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">calendar_today</span>
+                            10/02/2025 • Xuân Ất Tỵ
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary/40 group-hover:text-primary transition-colors">favorite</span>
+</div>
+</div>
+<!-- Photo Card 2 -->
+<div class="vintage-frame group cursor-pointer hover:-translate-y-2 transition-transform">
+<div class="aspect-[4/3] overflow-hidden bg-slate-100 mb-4">
+<img class="w-full h-full object-cover grayscale-[50%] group-hover:grayscale-0 transition-all duration-500" data-alt="Old handwritten manuscript in Chinese characters" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsldaYL_5nzZ-rscgAcZO2pZrtjF_bQi-OC3ZsllfIyZS4LlBC1YZ8_ZK3jxMkGEmE_GgMut0j83ciOvHVBkEVsG5sFvYgAEF8wQTh8w0yBoOEfIlOfFYqAEGdtGZ4o7-vOhs59CKrw8wYmOs_17pITsvnicqDY-LIrnGPLro0xYC3jKVnLTfZCM5tJJeZvEWjnmU9WoEFlRD-5lotHZFQRx-UU8AXhNUmfZX7HZ_QjQYbKvDlhEI-gpeMglk48i-F141t5kMvgLk"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-display font-bold text-slate-800">Gia phả cổ 1895</h4>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">history_edu</span>
+                            Tư liệu quý • Bản gốc lưu trữ
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary/40 group-hover:text-primary transition-colors">favorite</span>
+</div>
+</div>
+<!-- Photo Card 3 -->
+<div class="vintage-frame group cursor-pointer hover:-translate-y-2 transition-transform">
+<div class="aspect-[4/3] overflow-hidden bg-slate-100 mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" data-alt="Temple ceremony with incense and red lanterns" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvfzduQoIDbzP_NMzI7cz7NSssvHNNF0altC4K5VGVBP-Eq4itGZWr8WVKfaIISLiQQEdUSUaUcqzO1GBhoNsvicA-QH7Fn_R1SiyiC4dGJ68Gi2nJ23qYTJ6P7vXz0u_JHHWnggYPXOQwI44t5qbPWKuk0SOxrVFH7QdgRBCJcRnVgpdvP_IOYIU9-RwcXWI3mSd31XajiGnXqWnEJpwxKC2A3jI9gWTDK3JouRCwcI4wrq7ag-FKvKSgH8V8SKZsvfZHvKopRPY"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-display font-bold text-slate-800">Lễ tế tổ rằm tháng Giêng</h4>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">location_on</span>
+                            Nhà thờ tổ • Hội An
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary/40 group-hover:text-primary transition-colors">favorite</span>
+</div>
+</div>
+<!-- Photo Card 4 -->
+<div class="vintage-frame group cursor-pointer hover:-translate-y-2 transition-transform">
+<div class="aspect-[4/3] overflow-hidden bg-slate-100 mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" data-alt="Portrait of an elderly man smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfOb1c8zd1oL9luCzUMTlvcJBL1WQtGma85IXbyRs4F3hoW4m4DN3I4jx1EoNkqggJgdG1Cis9RSWRSwFs-PliBaEVX9a6NnINVmRkuU5Fr_lPTIBVn45q0NsdFy4fz6FnjC-SiaqUeFb8G4M6Tc7_DDIDqQwFQ_E265X6QwkXzSOtH1ghMyfWn2T5jTJ6pSt_7d57_u4KoTYIX-J98RdcRIFzLBHb1RnM8qmZWbawFNfTeQP1AFfEp6lSpqij2zkpJHczJVLDIis"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-display font-bold text-slate-800">Mừng thọ Cụ Phạm Phú Tấn</h4>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">cake</span>
+                            Đại thọ 90 tuổi • 2024
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary/40 group-hover:text-primary transition-colors">favorite</span>
+</div>
+</div>
+<!-- Photo Card 5 -->
+<div class="vintage-frame group cursor-pointer hover:-translate-y-2 transition-transform">
+<div class="aspect-[4/3] overflow-hidden bg-slate-100 mb-4">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500" data-alt="Traditional wedding ceremony outdoors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZYabM4aQdnuuBWDTw3UOKmSGdwTjb0z2vqoxt7msbonk9b3LAe88TsNAmEuBYJN4iTyn1HJPffH7FD-RQ0LYw5DNDBDXOEU0RyQk-XXyzOYTCC4d3nprL3pKN9I_tg_q1k_PhqPA022fZ-DWBaltgmemW_2Zhzb-QJR7NN_sZQ5N-fJYR_4IePEmEXCxEjod6kBTcIQs8qw0Q_Cy8iviI2KgGyp0U3lPQAJsgE4UaD4QlsNxt4iHRD6A_Xv0ovkMn3JdIJlfjw9I"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-display font-bold text-slate-800">Đám cưới chi 2</h4>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">favorite</span>
+                            Kỷ niệm vui • 05/11/2024
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary/40 group-hover:text-primary transition-colors">favorite</span>
+</div>
+</div>
+<!-- Photo Card 6 -->
+<div class="vintage-frame group cursor-pointer hover:-translate-y-2 transition-transform">
+<div class="aspect-[4/3] overflow-hidden bg-slate-100 mb-4">
+<img class="w-full h-full object-cover sepia-[0.3] group-hover:sepia-0 transition-all duration-500" data-alt="Antique camera and old photos on a wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBneIVfh2dkmcPgzfrrHzwCboJYJ9PgKXSLdMQHyWnSYjSXrF9aXIGoCxYThr3bmvW1Edsch7ILbv7tGmXo6KNBX0Ya7D8lD_cUPUoD9BO9vBG159cMsghEWsFSuNu8Hq8gW7sdiI2Dpz8bEzw8McrcrAJwkVJgqSvW_H-wutKuKNwtWG4GUTlWcH6RT2ndFoC2GZj6TH-eeYglZFp14-3zcx3gyWCSVPpJCdT_-zDq_nSKfZ2otK1_KMgnQ-9ebrIESS_QefSTJw8"/>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<h4 class="font-display font-bold text-slate-800">Kho lưu trữ máy ảnh cổ</h4>
+<p class="text-xs text-slate-500 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">inventory_2</span>
+                            Bảo tàng gia tộc
+                        </p>
+</div>
+<span class="material-symbols-outlined text-primary/40 group-hover:text-primary transition-colors">favorite</span>
+</div>
+</div>
+</div>
+<!-- Load More -->
+<div class="flex justify-center mt-16">
+<button class="px-10 py-3 rounded-full border border-primary text-primary font-bold hover:bg-primary hover:text-white transition-all">
+                Xem thêm hình ảnh
+            </button>
+</div>
+</main>
+<!-- Lightbox Modal (Overlay) -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 lg:p-10">
+<button class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-4xl">close</span>
+</button>
+<div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+<div class="lg:col-span-2 flex flex-col gap-4">
+<div class="relative group">
+<img class="w-full rounded-lg shadow-2xl" data-alt="Enlarged view of family gathering" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgJVwcike9Dag136zhlVGpdVizEPUsA-8c-z6DUrR6-E3zNk38VBYg6E03RdX9jKef41CgSkm-GrpyPDF32PWKEpvO-P-nbli5avshcZK59qKXZKQwn8hgnawwOvrL-oUXoyCKJLu0x-dOPu_INUUW7f_MxuTrFjtalp569e4owr_kn0oihfkAEbEL8gHHnPqeJ2A94KFBTfE0-pQIGvZhi1P6y_v7lR6frbR96qJTYvz7Db_U4_Kj9wh0QRIZZ8Ol2q3AvnzREyQ"/>
+<div class="absolute inset-0 flex items-center justify-between px-4 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="size-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="size-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+</div>
+<div class="bg-white/10 backdrop-blur-xl p-8 rounded-2xl text-white">
+<h3 class="font-display text-2xl font-bold mb-2">Họp mặt dòng họ Xuân 2025</h3>
+<p class="text-white/60 text-sm mb-6">Ngày 10 tháng 2, 2025 • Tại Từ đường Tộc Phạm Phú, Quảng Nam</p>
+<div class="mb-8">
+<h4 class="text-gold text-xs uppercase tracking-widest font-bold mb-4">Mô tả chi tiết</h4>
+<p class="text-white/80 leading-relaxed font-display italic">
+                        "Buổi họp mặt đầu xuân Ất Tỵ với sự góp mặt của hơn 200 thành viên từ khắp mọi miền đất nước. Đây là dịp để con cháu báo công với tổ tiên và thắt chặt tình cảm anh em trong dòng họ."
+                    </p>
+</div>
+<div class="mb-8">
+<h4 class="text-gold text-xs uppercase tracking-widest font-bold mb-4">Thành viên trong ảnh (12)</h4>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center gap-2 bg-white/5 rounded-full pl-1 pr-4 py-1 border border-white/10 hover:bg-white/20 cursor-pointer transition-colors">
+<div class="size-8 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold">PVH</div>
+<span class="text-xs">Phạm Văn Hùng</span>
+</div>
+<div class="flex items-center gap-2 bg-white/5 rounded-full pl-1 pr-4 py-1 border border-white/10 hover:bg-white/20 cursor-pointer transition-colors">
+<div class="size-8 rounded-full bg-gold flex items-center justify-center text-[10px] font-bold">PTL</div>
+<span class="text-xs">Phạm Thị Lan</span>
+</div>
+<div class="flex items-center gap-2 bg-white/5 rounded-full pl-1 pr-4 py-1 border border-white/10 hover:bg-white/20 cursor-pointer transition-colors">
+<div class="size-8 rounded-full bg-blue-600 flex items-center justify-center text-[10px] font-bold">PMA</div>
+<span class="text-xs">Phạm Minh Anh</span>
+</div>
+</div>
+</div>
+<div class="flex gap-4 pt-6 border-t border-white/10">
+<button class="flex-1 flex items-center justify-center gap-2 bg-primary py-3 rounded-full font-bold">
+<span class="material-symbols-outlined text-sm">download</span> Tải về
+                    </button>
+<button class="size-12 flex items-center justify-center rounded-full border border-white/20 hover:bg-white/10">
+<span class="material-symbols-outlined">share</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="bg-primary text-white mt-20 py-16 px-6 lg:px-20 border-t-4 border-gold">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+<div>
+<div class="flex items-center gap-3 mb-6">
+<div class="size-12 bg-white rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">history</span>
+</div>
+<h3 class="font-display font-bold text-2xl">Tộc Phạm Phú</h3>
+</div>
+<p class="text-white/70 italic leading-relaxed">
+                        "Lưu giữ cội nguồn, kết nối thế hệ. Nơi tình thân dòng họ được tôn vinh và gìn giữ qua muôn đời."
+                    </p>
+</div>
+<div>
+<h4 class="text-gold font-bold uppercase tracking-widest text-sm mb-6">Liên kết nhanh</h4>
+<ul class="space-y-4 text-white/80">
+<li><a class="hover:text-gold transition-colors" href="#">Lịch sử dòng họ</a></li>
+<li><a class="hover:text-gold transition-colors" href="#">Sơ đồ gia phả</a></li>
+<li><a class="hover:text-gold transition-colors" href="#">Qũy khuyến học</a></li>
+<li><a class="hover:text-gold transition-colors" href="#">Tin tức &amp; Sự kiện</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-gold font-bold uppercase tracking-widest text-sm mb-6">Liên hệ ban quản trị</h4>
+<p class="text-white/80 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-gold">location_on</span>
+                        Từ đường Tộc Phạm Phú, Điện Bàn, Quảng Nam
+                    </p>
+<p class="text-white/80 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-gold">mail</span>
+                        lienhe@tocphamphu.vn
+                    </p>
+<div class="flex gap-4 mt-6">
+<div class="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">public</span>
+</div>
+<div class="size-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">alternate_email</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-12 border-t border-white/10 text-center text-white/50 text-sm">
+<p>© 2025 Hội đồng Gia tộc Phạm Phú. Tất cả quyền được bảo lưu.</p>
+</div>
+</div>
+</footer>
+</body></html>

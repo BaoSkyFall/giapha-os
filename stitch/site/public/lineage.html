@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Playfair+Display:wght@700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "gold": "#C5A059",
+                        "paper": "#F7F3EA",
+                        "accent-pink": "#D68C8C",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "serif"],
+                        "playfair": ["Playfair Display", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .book-texture {
+            background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.02) 100%);
+        }
+        .gold-border-corner {
+            position: relative;
+        }
+        .gold-border-corner::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 40px;
+            height: 40px;
+            border-top: 2px solid #C5A059;
+            border-left: 2px solid #C5A059;
+        }
+        .gold-border-corner::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            border-bottom: 2px solid #C5A059;
+            border-right: 2px solid #C5A059;
+        }
+        .lineage-connector {
+            border-left: 1px dashed #C5A059;
+            margin-left: 1rem;
+            padding-left: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Header -->
+<header class="flex items-center justify-between border-b border-primary/20 px-10 py-4 bg-white dark:bg-background-dark sticky top-0 z-50">
+<div class="flex items-center gap-12">
+<div class="flex items-center gap-3 text-primary">
+<span class="material-symbols-outlined text-4xl">temple_buddhist</span>
+<h2 class="text-xl font-bold leading-tight tracking-tight uppercase font-playfair">Tộc Phạm Phú</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-primary text-sm font-bold border-b-2 border-gold pb-1" href="#">Gia phả</a>
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Sự kiện</a>
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Tin tức</a>
+<a class="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Liên hệ</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:text-primary">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="hidden lg:flex min-w-[100px] cursor-pointer items-center justify-center rounded-lg h-10 px-5 bg-primary text-white text-sm font-bold tracking-wide">
+                Đăng nhập
+            </button>
+<div class="size-10 rounded-full border-2 border-gold/30 bg-cover bg-center" data-alt="User profile avatar portrait" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDYNvDMaQ8Q5XYZ6j0SOzvyNOWzCR1KF1I5eTWxQ152HpzI9XK_M1L6Mh9v64q04lU8kSHyNR27DrsMwIA29TIW5RpFCkpPgetB6K50Cd6BhW1J6UuKYIMzPX41ybriKxBPSK3pQN0yYpa0cuR6M_iqkHoJbQ704N4LKX4GZlmILql5FrLvb5SpciYAczfSXI8GNnwhX8T4s0OcRMoIh10UoWlWiF9eRh5iItCuVmU_1dPiHYh5wRZQFUuDJe8piUR2ouxe_VSSETs")'></div>
+</div>
+</header>
+<main class="max-w-6xl mx-auto w-full px-6 py-8">
+<!-- Page Title -->
+<div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
+<div class="relative">
+<h1 class="font-playfair text-4xl font-black text-primary mb-2">Dòng Dõi — Quản Lý Chi Nhánh</h1>
+<div class="h-1 w-32 bg-gold rounded-full"></div>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-white border border-primary/20 text-primary rounded-lg font-bold hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-xl">picture_as_pdf</span>
+                    Xuất PDF
+                </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-white border border-primary/20 text-primary rounded-lg font-bold hover:bg-primary/5 transition-all">
+<span class="material-symbols-outlined text-xl">print</span>
+                    In gia phả
+                </button>
+</div>
+</div>
+<!-- Filter Selection Card -->
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gold/20 p-6 mb-8 flex flex-wrap items-end gap-6">
+<div class="flex-1 min-w-[240px]">
+<label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Tổ tiên khởi thủy (Root Ancestor)</label>
+<select class="w-full h-12 rounded-lg border-gold/30 focus:border-primary focus:ring-primary bg-paper/50">
+<option>Cụ PHẠM VĂN ĐỨC</option>
+<option>Cụ PHẠM VĂN THÀNH</option>
+</select>
+</div>
+<div class="flex-1 min-w-[240px]">
+<label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">Chi nhánh (Branch)</label>
+<select class="w-full h-12 rounded-lg border-gold/30 focus:border-primary focus:ring-primary bg-paper/50">
+<option>Chi thứ nhất</option>
+<option>Chi thứ hai</option>
+<option>Chi thứ ba</option>
+</select>
+</div>
+<button class="h-12 px-8 bg-primary text-white rounded-lg font-bold hover:bg-primary/90 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined">visibility</span>
+                Hiển thị
+            </button>
+</div>
+<!-- Lineage Book Container -->
+<div class="bg-paper shadow-2xl rounded-sm border border-gold/40 min-h-[800px] gold-border-corner book-texture p-12 md:p-20 relative">
+<!-- Book Content -->
+<div class="max-w-3xl mx-auto space-y-10">
+<!-- Generation 1 -->
+<section>
+<div class="flex items-center gap-4 mb-4">
+<span class="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest">Đời 1</span>
+<div class="h-px grow bg-gold/30"></div>
+</div>
+<div class="group cursor-pointer">
+<h3 class="font-playfair text-3xl font-black text-primary group-hover:underline decoration-gold decoration-2 underline-offset-8">
+                            Cụ PHẠM VĂN ĐỨC
+                        </h3>
+<p class="text-slate-500 mt-2 italic text-sm">(Thủy tổ - Sinh năm 1845)</p>
+</div>
+<!-- Generation 2 -->
+<div class="lineage-connector mt-8 space-y-8">
+<div>
+<div class="flex items-center gap-3 mb-3">
+<span class="text-gold font-bold text-sm uppercase tracking-wider">Đời 2, Thứ 1</span>
+<div class="h-px w-8 bg-gold/30"></div>
+</div>
+<h4 class="font-bold text-xl text-slate-800 hover:text-primary hover:underline decoration-gold decoration-1 underline-offset-4 cursor-pointer transition-all">
+                                PHẠM VĂN HÙNG
+                            </h4>
+<!-- Generation 3 -->
+<div class="lineage-connector mt-4 space-y-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-sm">circle</span>
+<span class="font-medium hover:underline decoration-gold cursor-pointer">PHẠM VĂN AN</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-sm">circle</span>
+<span class="font-medium hover:underline decoration-gold cursor-pointer">PHẠM THỊ BÌNH</span>
+</div>
+</div>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-3">
+<span class="text-gold font-bold text-sm uppercase tracking-wider">Đời 2, Thứ 2</span>
+<div class="h-px w-8 bg-gold/30"></div>
+</div>
+<h4 class="font-bold text-xl text-slate-400 flex items-center gap-3">
+                                PHẠM VĂN MINH
+                                <span class="text-xs font-normal px-2 py-0.5 border border-slate-300 rounded uppercase">Đã mất</span>
+</h4>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-3">
+<span class="text-gold font-bold text-sm uppercase tracking-wider">Đời 2, Thứ 3</span>
+<div class="h-px w-8 bg-gold/30"></div>
+</div>
+<h4 class="font-bold text-xl text-accent-pink hover:underline decoration-gold underline-offset-4 cursor-pointer">
+                                PHẠM THỊ NGỌC
+                            </h4>
+</div>
+</div>
+</section>
+<!-- Generation placeholder for visual balance -->
+<div class="text-center pt-20">
+<span class="material-symbols-outlined text-gold/20 text-6xl">pageless</span>
+</div>
+</div>
+<!-- Decorative Element at bottom of page -->
+<div class="absolute bottom-10 left-1/2 -translate-x-1/2 opacity-20">
+<img class="w-24 grayscale" data-alt="Traditional Vietnamese floral pattern ornament" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpsEDGMUE7eiFHYGo0SeQNScnpwG4ol1RuCgltz6qHLJ8F_Md6-oBGIAEm2YU2venl_mBk8jM37k-izZeXtdNzxTTEMebk1LzclFJ1fKjBTJrlEdGk8Ox258Iw1noTplXaT__ger01k9W4K-NYhMpQTPHW8Ej8aWoa_1HAjNXnOJ6sq4qd9mYRf4Y9aD_mU4T5BZhSr25SVkHl0CHvmWHSECeTcogwSCZijBp31br9eXqA4G8FrmaKdrL_UsCMGjla06_qkyr5ZEo"/>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-primary text-white mt-12 py-12 px-10">
+<div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="text-center md:text-left">
+<div class="flex items-center justify-center md:justify-start gap-2 mb-4">
+<span class="material-symbols-outlined text-gold">temple_buddhist</span>
+<h3 class="font-playfair text-xl font-bold uppercase tracking-widest">Tộc Phạm Phú</h3>
+</div>
+<p class="text-white/80 italic font-display">"Gìn giữ cội nguồn, phát huy truyền thống, rạng danh tổ tiên."</p>
+</div>
+<div class="flex gap-8 text-sm font-medium">
+<a class="hover:text-gold transition-colors" href="#">Trang chủ</a>
+<a class="hover:text-gold transition-colors" href="#">Chính sách bảo mật</a>
+<a class="hover:text-gold transition-colors" href="#">Điều khoản sử dụng</a>
+<a class="hover:text-gold transition-colors" href="#">Hỗ trợ</a>
+</div>
+<div class="flex gap-4">
+<button class="w-10 h-10 rounded-full border border-gold/30 flex items-center justify-center hover:bg-gold/20">
+<span class="material-symbols-outlined text-lg">share</span>
+</button>
+<button class="w-10 h-10 rounded-full border border-gold/30 flex items-center justify-center hover:bg-gold/20">
+<span class="material-symbols-outlined text-lg">mail</span>
+</button>
+</div>
+</div>
+<div class="max-w-6xl mx-auto mt-8 pt-8 border-t border-white/10 text-center text-white/50 text-xs">
+            © 2024 Gia Phả Tộc Phạm Phú. Tất cả quyền được bảo lưu.
+        </div>
+</footer>
+</div>
+</body></html>

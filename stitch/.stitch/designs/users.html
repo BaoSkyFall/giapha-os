@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tộc Phạm Phú Admin User Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "prosperity-gold": "#C5A059",
+                        "heritage-red": "#B31D1D",
+                        "jade-green": "#2D7A4D",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .paper-texture {
+            background-image: radial-gradient(#e5e0d5 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col">
+<!-- Header -->
+<header class="bg-heritage-red dark:bg-background-dark border-b border-prosperity-gold/30 px-6 py-4 sticky top-0 z-50 shadow-md">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-prosperity-gold rounded-full flex items-center justify-center text-heritage-red">
+<span class="material-symbols-outlined text-3xl">account_balance</span>
+</div>
+<h1 class="text-white font-serif text-2xl font-bold tracking-tight">Tộc Phạm Phú</h1>
+</div>
+<nav class="hidden md:flex items-center gap-6 text-white/90">
+<a class="hover:text-prosperity-gold transition-colors font-medium" href="#">Cây Gia Phả</a>
+<a class="hover:text-prosperity-gold transition-colors font-medium" href="#">Tin Tức</a>
+<a class="hover:text-prosperity-gold transition-colors font-medium" href="#">Sự Kiện</a>
+<a class="hover:text-prosperity-gold transition-colors font-medium" href="#">Góp Ý</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-white/60">search</span>
+<input class="bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-white/60 focus:ring-prosperity-gold focus:border-prosperity-gold w-64" placeholder="Tìm kiếm..." type="text"/>
+</div>
+<button class="bg-prosperity-gold text-heritage-red px-4 py-2 rounded-lg font-bold text-sm hover:bg-prosperity-gold/90 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">dashboard</span>
+                    Admin Dashboard
+                </button>
+<div class="size-10 rounded-full bg-prosperity-gold/20 border-2 border-prosperity-gold overflow-hidden" data-alt="Admin user profile picture profile">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzu0cJOfmhLn_NB1NxwbRqIoM3Ur6fvz-6yHpT6PAzbaxON_dAY29W5QwqDuOgxDQ4lRcBqwdCeIkDytNDYFXEmk8xkiXP2UDIhmPCL21VS_eDWv9Fam8QHS9DB1MNC3nRjmxuPjuvZzaFOojAauEVF833A9nJk0EKEyoh_cdA-ZhHdZx6TrVr30xCuqAZvFD0Uvtm9Z-yKAtpjs9BNT6BCuJigyYfRIVf-rd5Dlu9NykQXBtD6S7It0E1mU7FJ-9r8gzMozskv1w"/>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 max-w-7xl mx-auto w-full px-6 py-10 paper-texture">
+<!-- Title Section -->
+<div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<h2 class="text-4xl md:text-5xl font-serif text-heritage-red font-black">Quản Lý Người Dùng</h2>
+<span class="bg-prosperity-gold/20 text-prosperity-gold border border-prosperity-gold px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Admin</span>
+</div>
+<div class="h-1.5 w-48 bg-prosperity-gold rounded-full"></div>
+<p class="text-slate-600 dark:text-slate-400 mt-4 text-lg">Bảng điều khiển quản trị hệ thống gia phả Tộc Phạm Phú</p>
+</div>
+<button class="flex items-center gap-2 bg-heritage-red text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+<span class="material-symbols-outlined">person_add</span>
+                Tạo Tài Khoản Mới
+            </button>
+</div>
+<!-- Summary Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<div class="bg-white dark:bg-background-dark border-l-4 border-prosperity-gold p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-slate-500 dark:text-slate-400 font-medium">Tổng người dùng</p>
+<h3 class="text-4xl font-bold text-slate-900 dark:text-white mt-1">8</h3>
+</div>
+<div class="p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+<span class="material-symbols-outlined text-prosperity-gold text-3xl">groups</span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark border-l-4 border-jade-green p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-slate-500 dark:text-slate-400 font-medium">Đang hoạt động</p>
+<h3 class="text-4xl font-bold text-slate-900 dark:text-white mt-1">6</h3>
+</div>
+<div class="p-3 bg-jade-green/10 rounded-lg">
+<span class="material-symbols-outlined text-jade-green text-3xl">verified_user</span>
+</div>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark border-l-4 border-heritage-red p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-slate-500 dark:text-slate-400 font-medium">Bị khóa</p>
+<h3 class="text-4xl font-bold text-slate-900 dark:text-white mt-1">2</h3>
+</div>
+<div class="p-3 bg-heritage-red/10 rounded-lg">
+<span class="material-symbols-outlined text-heritage-red text-3xl">block</span>
+</div>
+</div>
+</div>
+</div>
+<!-- User Table Section -->
+<div class="bg-white dark:bg-background-dark rounded-2xl border-2 border-prosperity-gold/30 shadow-xl overflow-hidden mb-10">
+<div class="px-6 py-4 bg-background-light dark:bg-background-dark border-b border-prosperity-gold/20 flex justify-between items-center">
+<h4 class="font-serif text-xl font-bold text-heritage-red">Danh Sách Thành Viên</h4>
+<div class="flex gap-2">
+<button class="p-2 text-slate-400 hover:text-prosperity-gold transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-prosperity-gold transition-colors">
+<span class="material-symbols-outlined">download</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 text-sm font-semibold uppercase tracking-wider">
+<th class="px-6 py-4">Thành Viên</th>
+<th class="px-6 py-4">Vai Trò</th>
+<th class="px-6 py-4">Trạng Thái</th>
+<th class="px-6 py-4">Ngày Tạo</th>
+<th class="px-6 py-4 text-right">Thao Tác</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+<!-- User 1 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-heritage-red/10 flex items-center justify-center text-heritage-red font-bold">PA</div>
+<div>
+<p class="font-semibold text-slate-900 dark:text-white">pham.van.a@email.com</p>
+<p class="text-xs text-slate-500">ID: 48291</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-xs font-bold bg-heritage-red text-white uppercase tracking-tighter">Admin</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-jade-green"></span>
+<span class="text-sm font-medium text-jade-green">Hoạt động</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">12/10/2023</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 text-slate-400 hover:text-prosperity-gold transition-colors" title="Chỉnh sửa">
+<span class="material-symbols-outlined text-xl">edit</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-heritage-red transition-colors" title="Khóa">
+<span class="material-symbols-outlined text-xl">lock</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-red-600 transition-colors" title="Xóa">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- User 2 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-prosperity-gold/10 flex items-center justify-center text-prosperity-gold font-bold">LT</div>
+<div>
+<p class="font-semibold text-slate-900 dark:text-white">le.thi.b@email.com</p>
+<p class="text-xs text-slate-500">ID: 48292</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-xs font-bold bg-prosperity-gold text-white uppercase tracking-tighter">Editor</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-jade-green"></span>
+<span class="text-sm font-medium text-jade-green">Hoạt động</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">15/11/2023</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 text-slate-400 hover:text-prosperity-gold transition-colors"><span class="material-symbols-outlined text-xl">edit</span></button>
+<button class="p-2 text-slate-400 hover:text-heritage-red transition-colors"><span class="material-symbols-outlined text-xl">lock</span></button>
+<button class="p-2 text-slate-400 hover:text-red-600 transition-colors"><span class="material-symbols-outlined text-xl">delete</span></button>
+</div>
+</td>
+</tr>
+<!-- User 3 -->
+<tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="size-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold">NC</div>
+<div>
+<p class="font-semibold text-slate-900 dark:text-white">nguyen.van.c@email.com</p>
+<p class="text-xs text-slate-500">ID: 48293</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-200 text-slate-600 uppercase tracking-tighter">Member</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-heritage-red"></span>
+<span class="text-sm font-medium text-heritage-red">Bị khóa</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-500">01/12/2023</td>
+<td class="px-6 py-4 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 text-slate-400 hover:text-prosperity-gold transition-colors"><span class="material-symbols-outlined text-xl">edit</span></button>
+<button class="p-2 text-jade-green hover:text-jade-green transition-colors"><span class="material-symbols-outlined text-xl">lock_open</span></button>
+<button class="p-2 text-slate-400 hover:text-red-600 transition-colors"><span class="material-symbols-outlined text-xl">delete</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+<p class="text-sm text-slate-500">Hiển thị 3 trên 8 người dùng</p>
+<div class="flex gap-2">
+<button class="p-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-500 disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-sm">chevron_left</span>
+</button>
+<button class="p-2 border border-slate-200 dark:border-slate-700 rounded bg-white dark:bg-slate-800 text-slate-500 hover:bg-slate-50">
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Inline Create Form -->
+<div class="bg-white dark:bg-background-dark rounded-2xl border-2 border-prosperity-gold/20 p-8 shadow-lg">
+<h4 class="font-serif text-2xl font-bold text-heritage-red mb-6">Tạo Tài Khoản Mới</h4>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Email thành viên</label>
+<input class="w-full border-prosperity-gold/30 rounded-lg focus:ring-prosperity-gold focus:border-prosperity-gold bg-background-light/30" placeholder="example@email.com" type="email"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Mật khẩu tạm thời</label>
+<input class="w-full border-prosperity-gold/30 rounded-lg focus:ring-prosperity-gold focus:border-prosperity-gold bg-background-light/30" placeholder="••••••••" type="password"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">Vai trò</label>
+<select class="w-full border-prosperity-gold/30 rounded-lg focus:ring-prosperity-gold focus:border-prosperity-gold bg-background-light/30">
+<option>Member</option>
+<option>Editor</option>
+<option>Admin</option>
+</select>
+</div>
+</div>
+<div class="mt-8 flex justify-end gap-4">
+<button class="px-6 py-2 rounded-lg font-bold text-slate-500 hover:bg-slate-100 transition-colors uppercase text-sm tracking-wider">Hủy</button>
+<button class="px-8 py-2 bg-heritage-red text-white rounded-lg font-bold hover:bg-heritage-red/90 transition-all shadow-md shadow-heritage-red/20 uppercase text-sm tracking-wider">Tạo tài khoản</button>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-heritage-red text-white mt-12 py-12 px-6">
+<div class="max-w-7xl mx-auto flex flex-col items-center text-center">
+<div class="size-16 bg-white/10 rounded-full flex items-center justify-center mb-6 border border-prosperity-gold/50">
+<span class="material-symbols-outlined text-prosperity-gold text-4xl">temple_buddhist</span>
+</div>
+<p class="font-serif text-2xl font-bold text-prosperity-gold mb-2">Tộc Phạm Phú</p>
+<p class="italic text-white/80 max-w-lg mb-8">"Vấn tổ tầm tông - Đoàn kết trường tồn. Giữ gìn cốt cách cha ông, xây dựng tương lai vững bền."</p>
+<div class="flex gap-8 mb-8">
+<a class="text-white/60 hover:text-white transition-colors" href="#">Điều khoản bảo mật</a>
+<a class="text-white/60 hover:text-white transition-colors" href="#">Hỗ trợ hệ thống</a>
+<a class="text-white/60 hover:text-white transition-colors" href="#">Liên hệ Admin</a>
+</div>
+<div class="w-full h-px bg-white/10 mb-8"></div>
+<p class="text-xs text-white/40">© 2024 Gia Phả Tộc Phạm Phú. Thiết kế dành riêng cho quản trị viên hệ thống.</p>
+</div>
+</footer>
+</body></html>

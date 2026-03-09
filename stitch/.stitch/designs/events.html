@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="light" lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tộc Phạm Phú Family Events Timeline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Playfair+Display:wght@700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "jade": "#006b54",
+                        "gold": "#d4af37",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .timeline-line {
+            background: linear-gradient(to bottom, transparent, #b41d1d 10%, #b41d1d 90%, transparent);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="sticky top-0 z-50 w-full border-b border-primary/10 bg-white/80 backdrop-blur-md px-4 md:px-20 lg:px-40 py-4 flex items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<div class="size-10 flex items-center justify-center bg-primary rounded-full text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-2xl">temple_buddhist</span>
+</div>
+<h2 class="text-primary text-xl font-serif font-black tracking-tight">Tộc Phạm Phú</h2>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-slate-600 hover:text-primary text-sm font-semibold transition-colors" href="#">Trang chủ</a>
+<a class="text-slate-600 hover:text-primary text-sm font-semibold transition-colors" href="#">Gia phả</a>
+<a class="text-primary text-sm font-bold border-b-2 border-gold pb-1 transition-colors" href="#">Sự kiện</a>
+<a class="text-slate-600 hover:text-primary text-sm font-semibold transition-colors" href="#">Tin tức</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center bg-slate-100 rounded-full px-4 py-1.5 border border-slate-200">
+<span class="material-symbols-outlined text-slate-400 text-lg mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-32 lg:w-48 placeholder:text-slate-400" placeholder="Tìm kiếm sự kiện..." type="text"/>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-md shadow-primary/10">
+                    Đăng nhập
+                </button>
+</div>
+</header>
+<main class="flex-1 max-w-5xl mx-auto w-full px-4 py-12">
+<div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+<div class="space-y-2">
+<h1 class="text-5xl font-serif font-black text-slate-900 tracking-tight relative inline-block">
+                        Sự Kiện Gia Đình
+                        <span class="absolute -bottom-2 left-0 w-2/3 h-1 bg-gold rounded-full"></span>
+</h1>
+<p class="text-slate-500 italic font-display pt-2">Lưu giữ cội nguồn, kết nối thế hệ</p>
+</div>
+<button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-bold transition-transform active:scale-95 shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined">add_circle</span>
+                    Thêm sự kiện mới
+                </button>
+</div>
+<div class="mb-12 overflow-x-auto pb-2">
+<div class="flex gap-4 min-w-max border-b border-primary/10">
+<button class="flex flex-col items-center gap-1 px-6 pb-3 border-b-4 border-primary text-primary font-bold">
+<span class="material-symbols-outlined">auto_awesome_motion</span>
+<span class="text-xs uppercase tracking-widest">Tất cả</span>
+</button>
+<button class="flex flex-col items-center gap-1 px-6 pb-3 border-b-4 border-transparent text-slate-400 hover:text-jade transition-colors">
+<span class="material-symbols-outlined">cake</span>
+<span class="text-xs uppercase tracking-widest">Sinh nhật</span>
+</button>
+<button class="flex flex-col items-center gap-1 px-6 pb-3 border-b-4 border-transparent text-slate-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">shrine</span>
+<span class="text-xs uppercase tracking-widest">Ngày giỗ</span>
+</button>
+<button class="flex flex-col items-center gap-1 px-6 pb-3 border-b-4 border-transparent text-slate-400 hover:text-gold transition-colors">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-xs uppercase tracking-widest">Khác</span>
+</button>
+</div>
+</div>
+<div class="relative pl-8 md:pl-24 space-y-12">
+<div class="absolute left-8 md:left-12 top-0 bottom-0 w-0.5 timeline-line"></div>
+<div class="relative">
+<div class="absolute -left-10 md:-left-16 top-6 size-6 md:size-8 bg-jade rounded-full flex items-center justify-center text-white border-4 border-background-light z-10">
+<span class="material-symbols-outlined text-xs md:text-sm">cake</span>
+</div>
+<div class="bg-white rounded-xl shadow-sm border-l-8 border-jade overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 group">
+<div class="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="space-y-1">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-jade/10 text-jade px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Sắp diễn ra</span>
+<span class="text-slate-400 text-xs font-medium">15/05/2024</span>
+</div>
+<h3 class="text-2xl font-serif font-bold text-slate-900 group-hover:text-jade transition-colors">Sinh nhật Phạm Thị Lan</h3>
+<p class="text-slate-500 text-sm">Cùng chúc mừng tuổi mới đầy sức khỏe và bình an.</p>
+</div>
+<div class="flex flex-col items-end gap-3">
+<div class="bg-jade text-white px-4 py-2 rounded-lg font-bold text-center min-w-[120px]">
+<div class="text-xs opacity-80 font-normal">Còn lại</div>
+<div class="text-xl">5 ngày</div>
+</div>
+<button class="text-jade text-sm font-bold flex items-center gap-1 hover:underline">
+                                    Chi tiết <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="relative">
+<div class="absolute -left-10 md:-left-16 top-6 size-6 md:size-8 bg-primary rounded-full flex items-center justify-center text-white border-4 border-background-light z-10">
+<span class="material-symbols-outlined text-xs md:text-sm">shrine</span>
+</div>
+<div class="bg-white rounded-xl shadow-sm border-l-8 border-primary overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 group">
+<div class="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="space-y-1">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Lễ kỷ niệm</span>
+<span class="text-slate-400 text-xs font-medium">20/03/2024 (Solar)</span>
+</div>
+<h3 class="text-2xl font-serif font-bold text-slate-900 group-hover:text-primary transition-colors">Giỗ Cụ Phạm Văn Đức</h3>
+<div class="flex items-center gap-2 text-primary font-semibold text-sm">
+<span class="material-symbols-outlined text-lg">calendar_today</span>
+                                    12/02 Âm lịch
+                                </div>
+</div>
+<div class="flex flex-col items-end gap-3">
+<div class="bg-primary text-white px-4 py-2 rounded-lg font-bold text-center min-w-[120px]">
+<div class="text-xs opacity-80 font-normal">Còn lại</div>
+<div class="text-xl">12 ngày</div>
+</div>
+<button class="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
+                                    Chi tiết <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="relative">
+<div class="absolute -left-10 md:-left-16 top-6 size-6 md:size-8 bg-gold rounded-full flex items-center justify-center text-white border-4 border-background-light z-10">
+<span class="material-symbols-outlined text-xs md:text-sm">group</span>
+</div>
+<div class="bg-white rounded-xl shadow-sm border-l-8 border-gold overflow-hidden transition-all hover:shadow-xl hover:-translate-y-1 group">
+<div class="p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<div class="space-y-1">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-gold/10 text-gold px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Đặc biệt</span>
+<span class="text-slate-400 text-xs font-medium">01/06/2024</span>
+</div>
+<h3 class="text-2xl font-serif font-bold text-slate-900 group-hover:text-gold transition-colors">Họp mặt dòng họ</h3>
+<p class="text-slate-500 text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-lg">location_on</span>
+                                    Nhà Thờ Tộc Phạm Phú - Thăng Bình, Quảng Nam
+                                </p>
+</div>
+<div class="flex flex-col items-end gap-3">
+<div class="bg-gold text-white px-4 py-2 rounded-lg font-bold text-center min-w-[120px]">
+<div class="text-xs opacity-80 font-normal">Còn lại</div>
+<div class="text-xl">18 ngày</div>
+</div>
+<button class="text-gold text-sm font-bold flex items-center gap-1 hover:underline">
+                                    Chi tiết <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-20 p-8 rounded-2xl bg-gradient-to-br from-primary to-primary/80 text-white relative overflow-hidden">
+<div class="absolute top-0 right-0 opacity-10 translate-x-1/4 -translate-y-1/4">
+<span class="material-symbols-outlined text-[300px]">temple_buddhist</span>
+</div>
+<div class="relative z-10 max-w-2xl">
+<h2 class="text-3xl font-serif font-black mb-4">Gìn giữ truyền thống tốt đẹp</h2>
+<p class="text-white/80 text-lg mb-8">Hãy cùng nhau cập nhật các sự kiện quan trọng để con cháu muôn đời sau luôn nhớ về cội nguồn và công ơn tổ tiên.</p>
+<div class="flex flex-wrap gap-4">
+<div class="flex items-center gap-3 bg-white/10 px-4 py-3 rounded-xl border border-white/20">
+<div class="size-12 bg-gold rounded-full flex items-center justify-center text-primary shadow-lg">
+<span class="material-symbols-outlined">event_note</span>
+</div>
+<div>
+<div class="text-xl font-bold">12+</div>
+<div class="text-xs text-white/60 font-semibold uppercase tracking-wider">Sự kiện năm nay</div>
+</div>
+</div>
+<div class="flex items-center gap-3 bg-white/10 px-4 py-3 rounded-xl border border-white/20">
+<div class="size-12 bg-gold rounded-full flex items-center justify-center text-primary shadow-lg">
+<span class="material-symbols-outlined">family_history</span>
+</div>
+<div>
+<div class="text-xl font-bold">250+</div>
+<div class="text-xs text-white/60 font-semibold uppercase tracking-wider">Thành viên tham gia</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-primary text-white py-16 mt-20 border-t-4 border-gold">
+<div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+<div class="space-y-4">
+<div class="flex items-center justify-center md:justify-start gap-3">
+<div class="size-8 bg-gold rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-xl">temple_buddhist</span>
+</div>
+<h2 class="text-2xl font-serif font-black tracking-tight">Tộc Phạm Phú</h2>
+</div>
+<p class="text-white/60 text-sm italic">"Lưu giữ cội nguồn, kết nối thế hệ"</p>
+</div>
+<div class="space-y-4">
+<h4 class="text-gold font-bold uppercase tracking-widest text-sm">Liên kết nhanh</h4>
+<ul class="space-y-2 text-sm text-white/80">
+<li><a class="hover:text-gold transition-colors" href="#">Về dòng tộc</a></li>
+<li><a class="hover:text-gold transition-colors" href="#">Cây gia phả</a></li>
+<li><a class="hover:text-gold transition-colors" href="#">Đóng góp quỹ tộc</a></li>
+<li><a class="hover:text-gold transition-colors" href="#">Liên hệ ban quản lý</a></li>
+</ul>
+</div>
+<div class="space-y-4">
+<h4 class="text-gold font-bold uppercase tracking-widest text-sm">Thông tin Nhà Thờ</h4>
+<div class="text-sm text-white/80 space-y-2">
+<p class="flex items-center justify-center md:justify-start gap-2">
+<span class="material-symbols-outlined text-gold">location_on</span>
+                            Thăng Bình, Quảng Nam, Việt Nam
+                        </p>
+<p class="flex items-center justify-center md:justify-start gap-2">
+<span class="material-symbols-outlined text-gold">mail</span>
+                            lienhe@tocphamphu.vn
+                        </p>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-4 mt-12 pt-8 border-t border-white/10 text-center text-white/40 text-xs uppercase tracking-[0.2em]">
+                © 2024 Tộc Phạm Phú. Tất cả quyền được bảo lưu.
+            </div>
+</footer>
+</div>
+</body></html>

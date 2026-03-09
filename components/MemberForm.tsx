@@ -282,7 +282,7 @@ export default function MemberForm({
               value={otherNames}
               onChange={(e) => setOtherNames(e.target.value)}
               className={inputClasses}
-              placeholder="Nickname, tên thánh, bí danh..."
+              placeholder="Tên chữ Nôm, bí danh..."
             />
           </div>
 

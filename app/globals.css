@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F7F3EA;
+  --foreground: #3E2723;
 }
 
 @theme inline {
@@ -10,11 +10,22 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-playfair);
+
+  /* Heritage Design System */
+  --color-heritage-red: #B31D1D;
+  --color-heritage-red-dark: #8B1515;
+  --color-heritage-gold: #E8B931;
+  --color-heritage-gold-light: #F5D060;
+  --color-jade-green: #227C44;
+  --color-altar-wood: #3E2723;
+  --color-accent-pink: #D46A84;
+  --color-rice-paper: #F7F3EA;
+  --color-rice-paper-dark: #201212;
 }
 
 /* @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #201212;
     --foreground: #ededed;
   }
 } */
@@ -40,17 +51,17 @@ select {
 }
 
 .btn {
-  @apply inline-flex items-center px-5 py-2.5 border border-stone-200/80 text-sm font-medium rounded-full shadow-sm hover:shadow-md text-stone-600 bg-linear-to-r bg-white hover:bg-stone-50 transition-all duration-300 hover:-translate-y-0.5 justify-center shrink-0 gap-1.5;
+  @apply inline-flex items-center px-5 py-2.5 border border-heritage-gold/30 text-sm font-medium rounded-lg shadow-sm hover:shadow-md text-altar-wood bg-white hover:bg-rice-paper transition-all duration-300 hover:-translate-y-0.5 justify-center shrink-0 gap-1.5;
 }
 
 .btn-primary {
-  @apply inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-full shadow-sm hover:shadow-md text-white bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 transition-all duration-300 hover:-translate-y-0.5 justify-center shrink-0 gap-1.5;
+  @apply inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm hover:shadow-md text-white bg-heritage-red hover:bg-heritage-red-dark transition-all duration-300 hover:-translate-y-0.5 justify-center shrink-0 gap-1.5;
 }
 
 .btn-secondary {
-  @apply inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-full shadow-sm hover:shadow-md text-white bg-linear-to-r from-stone-600 to-stone-700 hover:from-stone-700 hover:to-stone-800 transition-all duration-300 hover:-translate-y-0.5 justify-center shrink-0 gap-1.5;
+  @apply inline-flex items-center px-5 py-2.5 border-2 border-heritage-red text-sm font-medium rounded-lg shadow-sm hover:shadow-md text-heritage-red bg-transparent hover:bg-heritage-red hover:text-white transition-all duration-300 hover:-translate-y-0.5 justify-center shrink-0 gap-1.5;
 }
 
 .title {
-  @apply text-2xl sm:text-3xl font-serif font-bold text-stone-800;
+  @apply text-2xl sm:text-3xl font-serif font-bold text-heritage-red;
 }

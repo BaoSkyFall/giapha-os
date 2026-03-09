@@ -83,13 +83,12 @@ export default function MemberDetailContent({
         >
           <div
             className={`h-24 w-24 sm:h-32 sm:w-32 rounded-full border-4 sm:border-[6px] border-white flex items-center justify-center text-3xl sm:text-4xl font-bold text-white overflow-hidden shadow-xl shrink-0
-             ${
-               person.gender === "male"
-                 ? "bg-linear-to-br from-sky-400 to-sky-700"
-                 : person.gender === "female"
-                   ? "bg-linear-to-br from-rose-400 to-rose-700"
-                   : "bg-linear-to-br from-stone-400 to-stone-600"
-             }`}
+             ${person.gender === "male"
+                ? "bg-linear-to-br from-sky-400 to-sky-700"
+                : person.gender === "female"
+                  ? "bg-linear-to-br from-rose-400 to-rose-700"
+                  : "bg-linear-to-br from-stone-400 to-stone-600"
+              }`}
           >
             {person.avatar_url ? (
               <Image
@@ -106,13 +105,12 @@ export default function MemberDetailContent({
           </div>
           {/* Gender Indicator Icon */}
           <div
-            className={`absolute bottom-1 right-1 sm:bottom-2 sm:right-2 size-6 sm:size-8 rounded-full ring-2 sm:ring-4 ring-white shadow-md flex items-center justify-center ${
-              person.gender === "male"
+            className={`absolute bottom-1 right-1 sm:bottom-2 sm:right-2 size-6 sm:size-8 rounded-full ring-2 sm:ring-4 ring-white shadow-md flex items-center justify-center ${person.gender === "male"
                 ? "bg-sky-100 text-sky-600"
                 : person.gender === "female"
                   ? "bg-rose-100 text-rose-600"
                   : "bg-stone-100 text-stone-600"
-            }`}
+              }`}
           >
             {person.gender === "male" ? (
               <MaleIcon className="size-4 sm:size-5" />
@@ -138,13 +136,12 @@ export default function MemberDetailContent({
               )}
               {person.is_in_law && (
                 <span
-                  className={`text-[10px] sm:text-xs font-sans font-bold rounded-md px-2 py-0.5 whitespace-nowrap shadow-xs border uppercase tracking-wider ${
-                    person.gender === "female"
+                  className={`text-[10px] sm:text-xs font-sans font-bold rounded-md px-2 py-0.5 whitespace-nowrap shadow-xs border uppercase tracking-wider ${person.gender === "female"
                       ? "text-rose-700 bg-rose-50/50 border-rose-200/60"
                       : person.gender === "male"
                         ? "text-sky-700 bg-sky-50/50 border-sky-200/60"
                         : "text-stone-700 bg-stone-50/50 border-stone-200/60"
-                  }`}
+                    }`}
                 >
                   {person.gender === "female"
                     ? "Dâu"
@@ -212,17 +209,17 @@ export default function MemberDetailContent({
                   {(person.birth_year ||
                     person.birth_month ||
                     person.birth_day) && (
-                    <p className="text-sm font-medium text-stone-500 flex items-center gap-1.5">
-                      <span className="text-[10px] border border-stone-200/60 bg-stone-50/80 rounded px-1.5 py-0.5">
-                        Âm lịch
-                      </span>
-                      {getLunarDateString(
-                        person.birth_year,
-                        person.birth_month,
-                        person.birth_day,
-                      ) || "Chưa rõ"}
-                    </p>
-                  )}
+                      <p className="text-sm font-medium text-stone-500 flex items-center gap-1.5">
+                        <span className="text-[10px] border border-stone-200/60 bg-stone-50/80 rounded px-1.5 py-0.5">
+                          Âm lịch
+                        </span>
+                        {getLunarDateString(
+                          person.birth_year,
+                          person.birth_month,
+                          person.birth_day,
+                        ) || "Chưa rõ"}
+                      </p>
+                    )}
                 </div>
               </motion.div>
 
@@ -249,17 +246,17 @@ export default function MemberDetailContent({
                     {(person.death_year ||
                       person.death_month ||
                       person.death_day) && (
-                      <p className="text-xs font-medium text-stone-500 flex items-center gap-1.5">
-                        <span className="text-[10px] border border-stone-200/60 bg-stone-50/80 rounded px-1.5 py-0.5">
-                          Âm lịch
-                        </span>
-                        {getLunarDateString(
-                          person.death_year,
-                          person.death_month,
-                          person.death_day,
-                        ) || "Chưa rõ"}
-                      </p>
-                    )}
+                        <p className="text-xs font-medium text-stone-500 flex items-center gap-1.5">
+                          <span className="text-[10px] border border-stone-200/60 bg-stone-50/80 rounded px-1.5 py-0.5">
+                            Âm lịch
+                          </span>
+                          {getLunarDateString(
+                            person.death_year,
+                            person.death_month,
+                            person.death_day,
+                          ) || "Chưa rõ"}
+                        </p>
+                      )}
                   </div>
                 </motion.div>
               )}

@@ -13,47 +13,46 @@ export default function ViewToggle() {
     {
       id: "list",
       label: "Danh sách",
-      icon: <List className="size-6 sm:size-4" />,
+      icon: <List className="size-4" />,
     },
     {
       id: "tree",
       label: "Sơ đồ cây",
-      icon: <Network className="size-6 sm:size-4" />,
+      icon: <Network className="size-4" />,
     },
     {
       id: "mindmap",
       label: "Mindmap",
-      icon: <ListTree className="size-6 sm:size-4" />,
+      icon: <ListTree className="size-4" />,
     },
   ] as const;
 
   return (
-    <div className="flex bg-stone-200/50 p-1.5 rounded-full shadow-inner w-fit mx-auto mt-4 mb-2 relative border border-stone-200/60 backdrop-blur-sm z-10">
+    <div className="flex bg-altar-wood/5 p-1 rounded-lg w-fit relative border border-heritage-gold/10">
       {tabs.map((tab) => {
         const isActive = currentView === tab.id;
         return (
           <button
             key={tab.id}
             onClick={() => setView(tab.id as ViewMode)}
-            className={`relative px-4 sm:px-6 py-1.5 sm:py-2.5 text-sm font-semibold rounded-full transition-colors duration-300 ease-in-out z-10 flex items-center gap-2 ${
-              isActive
-                ? "text-stone-900"
-                : "text-stone-500 hover:text-stone-800"
-            }`}
+            className={`relative px-3 py-1.5 text-xs font-semibold rounded-md transition-colors duration-300 ease-in-out z-10 flex items-center gap-1.5 ${isActive
+                ? "text-heritage-red"
+                : "text-altar-wood/50 hover:text-heritage-red/70"
+              }`}
           >
             {isActive && (
               <motion.div
                 layoutId="activeTab"
-                className="absolute inset-0 bg-white rounded-full shadow-sm border border-stone-200/60 z-[-1]"
+                className="absolute inset-0 bg-white rounded-md shadow-sm border border-heritage-gold/10 z-[-1]"
                 transition={{ type: "spring", stiffness: 450, damping: 30 }}
               />
             )}
             <span
-              className={`transition-colors duration-300 ${isActive ? "text-amber-700" : "text-stone-400"}`}
+              className={`transition-colors duration-300 ${isActive ? "text-heritage-red" : "text-altar-wood/30"}`}
             >
               {tab.icon}
             </span>
-            <span className="hidden sm:block tracking-wide">{tab.label}</span>
+            <span className="tracking-wide">{tab.label}</span>
           </button>
         );
       })}

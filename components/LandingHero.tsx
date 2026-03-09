@@ -1,21 +1,16 @@
 "use client";
 
 import { motion, Variants } from "framer-motion";
-import {
-  ArrowRight,
-  Network,
-  ShieldCheck,
-  Sparkles,
-  Users,
-} from "lucide-react";
+import { ArrowRight, CalendarDays, Search, TreePine, UserRound } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 
 const fadeIn: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 24 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] },
+    transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] },
   },
 };
 
@@ -24,108 +19,236 @@ const staggerContainer: Variants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.15,
+      staggerChildren: 0.12,
       delayChildren: 0.1,
     },
   },
 };
 
-interface LandingHeroProps {
-  siteName: string;
-}
+const features = [
+  {
+    icon: <TreePine className="size-6" />,
+    title: "Cây Gia Phả Tương Tác",
+    desc: "Sơ đồ phả hệ trực quan, dễ dàng theo dõi huyết thống qua hàng chục thế hệ chỉ với một cú chạm.",
+  },
+  {
+    icon: <Search className="size-6" />,
+    title: "Tra Cứu Danh Xưng",
+    desc: "Tìm kiếm thông tin và vị trí trong dòng tộc nhanh chóng bằng tên, năm sinh hoặc chi họ.",
+  },
+  {
+    icon: <CalendarDays className="size-6" />,
+    title: "Sự Kiện Gia Đình",
+    desc: "Cập nhật ngày giỗ, lễ tết và họp mặt dòng họ tự động nhắc nhở theo âm lịch hàng năm.",
+  },
+];
 
-export default function LandingHero({ siteName }: LandingHeroProps) {
+const ancestors = [
+  { name: "Phạm Phú Thứ", years: "1821 – 1882", image: "/phamphuthu_2.png" },
+  { name: "Phạm Phú Quốc", years: "1935 – 1965", image: "/phamphuquoc_1.jpg" },
+  { name: "Phạm Phú Tiết", years: "" },
+  { name: "Phạm Phú Bằng", years: "1930 – 2024", image: "/phamphubang_1.jpeg" },
+];
+
+const events = [
+  {
+    date: "15/03/2026",
+    lunar: "Mùng 6 tháng Hai (Bính Ngọ)",
+    title: "Lễ Giỗ Thủy Tổ Tộc Phạm Phú",
+    desc: "Tổ chức tại Nhà Thờ Tộc, Điện Bàn, Quảng Nam. Kính mời con cháu về tham dự.",
+    isPrimary: true,
+  },
+  {
+    date: "28/04/2026",
+    lunar: "20 tháng Ba (Bính Ngọ)",
+    title: "Họp Mặt Hội Đồng Gia Tộc",
+    desc: "Thống nhất kế hoạch trùng tu nhà thờ và cập nhật gia phả điện tử đợt 1 năm 2026.",
+    isPrimary: false,
+  },
+];
+
+export default function LandingHero() {
   return (
     <>
-      <motion.div
-        className="max-w-5xl text-center space-y-12 w-full relative z-10"
+      {/* Hero Section */}
+      <motion.section
+        className="relative py-24 md:py-32 bg-rice-paper border-b border-heritage-gold/20 overflow-hidden"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
       >
-        <motion.div
-          className="space-y-6 sm:space-y-8 flex flex-col items-center"
-          variants={fadeIn}
-        >
+        {/* Decorative background motif */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none flex items-center justify-center">
+          <TreePine className="size-[400px] text-heritage-red" />
+        </div>
+
+        <div className="max-w-[1200px] mx-auto px-4 text-center relative z-10">
+          <motion.h2
+            className="text-5xl md:text-7xl font-serif font-black text-heritage-red leading-tight mb-6"
+            variants={fadeIn}
+          >
+            Lưu giữ lịch sử –<br />
+            Kết nối hậu duệ
+          </motion.h2>
+          <motion.p
+            className="text-lg md:text-xl text-altar-wood/70 max-w-2xl mx-auto mb-10 leading-relaxed font-light"
+            variants={fadeIn}
+          >
+            Khám phá cội nguồn và kết nối các thế hệ trong dòng họ qua nền
+            tảng gia phả trực tuyến hiện đại nhưng đậm chất truyền thống.
+          </motion.p>
           <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-amber-800 bg-white/60 rounded-full shadow-[0_2px_10px_-3px_rgba(0,0,0,0.1)] border border-amber-200/50 relative overflow-hidden group"
+            className="flex flex-wrap justify-center gap-4"
+            variants={fadeIn}
           >
-            <Sparkles className="size-4 text-amber-500" />
-            Nền tảng gia phả hiện đại & bảo mật
-            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out"></div>
-          </motion.div>
-
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-[5rem] font-serif font-bold text-stone-900 tracking-tight leading-[1.1] max-w-4xl">
-            <span className="block">{siteName}</span>
-          </h1>
-
-          <p className="text-lg sm:text-xl md:text-2xl text-stone-600 max-w-2xl mx-auto leading-relaxed font-light">
-            Gìn giữ và lưu truyền những giá trị, cội nguồn và truyền thống tốt
-            đẹp của dòng họ cho các thế hệ mai sau.
-          </p>
-        </motion.div>
-
-        <motion.div
-          className="pt-6 flex flex-col sm:flex-row gap-4 justify-center items-center w-full px-4 sm:px-0 relative"
-          variants={fadeIn}
-        >
-          {/* Subtle glow behind the button */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-16 bg-amber-500/30 blur-2xl rounded-full z-0 hidden sm:block"></div>
-
-          <Link
-            href="/login"
-            className="group inline-flex items-center justify-center gap-2 px-8 py-4 sm:px-10 sm:py-5 text-base sm:text-lg font-bold text-white bg-stone-900 border border-stone-800 hover:bg-stone-800 hover:border-stone-700 rounded-2xl shadow-xl shadow-stone-900/10 hover:shadow-2xl hover:shadow-stone-900/20 transition-all duration-300 hover:-translate-y-1 active:translate-y-0 w-full sm:w-auto overflow-hidden relative"
-          >
-            <span className="relative z-10 flex items-center gap-3">
-              Đăng nhập để xem thông tin
-              <ArrowRight className="size-5 group-hover:translate-x-1.5 transition-transform" />
-            </span>
-          </Link>
-        </motion.div>
-
-        <motion.div
-          className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-left  border-t border-stone-200/50 relative"
-          variants={staggerContainer}
-        >
-          {[
-            {
-              icon: <Users className="size-6 text-amber-700" />,
-              title: "Quản lý Thành viên",
-              desc: "Cập nhật thông tin chi tiết, tiểu sử và hình ảnh của từng thành viên trong dòng họ một cách nhanh chóng và bảo mật.",
-            },
-            {
-              icon: <Network className="size-6 text-amber-700" />,
-              title: "Sơ đồ Sáng tạo",
-              desc: "Xem trực quan sơ đồ phả hệ, thế hệ và mối quan hệ gia đình với giao diện cây hiện đại, dễ thao tác.",
-            },
-            {
-              icon: <ShieldCheck className="size-6 text-amber-700" />,
-              title: "Bảo mật Tối đa",
-              desc: "Dữ liệu riêng tư như số điện thoại, quê quán được phân quyền chặt chẽ, bảo vệ an toàn trên hệ thống đám mây.",
-            },
-          ].map((feature, idx) => (
-            <motion.div
-              key={idx}
-              variants={fadeIn}
-              whileHover={{ y: -5 }}
-              className="bg-white/70 backdrop-blur-xl p-8 rounded-3xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:bg-white transition-all duration-500 flex flex-col items-start group relative overflow-hidden"
+            <Link
+              href="/login"
+              className="bg-heritage-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-heritage-red-dark transition-all shadow-xl flex items-center gap-2 hover:-translate-y-0.5"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-amber-100/50 to-transparent rounded-bl-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <TreePine className="size-5" />
+              Xem cây gia phả
+            </Link>
+            <button className="border-2 border-heritage-red text-heritage-red px-8 py-4 rounded-lg font-bold text-lg hover:bg-heritage-red hover:text-white transition-all hover:-translate-y-0.5">
+              Thêm thành viên
+            </button>
+          </motion.div>
+        </div>
+      </motion.section>
 
-              <div className="p-3.5 bg-white rounded-2xl mb-6 shadow-sm ring-1 ring-stone-100 group-hover:scale-110 group-hover:shadow-md transition-all duration-300 relative z-10">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl sm:text-2xl font-bold text-stone-800 mb-3 font-serif relative z-10 group-hover:text-amber-900 transition-colors">
-                {feature.title}
-              </h3>
-              <p className="text-stone-600 text-base leading-relaxed relative z-10">
-                {feature.desc}
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </motion.div>
+      {/* Features Section */}
+      <motion.section
+        className="py-20 bg-white"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer}
+      >
+        <div className="max-w-[1200px] mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {features.map((feature, idx) => (
+              <motion.div
+                key={idx}
+                variants={fadeIn}
+                whileHover={{ y: -6, transition: { duration: 0.3 } }}
+                className="bg-rice-paper p-8 rounded-xl border-t-4 border-heritage-gold shadow-sm hover:shadow-md transition-shadow group"
+              >
+                <div className="w-12 h-12 bg-heritage-red/10 text-heritage-red rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-serif font-bold text-altar-wood mb-3">
+                  {feature.title}
+                </h3>
+                <p className="text-altar-wood/60 leading-relaxed">
+                  {feature.desc}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Ancestor Highlights */}
+      <motion.section
+        className="py-20 bg-rice-paper"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer}
+      >
+        <div className="max-w-[1200px] mx-auto px-4">
+          <motion.div
+            className="flex items-center justify-between mb-12"
+            variants={fadeIn}
+          >
+            <h2 className="text-3xl font-serif font-bold text-heritage-red border-b-2 border-heritage-gold pb-2">
+              Tiền Nhân Nổi Bật
+            </h2>
+            <a
+              className="text-heritage-red font-semibold flex items-center gap-1 hover:underline"
+              href="#"
+            >
+              Xem tất cả{" "}
+              <ArrowRight className="size-4" />
+            </a>
+          </motion.div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {ancestors.map((ancestor, idx) => (
+              <motion.div
+                key={idx}
+                variants={fadeIn}
+                whileHover={{ y: -4, transition: { duration: 0.3 } }}
+                className="bg-white p-4 rounded-lg shadow-sm group cursor-pointer border border-heritage-gold/10 hover:shadow-md transition-all"
+              >
+                <div className="aspect-[3/4] rounded-md mb-4 bg-gradient-to-br from-heritage-red/5 to-heritage-gold/10 overflow-hidden relative flex items-center justify-center">
+                  {ancestor.image ? (
+                    <Image
+                      src={ancestor.image}
+                      alt={ancestor.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 768px) 50vw, 25vw"
+                    />
+                  ) : (
+                    <UserRound className="size-16 text-heritage-red/20 group-hover:scale-110 transition-transform duration-500" />
+                  )}
+                  <div className="absolute inset-0 bg-heritage-red/5 group-hover:bg-transparent transition-colors" />
+                </div>
+                <h4 className="font-serif font-bold text-lg text-altar-wood">
+                  {ancestor.name}
+                </h4>
+                <p className="text-altar-wood/50 text-sm">{ancestor.years}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* Timeline Section */}
+      <motion.section
+        className="py-20 bg-white"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer}
+      >
+        <div className="max-w-[800px] mx-auto px-4">
+          <motion.h2
+            className="text-3xl font-serif font-bold text-center text-altar-wood mb-16"
+            variants={fadeIn}
+          >
+            Sự Kiện Sắp Tới
+          </motion.h2>
+          <div className="relative border-l-2 border-heritage-gold ml-4 md:ml-0">
+            {events.map((event, idx) => (
+              <motion.div
+                key={idx}
+                className="mb-12 relative pl-10"
+                variants={fadeIn}
+              >
+                <div
+                  className={`absolute -left-[11px] top-0 w-5 h-5 rounded-full border-4 border-white ${event.isPrimary
+                    ? "bg-heritage-red"
+                    : "bg-heritage-gold"
+                    }`}
+                />
+                <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
+                  <span className="text-heritage-red font-bold">
+                    {event.date}
+                  </span>
+                  <span className="hidden md:block text-altar-wood/30">|</span>
+                  <span className="text-altar-wood/50 italic">
+                    {event.lunar}
+                  </span>
+                </div>
+                <h4 className="text-xl font-bold text-altar-wood">
+                  {event.title}
+                </h4>
+                <p className="text-altar-wood/60 mt-2">{event.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
     </>
   );
 }

@@ -1,0 +1,299 @@
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Playfair+Display:wght@700;900&amp;family=Noto+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "gold": "#D4AF37",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                        "paper": "#fcfaf2",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "serif"],
+                        "serif-title": ["Playfair Display", "serif"],
+                        "sans": ["Noto Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Noto Sans', sans-serif; }
+        .font-display { font-family: 'Noto Serif', serif; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<header class="bg-primary text-white sticky top-0 z-50 shadow-md">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gold text-3xl">account_tree</span>
+<h1 class="text-xl font-display font-bold tracking-tight">Tộc Phạm Phú</h1>
+</div>
+<nav class="hidden md:flex space-x-8">
+<a class="hover:text-gold transition-colors font-medium" href="#">Gia Phả</a>
+<a class="hover:text-gold transition-colors font-medium" href="#">Sự Kiện</a>
+<a class="hover:text-gold transition-colors font-medium" href="#">Tin Tức</a>
+<a class="hover:text-gold transition-colors font-medium text-gold" href="#">Thành Viên</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="bg-gold hover:bg-yellow-600 text-primary font-bold py-2 px-4 rounded-lg transition-colors text-sm shadow-sm">
+                        ĐĂNG NHẬP
+                    </button>
+<div class="h-8 w-8 rounded-full border-2 border-gold/50 bg-primary/50 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-white/70">person</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-4xl mx-auto px-4 py-12">
+<div class="mb-10 text-center relative">
+<h2 class="text-4xl font-playfair font-black text-primary mb-2">Thêm Thành Viên Mới</h2>
+<div class="h-1 w-32 bg-gold mx-auto rounded-full"></div>
+<p class="mt-4 text-slate-600 dark:text-slate-400 font-display italic">Cập nhật thông tin chi tiết vào sổ gia phả Tộc Phạm Phú</p>
+</div>
+<form class="space-y-8">
+<section class="bg-paper dark:bg-slate-800/50 p-8 rounded-xl shadow-sm border border-primary/10 flex flex-col items-center">
+<div class="relative">
+<div class="w-32 h-32 rounded-full bg-slate-200 dark:bg-slate-700 border-4 border-gold/30 flex items-center justify-center overflow-hidden group">
+<span class="material-symbols-outlined text-5xl text-slate-400">camera_alt</span>
+<div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
+<span class="text-white text-xs font-bold">CHỌN ẢNH</span>
+</div>
+</div>
+</div>
+<div class="mt-4 text-center">
+<h3 class="text-lg font-bold font-display">Ảnh Chân Dung</h3>
+<p class="text-sm text-slate-500 mb-4">Kích thước tối ưu 400x400px</p>
+<button class="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 font-bold py-2 px-6 rounded-lg transition-all flex items-center gap-2 mx-auto" type="button">
+<span class="material-symbols-outlined text-sm">upload</span>
+                        Tải ảnh lên
+                    </button>
+</div>
+</section>
+<section class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+<div class="flex items-center gap-2 mb-6 border-b border-slate-100 dark:border-slate-700 pb-2">
+<span class="material-symbols-outlined text-primary">info</span>
+<h3 class="text-xl font-bold font-display">Thông Tin Cơ Bản</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="col-span-1">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Họ và Tên <span class="text-primary">*</span></label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600" placeholder="Ví dụ: Phạm Phú Quốc" type="text"/>
+</div>
+<div class="col-span-1">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Tên Tự / Pháp Danh</label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600" placeholder="Nhập bí danh hoặc tên thánh" type="text"/>
+</div>
+<div class="col-span-1">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Giới Tính</label>
+<div class="flex gap-6">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="text-primary focus:ring-primary" name="gender" type="radio"/>
+<span>Nam</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="text-primary focus:ring-primary" name="gender" type="radio"/>
+<span>Nữ</span>
+</label>
+</div>
+</div>
+<div class="col-span-1 flex items-center">
+<label class="flex items-center gap-3 cursor-pointer group">
+<input class="w-5 h-5 rounded text-gold focus:ring-gold border-slate-300" type="checkbox"/>
+<div>
+<span class="block text-sm font-bold text-slate-700 dark:text-slate-300">Dâu / Rể (In-law)</span>
+<span class="text-xs text-slate-500">Thành viên kết hôn vào họ</span>
+</div>
+</label>
+</div>
+<div class="col-span-1">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Đời Thứ (Generation)</label>
+<div class="flex items-center">
+<button class="w-10 h-10 flex items-center justify-center border border-slate-300 rounded-l-lg hover:bg-slate-50 dark:border-slate-600" type="button">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<input class="w-full h-10 text-center border-y border-x-0 border-slate-300 focus:ring-0 dark:bg-slate-700 dark:border-slate-600" type="number" value="1"/>
+<button class="w-10 h-10 flex items-center justify-center border border-slate-300 rounded-r-lg hover:bg-slate-50 dark:border-slate-600" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+<div class="col-span-1">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Thứ Tự Trong Nhà</label>
+<select class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600">
+<option>Con cả (Trưởng)</option>
+<option>Con thứ 2</option>
+<option>Con thứ 3</option>
+<option>Con thứ 4</option>
+<option>Khác</option>
+</select>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<section class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+<div class="flex items-center gap-2 mb-6 border-b border-slate-100 dark:border-slate-700 pb-2">
+<span class="material-symbols-outlined text-primary">event_available</span>
+<h3 class="text-xl font-bold font-display">Thông Tin Sinh</h3>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Ngày sinh (Dương lịch)</label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600" type="date"/>
+</div>
+<div class="bg-background-light dark:bg-slate-700/50 p-3 rounded-lg border border-primary/5">
+<p class="text-xs text-primary font-bold uppercase tracking-wider mb-1">Ngày âm lịch tương ứng</p>
+<p class="text-sm font-display italic text-slate-600 dark:text-slate-300">Hệ thống sẽ tự động quy đổi khi nhập ngày dương lịch.</p>
+</div>
+</div>
+</section>
+<section class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+<div class="flex items-center justify-between mb-6 border-b border-slate-100 dark:border-slate-700 pb-2">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400">event_busy</span>
+<h3 class="text-xl font-bold font-display text-slate-500">Thông Tin Tạ Thế</h3>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+</label>
+</div>
+<div class="opacity-40 pointer-events-none">
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Ngày mất</label>
+<input class="w-full rounded-lg border-slate-300 dark:bg-slate-700 dark:border-slate-600" type="date"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Nơi an táng</label>
+<input class="w-full rounded-lg border-slate-300 dark:bg-slate-700 dark:border-slate-600" placeholder="Ví dụ: Nghĩa trang quê nhà" type="text"/>
+</div>
+</div>
+</div>
+</section>
+</div>
+<section class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+<div class="flex items-center gap-2 mb-6 border-b border-slate-100 dark:border-slate-700 pb-2">
+<span class="material-symbols-outlined text-primary">family_history</span>
+<h3 class="text-xl font-bold font-display">Mối Quan Hệ Gia Đình</h3>
+</div>
+<div class="space-y-4 mb-6">
+<div class="flex flex-wrap gap-4 items-end bg-slate-50 dark:bg-slate-700/30 p-4 rounded-lg border border-slate-100 dark:border-slate-700">
+<div class="flex-1 min-w-[150px]">
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Quan hệ</label>
+<select class="w-full rounded-lg border-slate-300 text-sm dark:bg-slate-700 dark:border-slate-600">
+<option>Cha</option>
+<option>Mẹ</option>
+<option>Vợ / Chồng</option>
+<option>Con</option>
+</select>
+</div>
+<div class="flex-[3] min-w-[250px]">
+<label class="block text-xs font-bold text-slate-500 uppercase mb-1">Tìm thành viên trong tộc</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-slate-400 text-sm">search</span>
+<input class="w-full pl-9 rounded-lg border-slate-300 text-sm dark:bg-slate-700 dark:border-slate-600" placeholder="Nhập tên để tìm..." type="text"/>
+</div>
+</div>
+<button class="p-2 text-slate-400 hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">delete</span>
+</button>
+</div>
+</div>
+<button class="w-full py-3 border-2 border-dashed border-gold text-gold font-bold rounded-xl hover:bg-gold/5 transition-all flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined">add_circle</span>
+                    THÊM QUAN HỆ
+                </button>
+</section>
+<section class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border-2 border-dashed border-primary/30">
+<div class="flex items-center gap-2 mb-6 border-b border-slate-100 dark:border-slate-700 pb-2">
+<span class="material-symbols-outlined text-primary">lock</span>
+<h3 class="text-xl font-bold font-display">Thông Tin Riêng Tư</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Số Điện Thoại</label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600" placeholder="090x xxx xxx" type="tel"/>
+</div>
+<div>
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Email</label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600" placeholder="example@gmail.com" type="email"/>
+</div>
+<div class="md:col-span-2">
+<label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">Địa Chỉ Thường Trú</label>
+<input class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600" placeholder="Số nhà, đường, quận/huyện, tỉnh/thành phố" type="text"/>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2 text-slate-500 text-xs italic">
+<span class="material-symbols-outlined text-sm">verified_user</span>
+                    Thông tin này chỉ hiển thị với Ban quản trị và thành viên nội bộ.
+                </div>
+</section>
+<section class="bg-white dark:bg-slate-800 p-8 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700">
+<div class="flex items-center gap-2 mb-6 border-b border-slate-100 dark:border-slate-700 pb-2">
+<span class="material-symbols-outlined text-primary">history_edu</span>
+<h3 class="text-xl font-bold font-display">Tiểu Sử / Ghi Chú</h3>
+</div>
+<textarea class="w-full rounded-lg border-slate-300 focus:border-primary focus:ring-primary dark:bg-slate-700 dark:border-slate-600 p-4" placeholder="Mô tả tóm tắt về cuộc đời, sự nghiệp, đóng góp cho gia tộc..." rows="6"></textarea>
+</section>
+<div class="flex flex-col sm:flex-row justify-end gap-4 pt-6">
+<button class="px-8 py-3 rounded-xl border border-slate-300 text-slate-600 font-bold hover:bg-slate-50 transition-colors" type="button">
+                    Hủy Bỏ
+                </button>
+<button class="px-10 py-3 rounded-xl bg-primary text-white font-bold hover:bg-red-800 transition-all shadow-lg flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined">save</span>
+                    LƯU THÀNH VIÊN
+                </button>
+</div>
+</form>
+</main>
+<footer class="bg-primary dark:bg-background-dark border-t border-gold/20 mt-20 text-white">
+<div class="max-w-7xl mx-auto px-4 py-12">
+<div class="flex flex-col items-center text-center gap-6">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gold text-4xl">temple_buddhist</span>
+<span class="text-2xl font-display font-bold">Tộc Phạm Phú</span>
+</div>
+<div class="h-px w-64 bg-gradient-to-r from-transparent via-gold to-transparent opacity-50"></div>
+<p class="font-display italic text-gold text-lg">"Phúc Đức Tại Mẫu - Vạn Đại Trường Tồn"</p>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-10 mt-6 text-sm text-white/70">
+<div>
+<h4 class="text-white font-bold mb-3 uppercase tracking-widest text-xs">Liên hệ</h4>
+<p>Từ Đường Tộc Phạm Phú</p>
+<p>Điện Bàn, Quảng Nam</p>
+</div>
+<div>
+<h4 class="text-white font-bold mb-3 uppercase tracking-widest text-xs">Liên kết</h4>
+<div class="flex gap-4 justify-center">
+<a class="hover:text-gold" href="#">Trang chủ</a>
+<a class="hover:text-gold" href="#">Gia phả</a>
+<a class="hover:text-gold" href="#">Sự kiện</a>
+</div>
+</div>
+<div>
+<h4 class="text-white font-bold mb-3 uppercase tracking-widest text-xs">Bản quyền</h4>
+<p>© 2024 Hội Đồng Gia Tộc Phạm Phú</p>
+<p>Thiết kế bởi Heritage Team</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-black/20 py-4 text-center text-[10px] uppercase tracking-widest text-white/30">
+            Duy trì và phát triển bởi Ban Truyền Thông Tộc Phạm Phú
+        </div>
+</footer>
+
+```</body></html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tộc Phạm Phú - Lưu giữ lịch sử, Kết nối hậu duệ</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                        "heritage-gold": "#E8B931",
+                        "heritage-red": "#B31D1D",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>.lotus-pattern {
+    background-color: #F7F3EA;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuCbMyXgTRtNZ0A_bzfqubn9yuEQofChk05yY2OF_n99OVezTV-KHp6j6Pss12cQWVTLgMFnPjdmeLaiSc400o-5BF9TRFDvM2Asv9bdcxbBojQO7vN4s_NRWPHcgCyPzD73XbXl-3HLcSSY-3_uRasVnqMKdQ7-2QJLI4WjkpuHj8cU5HKTexBkdXJVlrBOlzP7d1aTeTzGrNfYkpGoYUxXNReSBov0iTemx-jr7YfNj22wQEJ7ZAtLAx3rZFUuG2X8bEh5Dlc6uxQ)
+    }</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="relative flex h-auto min-screen w-full flex-col group/design-root overflow-x-hidden">
+<!-- Header -->
+<header class="sticky top-0 z-50 w-full bg-heritage-red shadow-lg">
+<div class="max-w-[1200px] mx-auto px-4 py-3 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="text-heritage-gold">
+<span class="material-symbols-outlined text-3xl">account_tree</span>
+</div>
+<h1 class="text-white text-2xl font-serif font-bold tracking-tight">Tộc Phạm Phú</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-white/90 hover:text-heritage-gold text-sm font-medium transition-colors" href="#">Gia phả</a>
+<a class="text-white/90 hover:text-heritage-gold text-sm font-medium transition-colors" href="#">Lịch sử</a>
+<a class="text-white/90 hover:text-heritage-gold text-sm font-medium transition-colors" href="#">Thành viên</a>
+<a class="text-white/90 hover:text-heritage-gold text-sm font-medium transition-colors" href="#">Sự kiện</a>
+<a class="text-white/90 hover:text-heritage-gold text-sm font-medium transition-colors" href="#">Tra cứu</a>
+</nav>
+<button class="bg-heritage-gold text-heritage-red hover:bg-yellow-500 px-6 py-2 rounded-lg font-bold text-sm transition-all shadow-md">
+                Khám phá cây gia phả
+            </button>
+</div>
+</header>
+<main class="flex-1">
+<!-- Hero Section -->
+<section class="relative py-24 md:py-32 lotus-pattern border-b border-heritage-gold/20 overflow-hidden">
+<div class="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center">
+<span class="material-symbols-outlined text-[400px]">filter_vintage</span>
+</div>
+<div class="max-w-[1200px] mx-auto px-4 text-center relative z-10">
+<h2 class="text-5xl md:text-7xl font-serif font-black text-heritage-red leading-tight mb-6">
+                    Lưu giữ lịch sử –<br/>Kết nối hậu duệ
+                </h2>
+<p class="text-lg md:text-xl text-slate-700 dark:text-slate-300 max-w-2xl mx-auto mb-10 leading-relaxed font-light">
+                    Khám phá cội nguồn và kết nối các thế hệ trong dòng họ Phạm Phú qua nền tảng gia phả trực tuyến hiện đại nhưng đậm chất truyền thống.
+                </p>
+<div class="flex flex-wrap justify-center gap-4">
+<button class="bg-heritage-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-red-800 transition-all shadow-xl flex items-center gap-2">
+<span class="material-symbols-outlined">account_tree</span>
+                        Xem cây gia phả
+                    </button>
+<button class="border-2 border-heritage-red text-heritage-red px-8 py-4 rounded-lg font-bold text-lg hover:bg-heritage-red hover:text-white transition-all">
+                        Thêm thành viên
+                    </button>
+</div>
+</div>
+</section>
+<!-- Features Section -->
+<section class="py-20 bg-white dark:bg-background-dark/50">
+<div class="max-w-[1200px] mx-auto px-4">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Feature 1 -->
+<div class="bg-background-light p-8 rounded-xl border-t-4 border-heritage-gold shadow-sm hover:shadow-md transition-shadow">
+<div class="w-12 h-12 bg-heritage-red/10 text-heritage-red rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined">hub</span>
+</div>
+<h3 class="text-xl font-serif font-bold text-slate-900 mb-3">Cây Gia Phả Tương Tác</h3>
+<p class="text-slate-600 leading-relaxed">Sơ đồ phả hệ trực quan, dễ dàng theo dõi huyết thống qua hàng chục thế hệ chỉ với một cú chạm.</p>
+</div>
+<!-- Feature 2 -->
+<div class="bg-background-light p-8 rounded-xl border-t-4 border-heritage-gold shadow-sm hover:shadow-md transition-shadow">
+<div class="w-12 h-12 bg-heritage-red/10 text-heritage-red rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined">person_search</span>
+</div>
+<h3 class="text-xl font-serif font-bold text-slate-900 mb-3">Tra Cứu Danh Xưng</h3>
+<p class="text-slate-600 leading-relaxed">Tìm kiếm thông tin và vị trí trong dòng tộc nhanh chóng bằng tên, năm sinh hoặc chi họ.</p>
+</div>
+<!-- Feature 3 -->
+<div class="bg-background-light p-8 rounded-xl border-t-4 border-heritage-gold shadow-sm hover:shadow-md transition-shadow">
+<div class="w-12 h-12 bg-heritage-red/10 text-heritage-red rounded-full flex items-center justify-center mb-6">
+<span class="material-symbols-outlined">event_note</span>
+</div>
+<h3 class="text-xl font-serif font-bold text-slate-900 mb-3">Sự Kiện Gia Đình</h3>
+<p class="text-slate-600 leading-relaxed">Cập nhật ngày giỗ, lễ tết và họp mặt dòng họ tự động nhắc nhở theo âm lịch hàng năm.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Ancestor Highlights -->
+<section class="py-20 bg-background-light dark:bg-background-dark">
+<div class="max-w-[1200px] mx-auto px-4">
+<div class="flex items-center justify-between mb-12">
+<h2 class="text-3xl font-serif font-bold text-heritage-red border-b-2 border-heritage-gold pb-2">Tiền Nhân Nổi Bật</h2>
+<a class="text-heritage-red font-semibold flex items-center gap-1 hover:underline" href="#">
+                        Xem tất cả <span class="material-symbols-outlined">arrow_forward</span>
+</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<div class="bg-white p-4 rounded-lg shadow-sm group cursor-pointer border border-heritage-gold/10">
+<div class="aspect-[3/4] rounded-md mb-4 bg-slate-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Chân dung danh nhân Phạm Phú Thứ lịch sự" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXNGFwA-vR16Zzkz9ztdHKDCGc8Dn3X6dn1zpRXaq_y7V9xb7YqoGoQnElNiq7m0Xf5fiABmXUCaKls47kM6P21Faql5u7zBuPwbsI8FAiElJ31d7dDCjeYKdtKjIgRa2hiHsIHwLZVLCtQVWBj6Oq3Ja7slqy58V4BtEW0PfK9N2iEuCsGWkgpDl5Z43ILvNV6zLGKRfKP-t8j1I84csW9rHkC9_5O5JxtLfOXtR66d-1q-NMcgd2DlQ37Oe2ZClP11Iqpyu64nU"/>
+<div class="absolute inset-0 bg-heritage-red/10 group-hover:bg-transparent transition-colors"></div>
+</div>
+<h4 class="font-serif font-bold text-lg text-slate-900">Phạm Phú Thứ</h4>
+<p class="text-slate-500 text-sm">1821 – 1882</p>
+</div>
+<div class="bg-white p-4 rounded-lg shadow-sm group cursor-pointer border border-heritage-gold/10">
+<div class="aspect-[3/4] rounded-md mb-4 bg-slate-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Di ảnh tư liệu cổ truyền thống" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoEvykO9cL7kQbgC_dhJeGB6XEIIN-Fc8cmY-Cfq9wHwinRvELmjM4pVBd02Vr3l-vyw6e_q4VDhZKppRfWKcjLyRxA_EaWDz4F9P0vSalkcKJK6KLEMhVlfUIlHC1iqimT3qkeEi-PYT3WYiMoOaryNocXAMhAN1Hjky1IqobZlaIKxgkjJuJvuTM7VtrHoc_V4IgDHXV23uq9LYxxJTZlIdsF1_ODTVph8NVE7uKeIOJK2euYcrBRSRt-aDDjRenNq-1yq1T1ds"/>
+<div class="absolute inset-0 bg-heritage-red/10 group-hover:bg-transparent transition-colors"></div>
+</div>
+<h4 class="font-serif font-bold text-lg text-slate-900">Phạm Phú Quốc</h4>
+<p class="text-slate-500 text-sm">1935 – 1965</p>
+</div>
+<div class="bg-white p-4 rounded-lg shadow-sm group cursor-pointer border border-heritage-gold/10">
+<div class="aspect-[3/4] rounded-md mb-4 bg-slate-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Chân dung người xưa thanh tao" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDW7FMlMDVxMKrK_muLWgB30KKda2-gaO4xizPfgZv_PC4wqty5xFPwyIjX1ZNLUsU6OaPhX8nxhQrM5b6tW-a3L_qigfllC8S7UOX5vYOfIvxPorpAVJv2OxxkWTu8pdJ1O9QFFq1LRWe_Mx4t9cImzNWY71LniVH-WiJc5uL4-uGtXsEh1yZaocXyOU2vxtwc_BLcQ_PAsInUMJdEQ66g98UalPE7AqpD4GN9t2mdjkHVD9vwN3IPd5TmTIKHb9pGU5ykuk8M1Bk"/>
+<div class="absolute inset-0 bg-heritage-red/10 group-hover:bg-transparent transition-colors"></div>
+</div>
+<h4 class="font-serif font-bold text-lg text-slate-900">Phạm Phú Tiết</h4>
+<p class="text-slate-500 text-sm">1901 – 1970</p>
+</div>
+<div class="bg-white p-4 rounded-lg shadow-sm group cursor-pointer border border-heritage-gold/10">
+<div class="aspect-[3/4] rounded-md mb-4 bg-slate-200 overflow-hidden relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Chân dung học giả xưa" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAG9NDecNhKws-yss5serCJq-cjvMPGBxTQ3XUBZ3oJOXzwgUgs2qTANZxbj1CBDuskgTn89Mb8KoyTaZejqjUtNBWZjUwkb1En3B8cdIi_lNLMe404oyDCygb0VjHfedKd-hFxTa_10bqCnoAoznNyXIzCMCrtlesi-Zzb7mq3fk4u7SzwjmtU-M64bGly6kOKEdtRWUjnvohMsEdSWrDtb-7fOF5A0dDu6hBROzOkotf6X9DACJjLDdCbkbjR1YV1FsA_ZQz_jcs"/>
+<div class="absolute inset-0 bg-heritage-red/10 group-hover:bg-transparent transition-colors"></div>
+</div>
+<h4 class="font-serif font-bold text-lg text-slate-900">Phạm Phú Tiên</h4>
+<p class="text-slate-500 text-sm">1780 – 1840</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Timeline Section -->
+<section class="py-20 bg-white dark:bg-background-dark/30">
+<div class="max-w-[800px] mx-auto px-4">
+<h2 class="text-3xl font-serif font-bold text-center text-slate-900 mb-16">Sự Kiện Sắp Tới</h2>
+<div class="relative border-l-2 border-heritage-gold ml-4 md:ml-0">
+<!-- Timeline Item 1 -->
+<div class="mb-12 relative pl-10">
+<div class="absolute -left-[11px] top-0 w-5 h-5 bg-heritage-red rounded-full border-4 border-white"></div>
+<div class="flex flex-col md:flex-row md:items-center gap-2 mb-2">
+<span class="text-heritage-red font-bold">15/03/2024</span>
+<span class="hidden md:block text-slate-300">|</span>
+<span class="text-slate-500 italic">Mùng 6 tháng Hai (Giáp Thìn)</span>
+</div>
+<h4 class="text-xl font-bold text-slate-800">Lễ Giỗ Thủy Tổ Tộc Phạm Phú</h4>
+<p class="text-slate-600 mt-2">Tổ chức tại Nhà Thờ Tộc, Điện Bàn, Quảng Nam. Kính mời con cháu về tham dự.</p>
+</div>
+<!-- Timeline Item 2 -->
+<div class="mb-12 relative pl-10">
+<div class="absolute -left-[11px] top-0 w-5 h-5 bg-heritage-gold rounded-full border-4 border-white"></div>
+<div class="flex flex-col md:flex-row md:items-center gap-2 mb-2">
+<span class="text-heritage-red font-bold">28/04/2024</span>
+<span class="hidden md:block text-slate-300">|</span>
+<span class="text-slate-500 italic">20 tháng Ba (Giáp Thìn)</span>
+</div>
+<h4 class="text-xl font-bold text-slate-800">Họp Mặt Hội Đồng Gia Tộc</h4>
+<p class="text-slate-600 mt-2">Thống nhất kế hoạch trùng tu nhà thờ và cập nhật gia phả điện tử đợt 1 năm 2024.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-heritage-red text-white py-16">
+<div class="max-w-[1200px] mx-auto px-4">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-heritage-gold text-3xl">account_tree</span>
+<h3 class="text-2xl font-serif font-bold">Tộc Phạm Phú</h3>
+</div>
+<p class="text-white/70 leading-relaxed italic">
+                        "Lưu giữ cội nguồn, kết nối thế hệ. Cây có gốc mới nở cành xanh ngọn, nước có nguồn mới bể rộng sông sâu."
+                    </p>
+</div>
+<div>
+<h4 class="text-heritage-gold font-bold mb-6 uppercase tracking-wider text-sm">Liên kết</h4>
+<ul class="space-y-4 text-white/80">
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Cây gia phả</a></li>
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Lịch sử dòng họ</a></li>
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Danh nhân</a></li>
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Tin tức &amp; Sự kiện</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-heritage-gold font-bold mb-6 uppercase tracking-wider text-sm">Hỗ trợ</h4>
+<ul class="space-y-4 text-white/80">
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Hướng dẫn đăng ký</a></li>
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Báo cáo lỗi</a></li>
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Góp ý nội dung</a></li>
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Chính sách bảo mật</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-heritage-gold font-bold mb-6 uppercase tracking-wider text-sm">Liên hệ</h4>
+<ul class="space-y-4 text-white/80">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-heritage-gold">location_on</span>
+<span>Nhà thờ Tộc Phạm Phú, Điện Bàn, Quảng Nam</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-heritage-gold">mail</span>
+<span>lienhe@phamphu.vn</span>
+</li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-heritage-gold">phone</span>
+<span>0905 123 456</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<p class="text-white/50 text-sm">© 2024 Hội đồng Gia tộc Phạm Phú. Tất cả quyền được bảo lưu.</p>
+<div class="flex gap-6">
+<a class="text-white/50 hover:text-heritage-gold transition-colors" href="#">
+<span class="material-symbols-outlined">social_leaderboard</span>
+</a>
+<a class="text-white/50 hover:text-heritage-gold transition-colors" href="#">
+<span class="material-symbols-outlined">youtube_activity</span>
+</a>
+</div>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

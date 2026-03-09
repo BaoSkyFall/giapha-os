@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tộc Phạm Phú Member Directory</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "heritage-gold": "#C5A059",
+                        "heritage-red": "#b41d1d",
+                        "heritage-pink": "#D46A84",
+                        "jade-green": "#2D6A4F",
+                        "paper": "#F7F3EA",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Inter", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>.paper-texture {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuATkFHZoR0jJirMXevunKfvCs67sVTtfwbADRnzwfcp0jAL-P6Axr13KL04A_BDhKvjJyJz7eIrwifbDdSPPknJ_icxhbUSPk206Ygo6ocxAA2z8W4AcZwne9IQDAYDPtBneI8Gb8xjD432o16OL4JDHZYhXxgv9m5EWPnxfCPg7kwmG6tRtBmB8SqLfJIbXZC7ynk6-ljwMT5mAbqwpD-NbA5ITAbte0-LoT-vZBPKsir1QAjMVN0hJ1-TqoAiZcUq8dF4yXcVWNA)
+    }
+.gold-border {
+    border: 1px solid #C5A059
+    }</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 paper-texture">
+<div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+<header class="w-full bg-heritage-red text-white shadow-lg sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="size-10 bg-white/10 rounded-full flex items-center justify-center border border-heritage-gold/30">
+<span class="material-symbols-outlined text-heritage-gold">temple_buddhist</span>
+</div>
+<h1 class="font-serif text-2xl font-bold tracking-tight">Tộc Phạm Phú</h1>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-sm font-medium hover:text-heritage-gold transition-colors" href="#">Trang chủ</a>
+<a class="text-sm font-medium hover:text-heritage-gold transition-colors" href="#">Gia phả</a>
+<div class="relative flex flex-col items-center">
+<a class="text-sm font-bold text-heritage-gold" href="#">Thành viên</a>
+<div class="absolute -bottom-2 w-full h-0.5 bg-heritage-gold"></div>
+</div>
+<a class="text-sm font-medium hover:text-heritage-gold transition-colors" href="#">Sự kiện</a>
+<a class="text-sm font-medium hover:text-heritage-gold transition-colors" href="#">Tin tức</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-white/10 rounded-full">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="px-5 py-2 bg-heritage-gold text-heritage-red font-bold text-sm rounded-lg hover:bg-yellow-500 transition-colors">
+                        Đăng nhập
+                    </button>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto w-full px-6 py-12">
+<section class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12 border-b-2 border-heritage-gold/20 pb-8">
+<div>
+<h2 class="font-serif text-5xl font-black text-heritage-red mb-2">Thành Viên Dòng Họ</h2>
+<div class="w-24 h-1 bg-heritage-gold mb-4"></div>
+<p class="text-slate-600 dark:text-slate-400 font-medium italic">Tổng cộng: 42 thành viên gia tộc</p>
+</div>
+<button class="flex items-center gap-2 px-6 py-3 bg-heritage-red text-white font-bold rounded-lg shadow-md hover:bg-red-800 transition-all">
+<span class="material-symbols-outlined">person_add</span>
+                    Thêm thành viên mới
+                </button>
+</section>
+<section class="bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm p-4 rounded-xl border border-heritage-gold/20 mb-10 flex flex-wrap gap-4 items-center shadow-sm">
+<div class="flex-1 min-w-[300px]">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-heritage-red">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border-heritage-gold/20 rounded-lg focus:ring-heritage-red focus:border-heritage-red text-sm" placeholder="Tìm kiếm theo tên, năm sinh..." type="text"/>
+</div>
+</div>
+<div class="flex flex-wrap gap-3">
+<select class="bg-white dark:bg-slate-900 border-heritage-gold/20 rounded-lg text-sm px-4 py-2.5 focus:ring-heritage-red">
+<option>Giới tính</option>
+<option>Nam</option>
+<option>Nữ</option>
+</select>
+<select class="bg-white dark:bg-slate-900 border-heritage-gold/20 rounded-lg text-sm px-4 py-2.5 focus:ring-heritage-red">
+<option>Đời</option>
+<option>Đời 1</option>
+<option>Đời 2</option>
+<option>Đời 3</option>
+<option>Đời 4</option>
+<option>Đời 5</option>
+</select>
+<select class="bg-white dark:bg-slate-900 border-heritage-gold/20 rounded-lg text-sm px-4 py-2.5 focus:ring-heritage-red">
+<option>Trạng thái</option>
+<option>Còn sống</option>
+<option>Đã mất</option>
+</select>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-heritage-gold/20 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors">
+<span class="material-symbols-outlined text-sm">swap_vert</span>
+                        Sắp xếp
+                    </button>
+</div>
+</section>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<div class="bg-white dark:bg-slate-900 p-6 rounded-lg gold-border shadow-md border-l-4 border-l-blue-500 relative flex flex-col items-center text-center transition-transform hover:-translate-y-1">
+<div class="w-24 h-24 rounded-full border-2 border-heritage-gold p-1 mb-4">
+<img alt="Member Avatar" class="w-full h-full rounded-full object-cover bg-slate-100" data-alt="Portrait of an elderly Vietnamese man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdRr9JbEBu5QuMLy4I9TsmW910UmsS9soF_jTMof6FHAtAdAYRPoxKpGzxUJQxXgu69EKVoCMKDb5MLErVtAmkUdG6Lwh2vXna4K57NGxQU6AWSaE_QHdB25BSjmLYU2IBSdofzMoN0l_PbETaeU0HJSIRSOanYgvoZUSPcg8o1T7HQpaX6aBmCOVw4R9wjCfyzvSV5XLQeToiz85ftV1QVywIcgLxirP6jH9llG0TAbyv1TPn-UkAJO2bs3oNmp-pV6uShmauliM"/>
+</div>
+<span class="bg-heritage-gold/20 text-heritage-red text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 tracking-wider">ĐỜI 3</span>
+<h3 class="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">Phạm Phú An</h3>
+<p class="text-xs text-slate-500 mb-4 italic">Sinh năm: 1952</p>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-jade-green/10 text-jade-green text-xs font-bold">
+<span class="size-1.5 rounded-full bg-jade-green"></span>
+                        Còn sống
+                    </span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-lg gold-border shadow-md border-l-4 border-l-heritage-pink relative flex flex-col items-center text-center transition-transform hover:-translate-y-1">
+<div class="w-24 h-24 rounded-full border-2 border-heritage-gold p-1 mb-4">
+<img alt="Member Avatar" class="w-full h-full rounded-full object-cover bg-slate-100" data-alt="Portrait of a Vietnamese woman with long hair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzvet7_fNgTWnCCNOOF-Ctv8eJM8H1DlppcnxyRwK7gDAdT1sikergnCF1e-k1rPz-0cNIA-davYmQ3vKcGv2zD_poITvmPqDQ_adXlLYupGLlYdt0m4Vj_FGHgKK6IiWLsucwzLKX657FMF-fgymqdPoxbGo6FzNbKJX-TLeEHLyqj-ozm4W8gPCPVKY-nSDW2G43rJfQZjL_Faqg3fooIyU3D9RnZqu6V_fiPXqwf9BRKCprIpnoW-F4CyBR0a4tHbdFqFATB-Q"/>
+</div>
+<span class="bg-heritage-gold/20 text-heritage-red text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 tracking-wider">ĐỜI 4</span>
+<h3 class="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">Phạm Phú Ngọc Hoa</h3>
+<p class="text-xs text-slate-500 mb-4 italic">Sinh năm: 1978</p>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-jade-green/10 text-jade-green text-xs font-bold">
+<span class="size-1.5 rounded-full bg-jade-green"></span>
+                        Còn sống
+                    </span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-lg gold-border shadow-md border-l-4 border-l-blue-500 relative flex flex-col items-center text-center transition-transform hover:-translate-y-1 grayscale-[0.5] opacity-90">
+<div class="w-24 h-24 rounded-full border-2 border-heritage-gold p-1 mb-4">
+<img alt="Member Avatar" class="w-full h-full rounded-full object-cover bg-slate-100" data-alt="Vintage style portrait of a man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACvKuVc0EYTQzUVHVz48KoaWkJjBehGrdLlI0mfYfMf7tSXClmOvrVvMLhaE5q5-Si2-GlvfjXK-hz5KU7b267R1iKGBoyqqx3k5NPNyIq-iwfDIJyJGVKg2WVbaejyJHrjeWd1AczdhIhMaE_jyd1sBlnW4PAjdtxkxKpHLjOFMzxevZSFF3aS6QyNKAYY0mRvYhj9u4SJBZJsbzysoRp4-4iVKNGx5uM0vkeVcnUJALbjsQdP-7nPjI9diBU5kknu2L-xankygI"/>
+</div>
+<span class="bg-heritage-gold/20 text-heritage-red text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 tracking-wider">ĐỜI 2</span>
+<h3 class="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">Phạm Phú Hiển</h3>
+<p class="text-xs text-slate-500 mb-4 italic">1920 - 1995</p>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-bold">
+                        Đã mất
+                    </span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-lg gold-border shadow-md border-l-4 border-l-heritage-pink relative flex flex-col items-center text-center transition-transform hover:-translate-y-1">
+<div class="w-24 h-24 rounded-full border-2 border-heritage-gold p-1 mb-4">
+<img alt="Member Avatar" class="w-full h-full rounded-full object-cover bg-slate-100" data-alt="Portrait of a young Vietnamese woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBymYviEry6jHKEuh_Djn-BNDV9XuhoQ1TTbi0vnXb5M-ONaEnsL4nzhNb1meqLtRBXS09dteG-W7XqFyU784yrhf1c3HI4NNRfZAe0jK5H2e35_6dhyxXoVUNy3-OfXwn2RsAF5cIE7Xh6-PuEveulFrrLJWbejX-TZn4hsaTEI9Un54reSqU-MGF41XvsldNfDg0wpUa3asBcphSFJOypRIMfYHgfNm9gfm9QMqs20DlGxKcbehf-itthvr-uVqy3V-pKLFYM23Q"/>
+</div>
+<span class="bg-heritage-gold/20 text-heritage-red text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 tracking-wider">ĐỜI 5</span>
+<h3 class="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">Phạm Phú Linh</h3>
+<p class="text-xs text-slate-500 mb-4 italic">Sinh năm: 2002</p>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-jade-green/10 text-jade-green text-xs font-bold">
+<span class="size-1.5 rounded-full bg-jade-green"></span>
+                        Còn sống
+                    </span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-lg gold-border shadow-md border-l-4 border-l-blue-500 relative flex flex-col items-center text-center transition-transform hover:-translate-y-1">
+<div class="w-24 h-24 rounded-full border-2 border-heritage-gold p-1 mb-4">
+<img alt="Member Avatar" class="w-full h-full rounded-full object-cover bg-slate-100" data-alt="Portrait of a middle aged Vietnamese man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAryXVqTeIEFnNY3rcfXVQtV3wihNrnZSOjca6GBJvVwqWhgYYnowvsZpIIk_OgC-wNIGlATKDPy1CgKf5n4qEJYKaJwjeBWwI_hD2FPYqYdDiB3gJUTQBKPuV9fWtnv2G0i0Wfy36uJFhliMdqZhFv17ATaLHLDqb9mhP5yWLCA82nyRHnVopodquhNca5fMzZEKpl4M1vxISmfL0y4E7X0f8qcDtYc44ph4KJQz99Gf41S4ZY6LvadbnAWS9v63qj09Q-Z5OZhKs"/>
+</div>
+<span class="bg-heritage-gold/20 text-heritage-red text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 tracking-wider">ĐỜI 4</span>
+<h3 class="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">Phạm Phú Cương</h3>
+<p class="text-xs text-slate-500 mb-4 italic">Sinh năm: 1982</p>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-jade-green/10 text-jade-green text-xs font-bold">
+<span class="size-1.5 rounded-full bg-jade-green"></span>
+                        Còn sống
+                    </span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-lg gold-border shadow-md border-l-4 border-l-heritage-pink relative flex flex-col items-center text-center transition-transform hover:-translate-y-1">
+<div class="w-24 h-24 rounded-full border-2 border-heritage-gold p-1 mb-4">
+<img alt="Member Avatar" class="w-full h-full rounded-full object-cover bg-slate-100" data-alt="Portrait of an elderly Vietnamese woman" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWTc8I0VzfsmYGDhlLu73gs5mAxw1eMgGRCVCVf8RmZDDnd2puzkD-goOGUPtoW7MspysuhGqV_N35NQ32BDLEFHyWm1raGRTQrf1ZIIZ3z4FlM_uo9S5cER0uOx0vekRZjm_GSDvpbGeuYO7IoTl9zSsGSDdtjd-oAMqeOUqYanVQQe37tRzcRaWM-SrtAJfSZqK7W8TPiIQqYiAr4uQwCAy010tx0AkS6SvaSiRHfFQSZrlBoSroYQX9KBK_DK8tXYwkUeapwZ0"/>
+</div>
+<span class="bg-heritage-gold/20 text-heritage-red text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 tracking-wider">ĐỜI 3</span>
+<h3 class="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">Phạm Phú Thị Lành</h3>
+<p class="text-xs text-slate-500 mb-4 italic">Sinh năm: 1955</p>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-jade-green/10 text-jade-green text-xs font-bold">
+<span class="size-1.5 rounded-full bg-jade-green"></span>
+                        Còn sống
+                    </span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-lg gold-border shadow-md border-l-4 border-l-blue-500 relative flex flex-col items-center text-center transition-transform hover:-translate-y-1">
+<div class="w-24 h-24 rounded-full border-2 border-heritage-gold p-1 mb-4">
+<img alt="Member Avatar" class="w-full h-full rounded-full object-cover bg-slate-100" data-alt="Portrait of a young boy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg3tx0YHd-GEIazxTLuS7BLV6Tm4C-5rh_YAsayjkoEaAXtfgHPmKQIL30jiteJ7wJDr6gqXudHqcHHFmCL4RS3JU0Kjrov8jlTITQ1zC9kaENrHB0wY6r1yvMCeRjySAvtXQeZ_iqtGSi5d1bnHyitcmk58mJ3LqNzpbvPXsnjUuO2ZH6OlaIZxwl8ojLYjr_vxwBnIFx7AUAjPfQC9fscICk44jMhEUPNujEa75CFot52aFREFxNkqKF-rSiB34nJbL-yBwKESM"/>
+</div>
+<span class="bg-heritage-gold/20 text-heritage-red text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 tracking-wider">ĐỜI 6</span>
+<h3 class="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">Phạm Phú Minh</h3>
+<p class="text-xs text-slate-500 mb-4 italic">Sinh năm: 2015</p>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-jade-green/10 text-jade-green text-xs font-bold">
+<span class="size-1.5 rounded-full bg-jade-green"></span>
+                        Còn sống
+                    </span>
+</div>
+<div class="bg-white dark:bg-slate-900 p-6 rounded-lg gold-border shadow-md border-l-4 border-l-blue-500 relative flex flex-col items-center text-center transition-transform hover:-translate-y-1">
+<div class="w-24 h-24 rounded-full border-2 border-heritage-gold p-1 mb-4">
+<img alt="Member Avatar" class="w-full h-full rounded-full object-cover bg-slate-100" data-alt="Portrait of a young man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBa4BWhxAghV9Zy48YUZZ55_4kn4iyiQuhpuqP22i_k8SeM3XYQ0b-VJMDGEPgmV1uVu8hyH-r40jFm3zQxKIQOgsylFBl_53wB1610IHYhFd40ZA14P0pRFsjqyLLpm1Pty4euBRGvwewY3zqgvswKDn49jg4cIrDK4G7LGIxsPOhCBRx46YhDxpeH7_Jcn8McGHt3UKauVx5C9lTAoWghoFWf2SVzocH5eV0WTM75okv7vTPsnM6-z4-iuj5vFvdST8RLHSXfaLY"/>
+</div>
+<span class="bg-heritage-gold/20 text-heritage-red text-[10px] font-bold px-2 py-0.5 rounded-full mb-2 tracking-wider">ĐỜI 5</span>
+<h3 class="font-serif text-xl font-bold text-slate-800 dark:text-slate-100 mb-1">Phạm Phú Khôi</h3>
+<p class="text-xs text-slate-500 mb-4 italic">Sinh năm: 1998</p>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-jade-green/10 text-jade-green text-xs font-bold">
+<span class="size-1.5 rounded-full bg-jade-green"></span>
+                        Còn sống
+                    </span>
+</div>
+</div>
+<nav class="mt-16 flex justify-center items-center gap-2">
+<button class="size-10 rounded-lg flex items-center justify-center hover:bg-heritage-gold/20 transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="size-10 rounded-lg bg-heritage-red text-white font-bold">1</button>
+<button class="size-10 rounded-lg hover:bg-heritage-gold/20 transition-colors font-medium">2</button>
+<button class="size-10 rounded-lg hover:bg-heritage-gold/20 transition-colors font-medium">3</button>
+<span class="px-2">...</span>
+<button class="size-10 rounded-lg hover:bg-heritage-gold/20 transition-colors font-medium">6</button>
+<button class="size-10 rounded-lg flex items-center justify-center hover:bg-heritage-gold/20 transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</nav>
+</main>
+<footer class="mt-auto w-full bg-heritage-red text-white py-16 border-t-4 border-heritage-gold">
+<div class="max-w-7xl mx-auto px-6 text-center">
+<div class="flex flex-col items-center gap-6">
+<div class="size-16 bg-heritage-gold/20 rounded-full flex items-center justify-center border-2 border-heritage-gold">
+<span class="material-symbols-outlined text-heritage-gold text-3xl">diversity_3</span>
+</div>
+<div>
+<h2 class="font-serif text-3xl font-bold mb-4 italic">"Uống nước nhớ nguồn - Ăn quả nhớ kẻ trồng cây"</h2>
+<p class="text-white/70 max-w-2xl mx-auto leading-relaxed">
+                            Cơ sở dữ liệu Gia tộc Phạm Phú được xây dựng để lưu giữ lịch sử, kết nối các thế hệ và tôn vinh những giá trị truyền thống tốt đẹp của dòng họ.
+                        </p>
+</div>
+<div class="flex gap-8 text-sm font-medium pt-8 border-t border-white/10 w-full justify-center">
+<a class="hover:text-heritage-gold transition-colors" href="#">Về Dòng Họ</a>
+<a class="hover:text-heritage-gold transition-colors" href="#">Từ Đường</a>
+<a class="hover:text-heritage-gold transition-colors" href="#">Liên Hệ</a>
+<a class="hover:text-heritage-gold transition-colors" href="#">Chính Sách Bảo Mật</a>
+</div>
+<p class="text-white/40 text-[10px] uppercase tracking-widest pt-4">© 2024 Tộc Phạm Phú. All Rights Reserved.</p>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

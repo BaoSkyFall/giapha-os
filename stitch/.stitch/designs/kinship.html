@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tộc Phạm Phú Kinship Finder</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "accent-gold": "#C5A059",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                        "paper": "#FFFFFF",
+                    },
+                    fontFamily: {
+                        "display": ["Noto Serif", "serif"],
+                        "serif-title": ["Playfair Display", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Noto Serif', serif; }
+        .title-font { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="border-b-4 border-primary bg-white dark:bg-background-dark px-6 py-4 sticky top-0 z-50 shadow-sm">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<div class="text-primary">
+<span class="material-symbols-outlined text-4xl">account_tree</span>
+</div>
+<h1 class="text-primary text-2xl font-bold tracking-tight title-font">TỘC PHẠM PHÚ</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8 ml-10">
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary font-medium transition-colors" href="#">Gia Phả</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary font-medium transition-colors" href="#">Sự Kiện</a>
+<a class="text-primary border-b-2 border-primary font-bold pb-1" href="#">Tra Cứu Quan Hệ</a>
+<a class="text-slate-600 dark:text-slate-300 hover:text-primary font-medium transition-colors" href="#">Lịch Sử</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="pl-10 pr-4 py-2 rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 focus:ring-primary focus:border-primary w-64" placeholder="Tìm thành viên..." type="text"/>
+</div>
+<button class="bg-primary text-white px-6 py-2 rounded-lg font-bold hover:bg-red-800 transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">login</span>
+                    Đăng nhập
+                </button>
+</div>
+</div>
+</header>
+<main class="max-w-64 md:max-w-5xl mx-auto py-12 px-4">
+<!-- Title Section -->
+<div class="text-center mb-12">
+<h2 class="title-font text-5xl font-bold text-slate-900 dark:text-slate-100 mb-2">Tra Cứu Quan Hệ</h2>
+<div class="h-1 w-32 bg-accent-gold mx-auto rounded-full"></div>
+<p class="mt-4 text-slate-600 dark:text-slate-400 max-w-lg mx-auto italic">Tìm hiểu cách xưng hô đúng mực giữa các thành viên trong đại gia đình Phạm Phú.</p>
+</div>
+<!-- Search Interface -->
+<div class="grid md:grid-cols-2 gap-8 items-center mb-12">
+<!-- First Person Card -->
+<div class="bg-paper dark:bg-slate-800 p-8 rounded-xl border-2 border-accent-gold/30 shadow-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-accent-gold/5 -mr-8 -mt-8 rounded-full"></div>
+<div class="flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-full border-4 border-accent-gold/20 mb-4 bg-slate-100 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of an elderly Vietnamese man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBIMnIi3RLvcAReBsfjIElmVZEc_9CGZ_PfxiSRrtAGb4Ov5WyIFopOYAbPbjGml-QQVf69Y5_KzO1F_JXIluYlXhHP-4rA4XJP1pot42TJNbFXUNJgQ740TPkqgsNtyiro3nK6LB97tjWIB_XTHuEnLK0mx462me1BtvK3cReq3Z0BHLZKfe95KfGMyT-5VDbCRXcvzYaI5eQkFZ56q5NeuCcu75wBTP33WcBeKO1zA5aw9CRg9OCkW0eDPz8mtum1SWQojSNeKg"/>
+</div>
+<label class="block mb-2 text-primary font-bold uppercase tracking-wider text-sm">Người thứ nhất</label>
+<select class="w-full p-3 rounded-lg border-accent-gold/30 focus:border-primary focus:ring-primary bg-background-light/50 dark:bg-slate-700 font-display">
+<option>Phạm Văn An</option>
+<option>Phạm Hữu Phước</option>
+<option>Phạm Công Danh</option>
+</select>
+</div>
+</div>
+<!-- Second Person Card -->
+<div class="bg-paper dark:bg-slate-800 p-8 rounded-xl border-2 border-accent-gold/30 shadow-lg relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-accent-gold/5 -mr-8 -mt-8 rounded-full"></div>
+<div class="flex flex-col items-center text-center">
+<div class="w-24 h-24 rounded-full border-4 border-accent-gold/20 mb-4 bg-slate-100 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Portrait of a Vietnamese woman in traditional dress" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZpcT-ohTwuf70UaoQO1c_Ir1Jj0zj1MbaFCwDyS0K-5A_ZUZ5fbDeOCZmsQYmyC5aTDCxloxaEDB04_u80-SeYI-qQxe_bdcUY8RDchkndT1HmIUIi8T1mlDs_NA8Ra3mzeCQJn8Mdaue53XxBnNIz_qzDTnt3ZvS-tvFeF7OQuxhjdGAhw3oQ0TKqrtpjNQcCoFzrdqQkLKUqOCjhurfRRNcleb5AtRuCCtzKiWIWx3_cj612J_6scFmh0hspK1j9KTuBKIOgHI"/>
+</div>
+<label class="block mb-2 text-primary font-bold uppercase tracking-wider text-sm">Người thứ hai</label>
+<select class="w-full p-3 rounded-lg border-accent-gold/30 focus:border-primary focus:ring-primary bg-background-light/50 dark:bg-slate-700 font-display">
+<option>Phạm Thị Bình</option>
+<option>Phạm Lê Thu Hà</option>
+<option>Phạm Thị Ngọc</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Tra Cuu Button -->
+<div class="flex justify-center -mt-12 mb-12 relative z-10">
+<button class="bg-primary hover:bg-red-800 text-white text-xl font-bold py-4 px-12 rounded-full shadow-xl transform hover:scale-105 transition-all flex items-center gap-3">
+<span class="material-symbols-outlined">family_history</span>
+                Tra cứu ngay
+            </button>
+</div>
+<!-- Result Display -->
+<div class="bg-white dark:bg-slate-800 rounded-2xl border-4 border-accent-gold p-10 shadow-2xl mb-20 text-center bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-accent-gold/10 via-transparent to-transparent">
+<p class="text-slate-600 dark:text-slate-400 text-lg italic mb-2">Kết quả tra cứu</p>
+<h3 class="text-2xl font-medium mb-6">Phạm Văn An gọi Phạm Thị Bình là:</h3>
+<div class="mb-6">
+<span class="title-font text-8xl font-black text-accent-gold tracking-widest drop-shadow-sm">CÔ</span>
+</div>
+<div class="bg-primary/5 dark:bg-primary/20 p-4 rounded-lg inline-block mb-8">
+<p class="text-primary font-bold text-xl italic">Cô — chị/em gái của cha</p>
+</div>
+<div class="max-w-2xl mx-auto border-t border-slate-100 dark:border-slate-700 pt-8">
+<p class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Sơ đồ quan hệ</p>
+<div class="flex flex-wrap items-center justify-center gap-4 text-lg font-medium">
+<span class="bg-slate-100 dark:bg-slate-700 px-4 py-2 rounded-lg">Phạm Văn An</span>
+<span class="material-symbols-outlined text-accent-gold">trending_flat</span>
+<div class="flex flex-col items-center">
+<span class="text-xs text-slate-400">Cha</span>
+<span class="bg-slate-100 dark:bg-slate-700 px-4 py-2 rounded-lg">Phạm Văn Hùng</span>
+</div>
+<span class="material-symbols-outlined text-accent-gold">trending_flat</span>
+<div class="flex flex-col items-center">
+<span class="text-xs text-slate-400">Em gái</span>
+<span class="bg-primary text-white px-4 py-2 rounded-lg">Phạm Thị Bình</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Reference Grid -->
+<div class="mb-20">
+<div class="flex items-center gap-4 mb-8">
+<h3 class="title-font text-3xl font-bold text-slate-800 dark:text-slate-200">Danh Xưng Thường Gặp</h3>
+<div class="flex-grow h-px bg-slate-200 dark:bg-slate-700"></div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+<!-- Card 1 -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-accent-gold/20 text-center hover:shadow-md transition-shadow">
+<span class="title-font text-2xl font-bold text-primary block mb-1">Bác</span>
+<p class="text-sm text-slate-500">Anh/chị của cha hoặc mẹ</p>
+</div>
+<!-- Card 2 -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-accent-gold/20 text-center hover:shadow-md transition-shadow">
+<span class="title-font text-2xl font-bold text-primary block mb-1">Chú</span>
+<p class="text-sm text-slate-500">Em trai của cha</p>
+</div>
+<!-- Card 3 -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-accent-gold/20 text-center hover:shadow-md transition-shadow">
+<span class="title-font text-2xl font-bold text-primary block mb-1">Cô</span>
+<p class="text-sm text-slate-500">Em gái của cha</p>
+</div>
+<!-- Card 4 -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-accent-gold/20 text-center hover:shadow-md transition-shadow">
+<span class="title-font text-2xl font-bold text-primary block mb-1">Cậu</span>
+<p class="text-sm text-slate-500">Anh/em trai của mẹ</p>
+</div>
+<!-- Card 5 -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-accent-gold/20 text-center hover:shadow-md transition-shadow">
+<span class="title-font text-2xl font-bold text-primary block mb-1">Dì</span>
+<p class="text-sm text-slate-500">Chị/em gái của mẹ</p>
+</div>
+<!-- Card 6 -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-accent-gold/20 text-center hover:shadow-md transition-shadow">
+<span class="title-font text-2xl font-bold text-primary block mb-1">Ông/Bà</span>
+<p class="text-sm text-slate-500">Cha mẹ của cha/mẹ</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-primary text-white py-16 px-6">
+<div class="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 border-b border-white/20 pb-12 mb-8">
+<div>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-4xl text-accent-gold">account_tree</span>
+<h4 class="title-font text-2xl font-bold tracking-widest">TỘC PHẠM PHÚ</h4>
+</div>
+<p class="text-white/80 leading-relaxed font-display italic">
+                    "Uống nước nhớ nguồn, làm con phải hiếu.<br/>
+                    Cây có cội mới nẩy cành xanh lá,<br/>
+                    Nước có nguồn mới tủa khắp rạch sông."
+                </p>
+</div>
+<div class="grid grid-cols-2 gap-8">
+<div>
+<h5 class="font-bold text-accent-gold uppercase tracking-widest mb-6 text-sm">Liên kết</h5>
+<ul class="space-y-4 text-white/80">
+<li><a class="hover:text-white" href="#">Gia Phả Toàn Tộc</a></li>
+<li><a class="hover:text-white" href="#">Nhà Thờ Tổ</a></li>
+<li><a class="hover:text-white" href="#">Quỹ Khuyến Học</a></li>
+<li><a class="hover:text-white" href="#">Tin Tức Sự Kiện</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold text-accent-gold uppercase tracking-widest mb-6 text-sm">Hỗ trợ</h5>
+<ul class="space-y-4 text-white/80">
+<li><a class="hover:text-white" href="#">Hướng dẫn</a></li>
+<li><a class="hover:text-white" href="#">Đóng góp tư liệu</a></li>
+<li><a class="hover:text-white" href="#">Liên hệ Ban quản trị</a></li>
+</ul>
+</div>
+</div>
+<div>
+<h5 class="font-bold text-accent-gold uppercase tracking-widest mb-6 text-sm">Nhận thông báo</h5>
+<p class="text-sm mb-4 text-white/80">Nhận thông tin về các ngày giỗ tổ và họp mặt gia tộc.</p>
+<div class="flex gap-2">
+<input class="bg-white/10 border-white/20 rounded-lg focus:ring-accent-gold focus:border-accent-gold w-full text-white placeholder:text-white/40" placeholder="Email của bạn" type="email"/>
+<button class="bg-accent-gold hover:bg-yellow-600 text-primary font-bold px-4 rounded-lg transition-colors">Gửi</button>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-white/60 text-sm">
+<p>© 2024 Tộc Phạm Phú - Tất cả quyền được bảo lưu.</p>
+<div class="flex gap-6 mt-4 md:mt-0">
+<a class="hover:text-white transition-colors" href="#">Facebook Group</a>
+<a class="hover:text-white transition-colors" href="#">Zalo Community</a>
+</div>
+</div>
+</footer>
+</body></html>

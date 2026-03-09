@@ -1,0 +1,135 @@
+{
+    "name": "projects/7998967920457136760",
+    "projectId": "7998967920457136760",
+    "title": "Tộc Phạm Phú — Tộc Phạm Phú",
+    "visibility": "PRIVATE",
+    "createTime": "2026-03-09T06:14:55.363673Z",
+    "updateTime": "2026-03-09T06:40:00.000000Z",
+    "projectType": "PROJECT_DESIGN",
+    "origin": "STITCH",
+    "deviceType": "DESKTOP",
+    "designTheme": {
+        "colorMode": "LIGHT",
+        "font": "INTER",
+        "roundness": "ROUND_EIGHT",
+        "customColor": "#b41d1d",
+        "saturation": 2
+    },
+    "screens": {
+        "index": {
+            "id": "aecc67466d87498e8c03328e3b3d4e51",
+            "sourceScreen": "projects/7998967920457136760/screens/aecc67466d87498e8c03328e3b3d4e51",
+            "x": 0,
+            "y": 0,
+            "width": 2560,
+            "height": 5410
+        },
+        "tree": {
+            "id": "d3d3bab8a58a4094b9cb7af35b476c75",
+            "sourceScreen": "projects/7998967920457136760/screens/d3d3bab8a58a4094b9cb7af35b476c75",
+            "x": 2700,
+            "y": 0,
+            "width": 2560,
+            "height": 2048
+        },
+        "kinship": {
+            "id": "922d3d103f194f24b129549d46d80f30",
+            "sourceScreen": "projects/7998967920457136760/screens/922d3d103f194f24b129549d46d80f30",
+            "x": 5400,
+            "y": 0,
+            "width": 2560,
+            "height": 4012
+        },
+        "members": {
+            "id": "e20881ea014f4ab48f87a987e91f998c",
+            "sourceScreen": "projects/7998967920457136760/screens/e20881ea014f4ab48f87a987e91f998c",
+            "x": 8100,
+            "y": 0,
+            "width": 2560,
+            "height": 3240
+        },
+        "events": {
+            "id": "71c3cd7ae3784c2cae25582bad0d778c",
+            "sourceScreen": "projects/7998967920457136760/screens/71c3cd7ae3784c2cae25582bad0d778c",
+            "x": 10800,
+            "y": 0,
+            "width": 2560,
+            "height": 3626
+        },
+        "stats": {
+            "id": "a829b7e5a9c5489788eafae312849804",
+            "sourceScreen": "projects/7998967920457136760/screens/a829b7e5a9c5489788eafae312849804",
+            "x": 0,
+            "y": 5600,
+            "width": 2560,
+            "height": 3356
+        },
+        "member-detail": {
+            "id": "5a7597eb67134ff4af4df2b0289234b5",
+            "sourceScreen": "projects/7998967920457136760/screens/5a7597eb67134ff4af4df2b0289234b5",
+            "x": 2700,
+            "y": 5600,
+            "width": 2560,
+            "height": 2956
+        },
+        "member-form": {
+            "id": "29d1892fba744a78bdc3d1ee16b8cc60",
+            "sourceScreen": "projects/7998967920457136760/screens/29d1892fba744a78bdc3d1ee16b8cc60",
+            "x": 5400,
+            "y": 5600,
+            "width": 2560,
+            "height": 5900
+        },
+        "users": {
+            "id": "7139dec9ca914c269c21299893c18858",
+            "sourceScreen": "projects/7998967920457136760/screens/7139dec9ca914c269c21299893c18858",
+            "x": 8100,
+            "y": 5600,
+            "width": 2560,
+            "height": 3328
+        },
+        "login": {
+            "id": "0a7631fa8cf64b68bcfc21a8b846c89f",
+            "sourceScreen": "projects/7998967920457136760/screens/0a7631fa8cf64b68bcfc21a8b846c89f",
+            "x": 10800,
+            "y": 5600,
+            "width": 2560,
+            "height": 3100
+        },
+        "about": {
+            "id": "fb533917f1724721831c8df5a89cbb95",
+            "sourceScreen": "projects/7998967920457136760/screens/fb533917f1724721831c8df5a89cbb95",
+            "x": 0,
+            "y": 9200,
+            "width": 2560,
+            "height": 6960
+        },
+        "lineage": {
+            "id": "904a59e41b1646ffb74d0128ab300dcf",
+            "sourceScreen": "projects/7998967920457136760/screens/904a59e41b1646ffb74d0128ab300dcf",
+            "x": 2700,
+            "y": 9200,
+            "width": 2560,
+            "height": 2972
+        },
+        "data": {
+            "id": "2dc3243c10954f688fd323f22ff2ce80",
+            "sourceScreen": "projects/7998967920457136760/screens/2dc3243c10954f688fd323f22ff2ce80",
+            "x": 5400,
+            "y": 9200,
+            "width": 2560,
+            "height": 3348
+        },
+        "gallery": {
+            "id": "4a5c3b6d81864423b8e402107e63c6cd",
+            "sourceScreen": "projects/7998967920457136760/screens/4a5c3b6d81864423b8e402107e63c6cd",
+            "x": 8100,
+            "y": 9200,
+            "width": 2560,
+            "height": 4022
+        }
+    },
+    "metadata": {
+        "userRole": "OWNER"
+    }
+}

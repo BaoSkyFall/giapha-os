@@ -1,6 +1,6 @@
 import config from "@/app/config";
 import DashboardHeader from "@/components/DashboardHeader";
-import Footer from "@/components/Footer";
+import DashboardSidebar from "@/components/DashboardSidebar";
 import LogoutButton from "@/components/LogoutButton";
 import { UserProvider } from "@/components/UserProvider";
 import { getProfile, getUser } from "@/utils/supabase/queries";
@@ -23,24 +23,22 @@ export default async function DashboardLayout({
 
   if (!profile?.is_active) {
     return (
-      <div className="min-h-screen bg-stone-50 text-stone-900 flex flex-col font-sans">
-        <header className="sticky top-0 z-30 bg-white/80 border-b border-stone-200 shadow-sm transition-all duration-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/" className="group flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-serif font-bold text-stone-800 group-hover:text-amber-700 transition-colors">
-                  {config.siteName}
-                </h1>
-              </Link>
-            </div>
-            <div className="w-32">
-              <LogoutButton />
-            </div>
+      <div className="min-h-screen bg-rice-paper text-altar-wood flex flex-col font-sans">
+        <header className="sticky top-0 z-30 h-16 bg-heritage-red text-white px-6 flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="group flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-serif font-bold text-white">
+                {config.siteName}
+              </h1>
+            </Link>
+          </div>
+          <div className="w-32">
+            <LogoutButton />
           </div>
         </header>
         <main className="flex-1 flex flex-col items-center justify-center p-4">
-          <div className="max-w-md w-full text-center bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-sm border border-stone-200">
-            <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="max-w-md w-full text-center bg-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-sm border border-heritage-gold/10">
+            <div className="w-16 h-16 bg-heritage-gold/10 text-heritage-red rounded-full flex items-center justify-center mx-auto mb-4">
               <svg
                 className="size-8"
                 fill="none"
@@ -55,34 +53,34 @@ export default async function DashboardLayout({
                 />
               </svg>
             </div>
-            <h2 className="text-2xl font-serif font-bold text-stone-800 mb-2">
+            <h2 className="text-2xl font-serif font-bold text-altar-wood mb-2">
               Tài khoản chờ duyệt
             </h2>
-            <p className="text-stone-600">
+            <p className="text-altar-wood/70">
               Tài khoản của bạn đã được đăng ký thành công. Tuy nhiên, hệ thống
               yêu cầu Quản trị viên kích hoạt tài khoản của bạn trước khi bạn có
               thể xem các thông tin gia đình.
             </p>
-            <p className="text-stone-500 text-sm mt-4 italic">
+            <p className="text-altar-wood/50 text-sm mt-4 italic">
               Vui lòng liên hệ lại với người quản trị dòng họ để được cấp quyền
               sớm nhất.
             </p>
           </div>
         </main>
-        <Footer className="mt-auto bg-white border-t border-stone-200" />
       </div>
     );
   }
 
   return (
     <UserProvider user={user} profile={profile}>
-      <div className="min-h-screen bg-stone-50 text-stone-900 flex flex-col font-sans">
+      <div className="h-screen flex flex-col overflow-hidden bg-rice-paper text-altar-wood font-sans">
         <DashboardHeader />
-        {children}
-        <Footer
-          className="mt-auto bg-white border-t border-stone-200"
-          showDisclaimer={true}
-        />
+        <div className="flex flex-1 overflow-hidden">
+          <DashboardSidebar />
+          <main className="flex-1 flex flex-col overflow-auto">
+            {children}
+          </main>
+        </div>
       </div>
     </UserProvider>
   );
