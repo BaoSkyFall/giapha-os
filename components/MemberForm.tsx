@@ -93,6 +93,12 @@ export default function MemberForm({
   );
 
   const [note, setNote] = useState(initialData?.note || "");
+  const [birthDateText, setBirthDateText] = useState(
+    initialData?.birth_date_text || "",
+  );
+  const [deathDateText, setDeathDateText] = useState(
+    initialData?.death_date_text || "",
+  );
 
   // Private fields
   const [phoneNumber, setPhoneNumber] = useState(
@@ -187,6 +193,8 @@ export default function MemberForm({
         birth_order: birthOrder === "" ? null : Number(birthOrder),
         generation: generation === "" ? null : Number(generation),
         other_names: otherNames || null,
+        birth_date_text: birthDateText || null,
+        death_date_text: isDeceased ? deathDateText || null : null,
         avatar_url: finalAvatarUrl || null,
         note: note || null,
       };
@@ -523,6 +531,18 @@ export default function MemberForm({
                 className={inputClasses}
               />
             </div>
+            <div className="mt-2">
+              <input
+                type="text"
+                value={birthDateText}
+                onChange={(e) => setBirthDateText(e.target.value)}
+                placeholder="VD: Đầu thế kỷ 18, Khoảng năm 1850..."
+                className={inputClasses}
+              />
+              <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
+                <span>💡</span> Dùng khi không rõ ngày tháng năm chính xác
+              </p>
+            </div>
           </div>
 
           <div className="md:col-span-2 bg-stone-50/50 p-5 rounded-2xl border border-stone-200/60 shadow-xs">
@@ -538,6 +558,7 @@ export default function MemberForm({
                         setDeathYear("");
                         setDeathMonth("");
                         setDeathDay("");
+                        setDeathDateText("");
                       }
                     }}
                     className="peer sr-only"
@@ -618,6 +639,18 @@ export default function MemberForm({
                       }
                       className={inputClasses}
                     />
+                  </div>
+                  <div className="mt-3">
+                    <input
+                      type="text"
+                      value={deathDateText}
+                      onChange={(e) => setDeathDateText(e.target.value)}
+                      placeholder="VD: Khoảng năm 1920, Cuối thế kỷ 19..."
+                      className={inputClasses}
+                    />
+                    <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
+                      <span>💡</span> Dùng khi không rõ ngày mất chính xác
+                    </p>
                   </div>
                 </motion.div>
               )}

@@ -154,8 +154,8 @@ export default function MemberDetailContent({
               {person.birth_order != null && (
                 <span className="text-[10px] sm:text-xs font-sans font-bold rounded-md px-2 py-0.5 whitespace-nowrap shadow-xs border text-amber-700 bg-amber-50/60 border-amber-200/60 uppercase tracking-wider">
                   {person.birth_order === 1
-                    ? "Con trưởng"
-                    : `Con thứ ${person.birth_order}`}
+                    ? person.gender === "male" ? "Trưởng Nam" : person.gender === "female" ? "Trưởng Nữ" : "Con trưởng"
+                    : `Con ${person.gender === "male" ? "Trai" : person.gender === "female" ? "Gái" : ""} thứ ${person.birth_order}`}
                 </span>
               )}
               {person.generation != null && (
@@ -173,7 +173,7 @@ export default function MemberDetailContent({
               </p>
             )}
 
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-3 sm:gap-4">
               {/* Birth Card */}
               <motion.div
                 variants={itemVariants}
@@ -200,16 +200,15 @@ export default function MemberDetailContent({
                   </div>
                 </div>
                 <div className="space-y-1.5 pl-4 border-l-2 border-stone-100">
-                  <p className="text-stone-800 font-semibold text-sm sm:text-base">
-                    {formatDisplayDate(
-                      person.birth_year,
-                      person.birth_month,
-                      person.birth_day,
-                    )}
-                  </p>
-                  {(person.birth_year ||
-                    person.birth_month ||
-                    person.birth_day) && (
+                  {(person.birth_year || person.birth_month || person.birth_day) ? (
+                    <>
+                      <p className="text-stone-800 font-semibold text-sm sm:text-base">
+                        {formatDisplayDate(
+                          person.birth_year,
+                          person.birth_month,
+                          person.birth_day,
+                        )}
+                      </p>
                       <p className="text-sm font-medium text-stone-500 flex items-center gap-1.5">
                         <span className="text-[10px] border border-stone-200/60 bg-stone-50/80 rounded px-1.5 py-0.5">
                           Âm lịch
@@ -220,7 +219,19 @@ export default function MemberDetailContent({
                           person.birth_day,
                         ) || "Chưa rõ"}
                       </p>
-                    )}
+                      {person.birth_date_text && (
+                        <p className="text-xs font-medium text-stone-400 italic">
+                          {person.birth_date_text}
+                        </p>
+                      )}
+                    </>
+                  ) : person.birth_date_text ? (
+                    <p className="text-stone-700 font-medium text-sm sm:text-base italic">
+                      {person.birth_date_text}
+                    </p>
+                  ) : (
+                    <p className="text-stone-400 text-sm italic">Chưa rõ</p>
+                  )}
                 </div>
               </motion.div>
 
@@ -237,16 +248,15 @@ export default function MemberDetailContent({
                     </h3>
                   </div>
                   <div className="space-y-1.5 pl-4 border-l-2 border-stone-100">
-                    <p className="text-stone-800 font-semibold text-sm sm:text-base">
-                      {formatDisplayDate(
-                        person.death_year,
-                        person.death_month,
-                        person.death_day,
-                      )}
-                    </p>
-                    {(person.death_year ||
-                      person.death_month ||
-                      person.death_day) && (
+                    {(person.death_year || person.death_month || person.death_day) ? (
+                      <>
+                        <p className="text-stone-800 font-semibold text-sm sm:text-base">
+                          {formatDisplayDate(
+                            person.death_year,
+                            person.death_month,
+                            person.death_day,
+                          )}
+                        </p>
                         <p className="text-xs font-medium text-stone-500 flex items-center gap-1.5">
                           <span className="text-[10px] border border-stone-200/60 bg-stone-50/80 rounded px-1.5 py-0.5">
                             Âm lịch
@@ -257,7 +267,19 @@ export default function MemberDetailContent({
                             person.death_day,
                           ) || "Chưa rõ"}
                         </p>
-                      )}
+                        {person.death_date_text && (
+                          <p className="text-xs font-medium text-stone-400 italic">
+                            {person.death_date_text}
+                          </p>
+                        )}
+                      </>
+                    ) : person.death_date_text ? (
+                      <p className="text-stone-700 font-medium text-sm sm:text-base italic">
+                        {person.death_date_text}
+                      </p>
+                    ) : (
+                      <p className="text-stone-400 text-sm italic">Chưa rõ</p>
+                    )}
                   </div>
                 </motion.div>
               )}

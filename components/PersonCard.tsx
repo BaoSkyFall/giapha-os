@@ -123,8 +123,8 @@ export default function PersonCard({ person }: PersonCardProps) {
                 {person.birth_order != null && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 uppercase tracking-widest shadow-xs">
                     {person.birth_order === 1
-                      ? "Con trưởng"
-                      : `Con thứ ${person.birth_order}`}
+                      ? person.gender === "male" ? "Trưởng Nam" : person.gender === "female" ? "Trưởng Nữ" : "Con trưởng"
+                      : `Con ${person.gender === "male" ? "Trai" : person.gender === "female" ? "Gái" : ""} thứ ${person.birth_order}`}
                   </span>
                 )}
                 {person.generation != null && (

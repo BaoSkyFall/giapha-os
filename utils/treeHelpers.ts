@@ -44,9 +44,14 @@ export function buildAdjacencyLists(
     }
   });
 
-  // Sắp xếp con cái theo thứ tự sinh hoặc năm sinh
+  // Sắp xếp con cái: nam trước, rồi theo thứ tự sinh hoặc năm sinh
   children.forEach((childArray) => {
     childArray.sort((a, b) => {
+      // Males first (male=0, female=1, other=2)
+      const genderRank = (g: string) => g === "male" ? 0 : g === "female" ? 1 : 2;
+      const genderDiff = genderRank(a.gender) - genderRank(b.gender);
+      if (genderDiff !== 0) return genderDiff;
+
       const aOrder = a.birth_order ?? Infinity;
       const bOrder = b.birth_order ?? Infinity;
       if (aOrder !== bOrder) return aOrder - bOrder;
