@@ -139,7 +139,7 @@ export default function GalleryPage() {
                 >
                     <motion.div className="max-w-2xl" variants={fadeIn}>
                         <h2 className="text-5xl md:text-6xl font-serif font-black text-altar-wood leading-tight relative pb-3">
-                            Kho Ảnh Gia Đình
+                            Kho Ảnh Gia Tộc
                             <span className="absolute bottom-0 left-0 w-20 h-[3px] bg-heritage-gold rounded-full" />
                         </h2>
                         <p className="mt-6 text-lg text-altar-wood/60 font-serif italic">
@@ -184,8 +184,8 @@ export default function GalleryPage() {
                                 key={cat}
                                 onClick={() => setActiveCategory(cat)}
                                 className={`px-6 py-2 rounded-full font-semibold text-sm transition-all ${activeCategory === cat
-                                        ? "bg-heritage-red text-white shadow-md"
-                                        : "bg-white text-altar-wood/70 hover:bg-heritage-red/5 border border-heritage-gold/20"
+                                    ? "bg-heritage-red text-white shadow-md"
+                                    : "bg-white text-altar-wood/70 hover:bg-heritage-red/5 border border-heritage-gold/20"
                                     }`}
                             >
                                 {cat}

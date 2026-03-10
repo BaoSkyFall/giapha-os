@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { AuthProvider } from "@/components/AuthProvider";
+import { getUser, getProfile } from "@/utils/supabase/queries";
 import config from "./config";
 import "./globals.css";
 
@@ -16,18 +18,24 @@ export const metadata: Metadata = {
   description: config.siteName,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUser();
+  const profile = user ? await getProfile(user.id) : null;
+
   return (
     <html lang="vi">
       <body
         className={`${inter.variable} ${playfair.variable} font-sans antialiased relative`}
       >
-        {children}
+        <AuthProvider user={user} profile={profile}>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
 }
+
