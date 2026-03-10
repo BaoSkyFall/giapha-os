@@ -15,7 +15,33 @@ const playfair = Playfair_Display({
 });
 export const metadata: Metadata = {
   title: config.siteName,
-  description: config.siteName,
+  description:
+    "Tộc Phạm Phú - Gia phả dòng họ Phạm Phú, lưu giữ và kết nối thế hệ.",
+  metadataBase: new URL("https://tocphamphu.com"),
+  openGraph: {
+    title: "Tộc Phạm Phú",
+    description:
+      "Gia phả dòng họ Phạm Phú - Lưu giữ truyền thống, kết nối thế hệ.",
+    url: "https://tocphamphu.com",
+    siteName: "Tộc Phạm Phú",
+    images: [
+      {
+        url: "/phamphuthu_1.png",
+        width: 828,
+        height: 1200,
+        alt: "Phạm Phú Thứ",
+      },
+    ],
+    locale: "vi_VN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tộc Phạm Phú",
+    description:
+      "Gia phả dòng họ Phạm Phú - Lưu giữ truyền thống, kết nối thế hệ.",
+    images: ["/phamphuthu_1.png"],
+  },
 };
 
 export default async function RootLayout({
