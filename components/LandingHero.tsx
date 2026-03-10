@@ -1,5 +1,6 @@
 "use client";
 
+import { FamilyEvent } from "@/utils/eventHelpers";
 import { motion, Variants } from "framer-motion";
 import { ArrowRight, CalendarDays, Search, TreePine, UserRound } from "lucide-react";
 import Image from "next/image";
@@ -50,24 +51,16 @@ const ancestors = [
   { name: "Phạm Phú Bằng", years: "1930 – 2024", image: "/phamphubang_1.jpeg", slug: "pham-phu-bang-dai-ta-nha-bao" },
 ];
 
-const events = [
-  {
-    date: "15/03/2026",
-    lunar: "Mùng 6 tháng Hai (Bính Ngọ)",
-    title: "Lễ Giỗ Thủy Tổ Tộc Phạm Phú",
-    desc: "Tổ chức tại Nhà Thờ Tộc, Điện Bàn, Quảng Nam. Kính mời con cháu về tham dự.",
-    isPrimary: true,
-  },
-  {
-    date: "28/04/2026",
-    lunar: "20 tháng Ba (Bính Ngọ)",
-    title: "Họp Mặt Hội Đồng Gia Tộc",
-    desc: "Thống nhất kế hoạch trùng tu nhà thờ và cập nhật gia phả điện tử đợt 1 năm 2026.",
-    isPrimary: false,
-  },
-];
+/** Serialized version for server→client boundary (Date → string). */
+type SerializedEvent = Omit<FamilyEvent, "nextOccurrence"> & {
+  nextOccurrence: string;
+};
 
-export default function LandingHero() {
+interface LandingHeroProps {
+  events: SerializedEvent[];
+}
+
+export default function LandingHero({ events }: LandingHeroProps) {
   return (
     <>
       {/* Hero Section */}
@@ -235,33 +228,50 @@ export default function LandingHero() {
             Sự Kiện Sắp Tới
           </motion.h2>
           <div className="relative border-l-2 border-heritage-gold ml-4 md:ml-0">
-            {events.map((event, idx) => (
-              <motion.div
-                key={idx}
-                className="mb-12 relative pl-10"
-                variants={fadeIn}
-              >
-                <div
-                  className={`absolute -left-[11px] top-0 w-5 h-5 rounded-full border-4 border-white ${event.isPrimary
-                    ? "bg-heritage-red"
-                    : "bg-heritage-gold"
-                    }`}
-                />
-                <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
-                  <span className="text-heritage-red font-bold">
-                    {event.date}
-                  </span>
-                  <span className="hidden md:block text-altar-wood/30">|</span>
-                  <span className="text-altar-wood/50 italic">
-                    {event.lunar}
-                  </span>
-                </div>
-                <h4 className="text-xl font-bold text-altar-wood">
-                  {event.title}
-                </h4>
-                <p className="text-altar-wood/60 mt-2">{event.desc}</p>
+            {events.length === 0 ? (
+              <motion.div className="pl-10 py-8 text-center" variants={fadeIn}>
+                <CalendarDays className="size-10 mx-auto mb-3 text-altar-wood/20" />
+                <p className="text-altar-wood/50">Chưa có sự kiện nào sắp tới</p>
               </motion.div>
-            ))}
+            ) : (
+              events.map((event, idx) => (
+                <motion.div
+                  key={`${event.personId}-${event.type}-${idx}`}
+                  className="mb-12 relative pl-10"
+                  variants={fadeIn}
+                >
+                  <div
+                    className={`absolute -left-[11px] top-0 w-5 h-5 rounded-full border-4 border-white ${event.type === "death_anniversary"
+                      ? "bg-heritage-red"
+                      : event.type === "custom_event"
+                        ? "bg-heritage-gold"
+                        : "bg-blue-400"
+                      }`}
+                  />
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 mb-2">
+                    <span className="text-heritage-red font-bold">
+                      {event.eventDateLabel}
+                    </span>
+                    <span className="hidden md:block text-altar-wood/30">|</span>
+                    <span className="text-altar-wood/50 italic">
+                      {event.type === "death_anniversary"
+                        ? "Ngày giỗ"
+                        : event.type === "birthday"
+                          ? "Sinh nhật"
+                          : "Sự kiện"}
+                    </span>
+                  </div>
+                  <h4 className="text-xl font-bold text-altar-wood">
+                    {event.personName}
+                  </h4>
+                  {(event.location || event.content) && (
+                    <p className="text-altar-wood/60 mt-2">
+                      {event.location || event.content}
+                    </p>
+                  )}
+                </motion.div>
+              ))
+            )}
           </div>
         </div>
       </motion.section>
