@@ -46,33 +46,41 @@ export default function Footer({
               <li>
                 <a
                   className="hover:text-heritage-gold transition-colors"
-                  href="#"
+                  href="/"
                 >
-                  Cây gia phả
+                  Trang chủ
                 </a>
               </li>
               <li>
                 <a
                   className="hover:text-heritage-gold transition-colors"
-                  href="#"
+                  href="/about"
                 >
-                  Lịch sử dòng họ
+                  Giới thiệu
                 </a>
               </li>
               <li>
                 <a
                   className="hover:text-heritage-gold transition-colors"
-                  href="#"
+                  href="/dashboard/members"
                 >
-                  Danh nhân
+                  Gia phả
                 </a>
               </li>
               <li>
                 <a
                   className="hover:text-heritage-gold transition-colors"
-                  href="#"
+                  href="/blog"
                 >
-                  Tin tức &amp; Sự kiện
+                  Tin tức
+                </a>
+              </li>
+              <li>
+                <a
+                  className="hover:text-heritage-gold transition-colors"
+                  href="/gallery"
+                >
+                  Thư viện
                 </a>
               </li>
             </ul>
@@ -87,33 +95,17 @@ export default function Footer({
               <li>
                 <a
                   className="hover:text-heritage-gold transition-colors"
-                  href="#"
+                  href="/login"
                 >
-                  Hướng dẫn đăng ký
+                  Đăng nhập / Đăng ký
                 </a>
               </li>
               <li>
                 <a
                   className="hover:text-heritage-gold transition-colors"
-                  href="#"
+                  href="/about"
                 >
-                  Báo cáo lỗi
-                </a>
-              </li>
-              <li>
-                <a
-                  className="hover:text-heritage-gold transition-colors"
-                  href="#"
-                >
-                  Góp ý nội dung
-                </a>
-              </li>
-              <li>
-                <a
-                  className="hover:text-heritage-gold transition-colors"
-                  href="#"
-                >
-                  Chính sách bảo mật
+                  Quyền riêng tư và Bảo mật
                 </a>
               </li>
             </ul>
@@ -127,16 +119,24 @@ export default function Footer({
             <ul className="space-y-4 text-white/80">
               <li className="flex items-start gap-3">
                 <MapPin className="size-5 text-heritage-gold shrink-0 mt-0.5" />
-                <span>Nhà thờ Tộc Phạm Phú, Điện Bàn, Quảng Nam</span>
+                <a href="https://maps.app.goo.gl/cbSZAcQNNMurhrHP7" target="_blank" rel="noopener noreferrer" className="hover:text-heritage-gold transition-colors">
+                  Nhà thờ Tộc Phạm Phú, Điện Bàn, Quảng Nam
+                </a>
               </li>
-              <li className="flex items-center gap-3">
+              <li className="flex items-start gap-3">
+                <MapPin className="size-5 text-heritage-gold shrink-0 mt-0.5" />
+                <a href="https://maps.app.goo.gl/8Ai11bi5bsHRvero9" target="_blank" rel="noopener noreferrer" className="hover:text-heritage-gold transition-colors">
+                  Nhà thờ Tộc Phạm Phú, Thủ Đức, TP. Hồ Chí Minh
+                </a>
+              </li>
+              {/* <li className="flex items-center gap-3">
                 <Mail className="size-5 text-heritage-gold shrink-0" />
                 <span>lienhe@phamphu.vn</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="size-5 text-heritage-gold shrink-0" />
                 <span>0905 123 456</span>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>
