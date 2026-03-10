@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tộc Phạm Phú Admin Posts List</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Playfair+Display:wght@400;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "heritage-gold": "#C5A059",
+                        "heritage-red": "#b41d1d",
+                        "background-light": "#F7F3EA",
+                        "background-dark": "#201212",
+                        "paper": "#FCF9F2",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "serif-title": ["Playfair Display", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .active-nav {
+            border-left: 4px solid #C5A059;
+            color: #C5A059 !important;
+            background-color: rgba(180, 29, 29, 0.8);
+        }
+        body {
+            font-family: 'Newsreader', serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light text-slate-900 min-h-screen flex flex-col">
+<!-- Top Bar -->
+<header class="w-full bg-heritage-red h-16 flex items-center justify-between px-6 z-50 sticky top-0 shadow-md">
+<div class="flex items-center gap-4">
+<div class="bg-white p-1 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-heritage-red text-2xl">account_balance</span>
+</div>
+<h1 class="text-white font-serif-title text-xl font-bold tracking-wide">Tộc Phạm Phú</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center bg-white/10 rounded-full px-4 py-1.5 border border-white/20">
+<span class="material-symbols-outlined text-white/70 text-sm mr-2">search</span>
+<input class="bg-transparent border-none text-white text-sm focus:ring-0 placeholder:text-white/50 w-48" placeholder="Tìm kiếm hệ thống..." type="text"/>
+</div>
+<button class="relative text-white/90 hover:text-white">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute -top-1 -right-1 bg-heritage-gold size-4 rounded-full text-[10px] flex items-center justify-center border-2 border-heritage-red">3</span>
+</button>
+<div class="flex items-center gap-3 border-l border-white/20 pl-6">
+<div class="text-right hidden sm:block">
+<p class="text-white text-xs font-bold leading-none">Phạm Phú Hùng</p>
+<p class="text-white/70 text-[10px]">Quản trị viên Cao cấp</p>
+</div>
+<div class="size-10 rounded-full bg-heritage-gold border-2 border-white/30 overflow-hidden">
+<img alt="Admin Avatar" data-alt="Admin user profile picture in traditional setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2hIr81lzpCrVqQJyaEt7gqqGAZVKmC6OKNskwx9CJfNqpKDKY0yzhKXewbXoyRI6bAHLWUaQTRiIB77UHVibkG6MhbnlQCVcGLIYIqPFYcK6JRfZL-jM5-jWPN5ZES9G-ZJ6p3AtI4X9oIPiHD78pVlG7qZcLIe6GzMbiJ9xriDDyd8HK_SJjFv1NYKH69WRbPpcsUCd1QMlI4BxyLmFdzzWkYV7GN7OQkgdHbsEOa70nsDrWz3f2TkuIdNHWgfFuUXUtzLeS7FA"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-[260px] bg-heritage-red flex-shrink-0 flex flex-col h-[calc(100vh-64px)] overflow-y-auto">
+<div class="p-6 space-y-8">
+<!-- Group: CHÍNH -->
+<div>
+<h3 class="text-white/50 text-[11px] font-bold uppercase tracking-widest mb-4 px-3">Chính</h3>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">dashboard</span>
+<span class="text-sm font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">group</span>
+<span class="text-sm font-medium">Thành viên</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">account_tree</span>
+<span class="text-sm font-medium">Cây gia phả</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">event</span>
+<span class="text-sm font-medium">Sự kiện</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">photo_library</span>
+<span class="text-sm font-medium">Thư viện</span>
+</a>
+</nav>
+</div>
+<!-- Group: NỘI DUNG -->
+<div>
+<h3 class="text-white/50 text-[11px] font-bold uppercase tracking-widest mb-4 px-3">Nội dung</h3>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 active-nav" href="#">
+<span class="material-symbols-outlined text-heritage-gold">article</span>
+<span class="text-sm font-bold">Bài viết</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">category</span>
+<span class="text-sm font-medium">Danh mục</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">label</span>
+<span class="text-sm font-medium">Thẻ tin</span>
+</a>
+</nav>
+</div>
+<!-- Group: HỆ THỐNG -->
+<div>
+<h3 class="text-white/50 text-[11px] font-bold uppercase tracking-widest mb-4 px-3">Hệ thống</h3>
+<nav class="space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">manage_accounts</span>
+<span class="text-sm font-medium">Người dùng</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">bar_chart</span>
+<span class="text-sm font-medium">Thống kê</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">database</span>
+<span class="text-sm font-medium">Dữ liệu</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-white/80 hover:bg-white/10 rounded-lg transition-all group" href="#">
+<span class="material-symbols-outlined group-hover:text-white">settings</span>
+<span class="text-sm font-medium">Cài đặt</span>
+</a>
+</nav>
+</div>
+</div>
+<div class="mt-auto p-6 border-t border-white/10">
+<button class="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white rounded-lg py-2 transition-colors text-sm">
+<span class="material-symbols-outlined text-sm">logout</span> Đăng xuất
+                </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto p-8 lg:px-12">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<div>
+<h2 class="font-serif-title text-4xl font-black text-heritage-red">Quản Lý Bài Viết</h2>
+<p class="text-slate-600 font-display italic mt-1">Lưu giữ tinh hoa và truyền thống dòng họ Phạm Phú qua từng trang viết.</p>
+</div>
+<button class="flex items-center justify-center gap-2 bg-heritage-red hover:bg-red-800 text-white px-6 py-3 rounded-full font-bold shadow-lg transition-all transform hover:-translate-y-0.5">
+<span class="material-symbols-outlined">edit_square</span>
+                    + Viết bài mới
+                </button>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-paper border-2 border-heritage-gold/30 rounded-xl p-6 flex items-center gap-5 shadow-sm">
+<div class="bg-heritage-red/10 p-3 rounded-xl">
+<span class="material-symbols-outlined text-heritage-red text-3xl">list_alt</span>
+</div>
+<div>
+<p class="text-slate-500 text-sm font-medium">Tổng bài viết</p>
+<p class="text-3xl font-serif-title font-black text-slate-800">12</p>
+</div>
+</div>
+<div class="bg-paper border-2 border-heritage-gold/30 rounded-xl p-6 flex items-center gap-5 shadow-sm">
+<div class="bg-green-100 p-3 rounded-xl">
+<span class="material-symbols-outlined text-green-700 text-3xl">check_circle</span>
+</div>
+<div>
+<p class="text-slate-500 text-sm font-medium">Đã xuất bản</p>
+<p class="text-3xl font-serif-title font-black text-slate-800">08</p>
+</div>
+</div>
+<div class="bg-paper border-2 border-heritage-gold/30 rounded-xl p-6 flex items-center gap-5 shadow-sm">
+<div class="bg-amber-100 p-3 rounded-xl">
+<span class="material-symbols-outlined text-amber-700 text-3xl">pending</span>
+</div>
+<div>
+<p class="text-slate-500 text-sm font-medium">Bản nháp</p>
+<p class="text-3xl font-serif-title font-black text-slate-800">04</p>
+</div>
+</div>
+</div>
+<!-- Filters & Tabs -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-6">
+<div class="flex border-b border-slate-200">
+<button class="px-6 py-3 border-b-2 border-heritage-red text-heritage-red font-bold text-sm">Tất cả (12)</button>
+<button class="px-6 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm transition-colors">Đã xuất bản (8)</button>
+<button class="px-6 py-3 text-slate-500 hover:text-slate-700 font-medium text-sm transition-colors">Bản nháp (4)</button>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<div class="relative flex-1 min-w-[300px]">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-slate-400">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-paper border border-heritage-gold/20 rounded-lg focus:ring-heritage-red focus:border-heritage-red text-sm" placeholder="Tìm theo tiêu đề, tác giả..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-4 py-2 border border-heritage-gold/20 bg-paper rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-medium transition-colors">
+<span class="material-symbols-outlined text-sm">filter_list</span> Bộ lọc
+                    </button>
+</div>
+</div>
+<!-- Bulk Actions Bar -->
+<div class="bg-slate-100/80 px-4 py-2.5 rounded-t-xl border-x border-t border-slate-200 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<label class="flex items-center gap-2 cursor-pointer">
+<input class="rounded text-heritage-red focus:ring-heritage-red" type="checkbox"/>
+<span class="text-xs font-bold text-slate-600">CHỌN TẤT CẢ</span>
+</label>
+<div class="h-4 w-px bg-slate-300"></div>
+<div class="flex items-center gap-2">
+<button class="text-slate-600 hover:text-red-600 flex items-center gap-1 text-xs font-bold transition-colors">
+<span class="material-symbols-outlined text-sm">delete</span> Xóa đã chọn
+                        </button>
+<button class="text-slate-600 hover:text-heritage-gold flex items-center gap-1 text-xs font-bold transition-colors">
+<span class="material-symbols-outlined text-sm">category</span> Đổi danh mục
+                        </button>
+</div>
+</div>
+<p class="text-[11px] text-slate-400 italic">Đang hiển thị 10 trong tổng số 12 bài viết</p>
+</div>
+<!-- Table -->
+<div class="bg-paper border-x border-b border-heritage-gold/30 rounded-b-xl shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-[11px] uppercase tracking-wider font-bold">
+<th class="py-4 px-6 w-10"></th>
+<th class="py-4 px-6">Tiêu đề bài viết</th>
+<th class="py-4 px-6">Danh mục</th>
+<th class="py-4 px-6">Tác giả</th>
+<th class="py-4 px-6">Trạng thái</th>
+<th class="py-4 px-6">Ngày đăng</th>
+<th class="py-4 px-6 text-center">Lượt xem</th>
+<th class="py-4 px-6 text-right">Thao tác</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100">
+<!-- Row 1 -->
+<tr class="hover:bg-background-light/50 transition-colors">
+<td class="py-4 px-6">
+<input class="rounded text-heritage-red focus:ring-heritage-red" type="checkbox"/>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col">
+<span class="text-slate-900 font-bold hover:text-heritage-red cursor-pointer leading-tight">Nguồn Gốc Dòng Họ Phạm Phú Tại Quảng Nam</span>
+<span class="text-[10px] text-slate-400 mt-1 uppercase">Slug: nguon-goc-dong-ho</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<span class="bg-heritage-red/10 text-heritage-red px-2.5 py-1 rounded-full text-[11px] font-bold">Lịch Sử</span>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Author" data-alt="Portrait of author in scholarly attire" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2ZEmZiCpslV3Dtm23bzvzrXL0F0FqurSfcgXqdox4C8wmvAv07JQUd94V9WVfqW51sVFQlza55DKSvrPgqXCc3mLr5gONT6lH7l0EjVvoqysq9OB6Y4iH3vv1uhOKR86Kh9CxHuFCqbIeOP2LYenY8O_IRXCgBmfEqWm-J_gVmdUCd5jLyWluvfpuEHyUD71Yg06ijPELmIcqeZnYqcCLR3HMoL1v_SNqzeLkxI1h5EX9O6XgSHZAWk-KetonGzZbZUhulezvD9M"/>
+</div>
+<span class="text-sm text-slate-700">Phú Hùng</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-1.5 text-green-700">
+<span class="size-2 rounded-full bg-green-600 shadow-[0_0_8px_rgba(22,163,74,0.5)]"></span>
+<span class="text-xs font-bold">Đã xuất bản</span>
+</div>
+</td>
+<td class="py-4 px-6 text-sm text-slate-500">12/05/2024</td>
+<td class="py-4 px-6 text-center text-sm font-bold text-slate-700">1,240</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-2 text-slate-400">
+<button class="hover:text-heritage-gold transition-colors"><span class="material-symbols-outlined text-lg">visibility</span></button>
+<button class="hover:text-heritage-red transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="hover:text-slate-800 transition-colors"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-background-light/50 transition-colors">
+<td class="py-4 px-6">
+<input class="rounded text-heritage-red focus:ring-heritage-red" type="checkbox"/>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col">
+<span class="text-slate-900 font-bold hover:text-heritage-red cursor-pointer leading-tight">Ý Nghĩa Ngày Giỗ Tổ Hằng Năm</span>
+<span class="text-[10px] text-slate-400 mt-1 uppercase">Slug: y-nghia-ngay-gio-to</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<span class="bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full text-[11px] font-bold">Phong Tục</span>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Author" data-alt="Portrait of editorial team member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBofiXkDTXqInF39AmBLUDeDrm1RYVdGg9rWXHnn-caWcZBa5SeaE7g09br_tO9DDamV1LyqU3m7J6CQWqm0EDHkFwdoHuZjvCBsaQMXNtiJYFVzgwyDcaTJgOZG4dDvbhRL2MQRLyE2_cm33hFKYjVYUqQeUjbJrj5l1arW8DZoGzjnVA4tI05EKQkpknvGZPhm3cTboKzFlDZu0dRflyWnzlWGSoGldTvJ8FZCkXfPYqs7pbkrg0DY-o5Xf8XGpnBcHXhvMeAAZ4"/>
+</div>
+<span class="text-sm text-slate-700">Minh Tuấn</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-1.5 text-slate-500">
+<span class="size-2 rounded-full bg-slate-400"></span>
+<span class="text-xs font-bold">Bản nháp</span>
+</div>
+</td>
+<td class="py-4 px-6 text-sm text-slate-500">10/05/2024</td>
+<td class="py-4 px-6 text-center text-sm font-bold text-slate-700">0</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-2 text-slate-400">
+<button class="hover:text-heritage-gold transition-colors"><span class="material-symbols-outlined text-lg">visibility</span></button>
+<button class="hover:text-heritage-red transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="hover:text-slate-800 transition-colors"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-background-light/50 transition-colors">
+<td class="py-4 px-6">
+<input class="rounded text-heritage-red focus:ring-heritage-red" type="checkbox"/>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col">
+<span class="text-slate-900 font-bold hover:text-heritage-red cursor-pointer leading-tight">Gương Sáng Khuyến Học Tộc Phạm Phú 2023</span>
+<span class="text-[10px] text-slate-400 mt-1 uppercase">Slug: khuyen-hoc-2023</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<span class="bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full text-[11px] font-bold">Khuyến Học</span>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Author" data-alt="Portrait of senior family editor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6HX8mSp0NErj7QGnjPwY_OTcJNSL_08z_GYTWA1oXe0zAHruMMx0X9C9KQYu-nXjTNDpF3v0kxJJbMQZQRBa9gy4G_qfK_pQlUAjSBeJGCSWNUm0d7-Iqul8k7g_bkfr1EuCws0hNGDHnqklGOoKfshk2QNfReva1tpZGLO1E1Kxsu_lTVNmMsaXtEUuj69KuDJObnZ8iNqtiBXNXviwJpJ3O8BEfAIjOfRiw8ClF6EB7DZ5-TgIB2LUbgjm-5MgfXXcPGAeV4Ac"/>
+</div>
+<span class="text-sm text-slate-700">Phú Hùng</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-1.5 text-green-700">
+<span class="size-2 rounded-full bg-green-600 shadow-[0_0_8px_rgba(22,163,74,0.5)]"></span>
+<span class="text-xs font-bold">Đã xuất bản</span>
+</div>
+</td>
+<td class="py-4 px-6 text-sm text-slate-500">05/05/2024</td>
+<td class="py-4 px-6 text-center text-sm font-bold text-slate-700">856</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-2 text-slate-400">
+<button class="hover:text-heritage-gold transition-colors"><span class="material-symbols-outlined text-lg">visibility</span></button>
+<button class="hover:text-heritage-red transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="hover:text-slate-800 transition-colors"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-background-light/50 transition-colors">
+<td class="py-4 px-6">
+<input class="rounded text-heritage-red focus:ring-heritage-red" type="checkbox"/>
+</td>
+<td class="py-4 px-6">
+<div class="flex flex-col">
+<span class="text-slate-900 font-bold hover:text-heritage-red cursor-pointer leading-tight">Phổ Hệ Chi Thứ Tư - Nhánh Phú Đa</span>
+<span class="text-[10px] text-slate-400 mt-1 uppercase">Slug: pho-he-chi-tu</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<span class="bg-heritage-red/10 text-heritage-red px-2.5 py-1 rounded-full text-[11px] font-bold">Phả Hệ</span>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="size-6 rounded-full bg-slate-200 overflow-hidden">
+<img alt="Author" data-alt="Portrait of female family researcher" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBy7-2jDLn8x6v7XjxTOAO9pbqIGC5fZV9_s1xj5Z1TuexUfLax44G9xpy3quMgHB0WQc89koh6tfbEAKDTukXjitM9mxJkHMs9DfNWcdQAXaJDskqtfd6X8zLj57KYQ5zV6tXPGJ0naYHEJfv6zh1c0DjUaetLEHqjiWjKl0zybwP4Kmkt7gUGmrrevorI2QmRpwoEk1lSXnTw9GBW7QygmWb2fmetwog6nYliBofvh1hRQGnw322M556nCCQLW9aywa0fNWqpLqs"/>
+</div>
+<span class="text-sm text-slate-700">Lan Anh</span>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-1.5 text-green-700">
+<span class="size-2 rounded-full bg-green-600 shadow-[0_0_8px_rgba(22,163,74,0.5)]"></span>
+<span class="text-xs font-bold">Đã xuất bản</span>
+</div>
+</td>
+<td class="py-4 px-6 text-sm text-slate-500">01/05/2024</td>
+<td class="py-4 px-6 text-center text-sm font-bold text-slate-700">2,410</td>
+<td class="py-4 px-6 text-right">
+<div class="flex items-center justify-end gap-2 text-slate-400">
+<button class="hover:text-heritage-gold transition-colors"><span class="material-symbols-outlined text-lg">visibility</span></button>
+<button class="hover:text-heritage-red transition-colors"><span class="material-symbols-outlined text-lg">edit</span></button>
+<button class="hover:text-slate-800 transition-colors"><span class="material-symbols-outlined text-lg">more_vert</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+<p class="text-xs text-slate-500 font-medium">Trang 1 của 2</p>
+<div class="flex items-center gap-1">
+<button class="size-8 flex items-center justify-center rounded border border-slate-300 bg-white text-slate-400 cursor-not-allowed">
+<span class="material-symbols-outlined text-lg">chevron_left</span>
+</button>
+<button class="size-8 flex items-center justify-center rounded border border-heritage-red bg-heritage-red text-white font-bold text-xs">1</button>
+<button class="size-8 flex items-center justify-center rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 font-medium text-xs">2</button>
+<button class="size-8 flex items-center justify-center rounded border border-slate-300 bg-white text-slate-600 hover:bg-slate-50">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<footer class="mt-12 text-center text-slate-400 text-[11px] pb-8 italic">
+                © 2024 Hội Đồng Gia Tộc Phạm Phú. Hệ thống quản trị nội dung bảo mật cao.
+            </footer>
+</main>
+</div>
+</body></html>

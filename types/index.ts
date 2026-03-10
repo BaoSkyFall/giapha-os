@@ -67,3 +67,42 @@ export interface PersonWithDetails extends Person {
   children?: Person[];
   parents?: Person[];
 }
+
+// Blog types
+export type BlogPostStatus = "draft" | "review" | "published";
+
+export interface BlogCategory {
+  id: string;
+  name: string;
+  slug: string;
+  color: string;
+  created_at: string;
+}
+
+export interface BlogTag {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  content: string | null;
+  excerpt: string | null;
+  cover_image_url: string | null;
+  status: BlogPostStatus;
+  is_featured: boolean;
+  author_id: string | null;
+  published_at: string | null;
+  views: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BlogPostWithDetails extends BlogPost {
+  categories: BlogCategory[];
+  tags: BlogTag[];
+  author: { id: string; email?: string } | null;
+}

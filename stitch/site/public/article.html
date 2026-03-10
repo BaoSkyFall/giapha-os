@@ -1,0 +1,269 @@
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "heritage-red": "#b31d1d",
+                        "heritage-gold": "#d4af37",
+                        "heritage-jade": "#227c44",
+                        "background-light": "#f8f6f6",
+                        "rice-paper": "#f7f3ea",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "serif": ["Newsreader", "serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .drop-cap::first-letter {
+            float: left;
+            font-size: 5rem;
+            line-height: 4rem;
+            padding-right: 0.75rem;
+            padding-top: 0.5rem;
+            color: #b31d1d;
+            font-family: 'Newsreader', serif;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-rice-paper font-display text-slate-900 selection:bg-primary/20">
+<!-- Sticky Header -->
+<header class="sticky top-0 z-50 w-full bg-heritage-red text-white shadow-lg border-b border-heritage-gold/30">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-heritage-gold text-3xl">temple_buddhist</span>
+<h1 class="text-2xl font-bold tracking-tight">TỘC PHẠM PHÚ</h1>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-sm font-medium hover:text-heritage-gold transition-colors" href="#">TRANG CHỦ</a>
+<a class="text-sm font-medium hover:text-heritage-gold transition-colors border-b-2 border-heritage-gold" href="#">LỊCH SỬ</a>
+<a class="text-sm font-medium hover:text-heritage-gold transition-colors" href="#">GIA PHẢ</a>
+<a class="text-sm font-medium hover:text-heritage-gold transition-colors" href="#">TIN TỨC</a>
+</nav>
+<div class="flex items-center gap-6">
+<button class="bg-heritage-gold hover:bg-yellow-600 text-heritage-red px-6 py-2 rounded-lg font-bold text-sm tracking-widest transition-all shadow-md">
+                    ĐÓNG GÓP
+                </button>
+<div class="w-10 h-10 rounded-full border-2 border-heritage-gold overflow-hidden bg-slate-200" data-alt="User profile placeholder">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3Rg8CZysXX1CMsGiA5HYsRXMStbZAR_18zQP4AwIqGd8yvrvhNs0mZnLXPbBU5MCivvU7F1c3zGSeCaMh4gqZ1aQ3vtbc5L70v2cd6rwQVsKHkF3q96H7fI9yZnrE3-gDaOxbJAon1surZ2p37sWrscFsqQujUyowMVGGRf5WIrqxOfe9sdPHZ1CGmuhYDPt_GCbN9eofbOk4pQdMfasFp08oy_YO3Eq-KeVwzRnGWM0pMwckgz6hcFVC9oBRV6-BPcRwe_hyFCk"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Hero Section -->
+<section class="relative w-full h-[60vh] overflow-hidden">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Traditional Vietnamese ancestral hall with incense smoke" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBgNuehDpyOifI6zvhlYng5O484aL5FmRHpR8dMhDj11dBTLSxXO2RcOtBragqLNS5Jz9hh4KLke46wDrl4pCWohz0xlwVCTOEHwzXT_F_0j2GdG5rIVrChsdru5_p7L-Q8pMmqafRlXZMt8wdqy5jcxA5cvi6eV6zzrN67hhOTKu-WHXZ7ywuX1y84HtENuoLA8aLb2GlS3K77z3-vM2ULUtDk9esGMSnELTX4L2vl7EPwuoM-ZnK8DuBF9rM205MxdX-qVfI-m6c')"></div>
+<div class="absolute inset-0 bg-gradient-to-b from-transparent via-rice-paper/20 to-rice-paper"></div>
+</section>
+<!-- Main Content -->
+<main class="relative -mt-32 z-10 max-w-[1000px] mx-auto px-6 pb-24">
+<!-- Article Meta -->
+<article class="bg-white/80 backdrop-blur-sm rounded-xl p-8 md:p-16 shadow-xl border border-heritage-gold/10 text-center">
+<div class="inline-block px-4 py-1 bg-heritage-red text-white rounded-full text-xs font-bold tracking-[0.2em] mb-8">
+                LỊCH SỬ DÒNG HỌ
+            </div>
+<h1 class="text-4xl md:text-6xl font-bold text-slate-900 leading-tight mb-8 font-serif italic">
+                Nguồn Gốc Dòng Họ Phạm Phú Tại Quảng Nam
+            </h1>
+<div class="w-24 h-1 bg-heritage-gold mx-auto mb-8"></div>
+<div class="flex flex-col items-center gap-4">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-full border-2 border-heritage-gold p-0.5 overflow-hidden">
+<img alt="Author" class="w-full h-full object-cover rounded-full" data-alt="Portrait of author Pham Van Hung" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeN7E01Wi0ThTw4voL-Rr8djyjnIwPMJOjTRRtexX4BAEs-fxcKUvhcaiGfjEw8UTYZGM_LZRjFOH7R6w-1dyr7x8WKpFX2kVAoXwzWod0TdwCS8MzBostFGwqcFOw2zQbnBmpG-UWCvjxS4tp02lxM10pK9uhbzlWLDdLVah-YfSKj88UJq7kH4LkZszgaVh2Hzvxu55Xbg4qgvld05z8023W_OBkbB4AVPjIkaQo_W7kasszBJtS6cfPnTGQ2fL4mgYeDRRV0pI"/>
+</div>
+<div class="text-left">
+<p class="font-bold text-slate-800">Phạm Văn Hùng</p>
+<p class="text-sm text-slate-500 italic">Nhà nghiên cứu gia phả | 15 Tháng 10, 2023</p>
+</div>
+</div>
+</div>
+</article>
+<!-- Article Body -->
+<div class="mt-16 max-w-[800px] mx-auto space-y-10 text-lg leading-relaxed text-slate-800">
+<p class="drop-cap text-justify">
+                Dòng họ Phạm Phú tại mảnh đất Quảng Nam không chỉ là một trong những đại tộc có bề dày lịch sử hàng trăm năm, mà còn là cái nôi sản sinh ra nhiều bậc hiền tài, đóng góp to lớn cho công cuộc dựng nước và giữ nước của dân tộc. Theo các văn bản cổ còn lưu lại tại từ đường chi tộc, khởi thủy của dòng họ bắt nguồn từ vùng đất Thanh Hóa xa xôi, theo bước chân mở cõi của các bậc tiền nhân vào phương Nam định cư.
+            </p>
+<h2 class="text-3xl font-bold text-heritage-red mt-12 mb-6 italic">Hành Trình Mở Cõi Và Định Cư</h2>
+<p>
+                Vào khoảng thế kỷ 15, dưới thời vua Lê Thánh Tông, vị Thủy tổ của dòng họ Phạm Phú đã dẫn dắt gia quyến vượt qua đèo Hải Vân, dừng chân tại vùng đất Điện Bàn, Quảng Nam ngày nay. Với tinh thần cần cù và ý chí kiên cường, dòng họ đã khai khẩn đất hoang, lập nên những ngôi làng trù phú bên dòng sông Thu Bồn thơ mộng.
+            </p>
+<!-- Info Box -->
+<div class="bg-white border-l-4 border-heritage-jade p-8 rounded-r-xl shadow-md my-12">
+<h3 class="text-heritage-jade font-bold text-xl mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined">description</span>
+                    TỔNG QUAN DÒNG HỌ
+                </h3>
+<dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div>
+<dt class="text-sm font-bold text-slate-500 uppercase tracking-wider">Thủy tổ</dt>
+<dd class="text-slate-800 font-serif">Phạm Phú Tiên Công</dd>
+</div>
+<div>
+<dt class="text-sm font-bold text-slate-500 uppercase tracking-wider">Đường hiệu</dt>
+<dd class="text-slate-800 font-serif">Phạm Tộc Đường</dd>
+</div>
+<div>
+<dt class="text-sm font-bold text-slate-500 uppercase tracking-wider">Nguyên quán</dt>
+<dd class="text-slate-800 font-serif">Vĩnh Lộc, Thanh Hóa</dd>
+</div>
+<div>
+<dt class="text-sm font-bold text-slate-500 uppercase tracking-wider">Đại lễ hằng năm</dt>
+<dd class="text-slate-800 font-serif">12 tháng 3 âm lịch</dd>
+</div>
+</dl>
+</div>
+<!-- Image Card -->
+<figure class="my-12 group">
+<div class="p-3 bg-white border border-heritage-gold/30 rounded-lg shadow-xl overflow-hidden">
+<img class="w-full h-[400px] object-cover rounded shadow-inner grayscale-[30%] hover:grayscale-0 transition-all duration-500" data-alt="Traditional Vietnamese courtyard architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdJPYIcvQGjBQCYuzZXVsT7s4cw21IuEkom-mn0McuMgLx_hCg3HVwtzjziI1QcfvE5aL51WGc_PYqZ0NnPNvj6wejFbI3vepVY-wpw5Bsy-pEfR9afGQujQ_8ggcilRov7w_XNEf-_ao7wHSj0W4y96q8yEUAfWBP2BkFOG2jn0zrukzHEfbK_gL_pe-rhPKSnSaAxd5uQWYsrnHv5N7Sw0baRhVk38MXbJnxP-t9uD8DIRv9_BfDdZAsYNrS5GLEd0SjHmQiyMc"/>
+</div>
+<figcaption class="mt-4 text-center text-slate-500 italic text-sm">
+                    Phế tích từ đường cũ tại làng Đông Bàn, nơi lưu giữ những dấu ấn đầu tiên của dòng họ.
+                </figcaption>
+</figure>
+<blockquote class="relative py-8 px-12 border-l-4 border-heritage-gold bg-heritage-gold/5 italic text-2xl font-serif text-slate-700 leading-relaxed">
+<span class="material-symbols-outlined absolute top-4 left-4 text-heritage-gold/30 text-5xl">format_quote</span>
+                "Gốc có sâu cây mới tốt, nguồn có xa dòng mới dài. Con cháu họ Phạm Phú dù đi đâu cũng luôn nhớ về cội nguồn, giữ gìn nếp nhà gia phong."
+            </blockquote>
+<h2 class="text-3xl font-bold text-heritage-red mt-12 mb-6 italic">Những Bậc Hiền Tài Tiêu Biểu</h2>
+<p>
+                Nói đến họ Phạm Phú không thể không nhắc đến cụ Phạm Phú Thứ - một vị quan thanh liêm, nhà canh tân vĩ đại của triều đình nhà Nguyễn. Ông là người đã có tầm nhìn vượt thời đại, đề xuất những chính sách đổi mới, mở mang kiến thức phương Tây cho đất nước. Tinh thần hiếu học và lòng yêu nước thiết tha của ông đã trở thành kim chỉ nam cho các thế hệ hậu duệ noi theo.
+            </p>
+<!-- Tags Section -->
+<div class="flex flex-wrap gap-3 pt-12 border-t border-heritage-gold/20">
+<span class="px-4 py-1.5 bg-heritage-gold/20 text-heritage-red rounded-full text-xs font-bold tracking-widest border border-heritage-gold/30">LỊCH SỬ</span>
+<span class="px-4 py-1.5 bg-heritage-gold/20 text-heritage-red rounded-full text-xs font-bold tracking-widest border border-heritage-gold/30">QUẢNG NAM</span>
+<span class="px-4 py-1.5 bg-heritage-gold/20 text-heritage-red rounded-full text-xs font-bold tracking-widest border border-heritage-gold/30">GIA PHẢ</span>
+</div>
+<!-- Author Bio Card -->
+<div class="mt-20 p-8 bg-white border-2 border-heritage-gold/20 rounded-2xl flex flex-col md:flex-row gap-8 items-center shadow-lg">
+<div class="w-32 h-32 flex-shrink-0 border-2 border-heritage-gold rounded-full overflow-hidden p-1">
+<img alt="Author" class="w-full h-full object-cover rounded-full" data-alt="Close up portrait of Pham Van Hung" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlCyed7vNffxlYo04bGxwjctluvfZwQRF64pOIkEYsq5Sqvb8tTXYOLyaVsjDwPY1ZiQBj4FJLLprMN-m4Oc42gxkvOERI5_cvh58xKa-8oH9VN_ZFj4IPt7vp7zquvQsE9jJkxWIclAT1hydGZbvLU26W-7dgFEDzRPI2VokX2IKogZwaDlEdVSsQ3Ph_DJDRUPupXHt_HFzgjb_n2tug15t0XDODf76tW0330PvmBn0pV3eZvAiyuRMpVLLmdRPiB8E3s2lPO70"/>
+</div>
+<div class="text-center md:text-left">
+<h4 class="text-2xl font-bold text-slate-800 mb-2">Phạm Văn Hùng</h4>
+<p class="text-slate-600 mb-4 leading-relaxed">
+                        Chủ tịch Hội đồng dòng họ chi tộc Quảng Nam, nhà nghiên cứu sử học với hơn 20 năm tâm huyết sưu tầm các bản cổ thư về dòng tộc Phạm Phú.
+                    </p>
+<div class="flex justify-center md:justify-start gap-4">
+<button class="text-heritage-red font-bold text-sm hover:underline">Xem thêm bài viết</button>
+<span class="text-slate-300">|</span>
+<button class="text-heritage-red font-bold text-sm hover:underline">Liên hệ</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Related Articles -->
+<section class="mt-32">
+<h3 class="text-3xl font-bold text-slate-800 text-center mb-12 flex items-center justify-center gap-4">
+<span class="h-0.5 w-12 bg-heritage-gold"></span>
+                BÀI VIẾT LIÊN QUAN
+                <span class="h-0.5 w-12 bg-heritage-gold"></span>
+</h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Related 1 -->
+<div class="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Ancient document calligraphy detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCi4mAwfYbcpygi2I9TfUwUWqOp9dgeXo6A-X1AtVNrAnBR7WeegQDWW-MIPP_NDAnyRJbLiObTcpveXxSVAiczrrBRgZrPrC0ON7R3iHeTYsd8HoAB8Aj_r8WBtoknnR7QbETLb1zlWuEDdXFJlrJ0vSdxd5MNz4_eG5rGUqpjxphPFNK296OWLlI6_pb7zYRrA2wE2-hfo6mBNx6Fi44LQ38pPDYcl1aQm3Crf25y9lLXhWCRdRREZcgd7pvNjPJCt_NP10vBW6w"/>
+</div>
+<div class="p-6">
+<p class="text-xs text-heritage-red font-bold mb-2">GIA PHẢ</p>
+<h4 class="text-xl font-bold text-slate-800 leading-tight mb-4 group-hover:text-heritage-red transition-colors">Cách xem và hiểu các ký hiệu trong gia phả cổ</h4>
+<div class="flex items-center gap-2 text-slate-400 text-sm">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>12/10/2023</span>
+</div>
+</div>
+</div>
+<!-- Related 2 -->
+<div class="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Golden sunrise over a traditional village" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe4ycg5jaRY1dbbljQnjpK3xmyj-taRBLEOgPy_X-fNASQEtzvxbm6hibKJBwOexW50kU1IJ1K0ck67ygJl4q8SSLpJdjn3rNRvdiRht3-6e7j6p862zkrH05wSLTnNlFDmdg8HQrTWAk00laefxZqHcyuyoXcxhFtHIFnTeNnsge26d_N4NMmmvg8QtqRDun7hx3HADbJ4g5xgNRz5SowFgxFF50712EsV9CA4l3vK4RaVkQhRGox7rjm-xQiIBn-sa9GnZJGq8Y"/>
+</div>
+<div class="p-6">
+<p class="text-xs text-heritage-red font-bold mb-2">SỰ KIỆN</p>
+<h4 class="text-xl font-bold text-slate-800 leading-tight mb-4 group-hover:text-heritage-red transition-colors">Đại lễ Chắt giỗ Thủy tổ năm Giáp Thìn 2024</h4>
+<div class="flex items-center gap-2 text-slate-400 text-sm">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>05/10/2023</span>
+</div>
+</div>
+</div>
+<!-- Related 3 -->
+<div class="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300">
+<div class="h-48 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Ink brush and paper traditional writing" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIi-GOsubF-eTHZpIZ37xCW87f0jchywN8twidnMEqOx8h7t6aUulOKn2QDHMv91Z92_Qn42Yy_JJliok65KyJoMTCGDpeoTXj12o0Ka_08R_pr3cvxwgUF6UkaxvrZ0Bkisk5YwOSi4eztsHWoRq5Qkjhs_gwEBe1s6szC51oEqAqwsA7sWGuFdEkbd8GgSYayufkRhey7iJJfrgHTCAKkQaaO9nitK0uz9-0OeC9R8xS6vStYf6Psp88lhxR_Rfqdq_dyxlTH1U"/>
+</div>
+<div class="p-6">
+<p class="text-xs text-heritage-red font-bold mb-2">DANH NHÂN</p>
+<h4 class="text-xl font-bold text-slate-800 leading-tight mb-4 group-hover:text-heritage-red transition-colors">Cuộc đời và sự nghiệp của cụ Phạm Phú Thứ</h4>
+<div class="flex items-center gap-2 text-slate-400 text-sm">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span>28/09/2023</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-heritage-red text-white py-20 mt-20 border-t-4 border-heritage-gold">
+<div class="max-w-7xl mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+<div class="col-span-1 md:col-span-2">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-heritage-gold text-4xl">temple_buddhist</span>
+<h2 class="text-3xl font-bold tracking-tight">TỘC PHẠM PHÚ</h2>
+</div>
+<p class="text-white/70 max-w-md text-lg italic font-serif leading-relaxed">
+                        "Vạn đại vinh quang, gia đình hưng thịnh. Giữ gìn hào khí cha ông, kiến tạo tương lai vững bền."
+                    </p>
+</div>
+<div>
+<h5 class="text-heritage-gold font-bold mb-6 tracking-widest">LIÊN KẾT</h5>
+<ul class="space-y-4 text-white/80">
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Lịch sử dòng họ</a></li>
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Gia phả trực tuyến</a></li>
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Quỹ khuyến học</a></li>
+<li><a class="hover:text-heritage-gold transition-colors" href="#">Liên hệ ban trị sự</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-heritage-gold font-bold mb-6 tracking-widest">THÔNG TIN</h5>
+<ul class="space-y-4 text-white/80">
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-heritage-gold text-sm mt-1">location_on</span>
+<span>Điện Bàn, Quảng Nam, Việt Nam</span>
+</li>
+<li class="flex items-start gap-3">
+<span class="material-symbols-outlined text-heritage-gold text-sm mt-1">mail</span>
+<span>lienhe@tocphamphu.vn</span>
+</li>
+</ul>
+</div>
+</div>
+<div class="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-white/50">
+<p>© 2023 Tộc Phạm Phú. Tất cả quyền được bảo lưu.</p>
+<div class="flex gap-6">
+<a class="hover:text-white transition-colors" href="#">Chính sách bảo mật</a>
+<a class="hover:text-white transition-colors" href="#">Điều khoản sử dụng</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

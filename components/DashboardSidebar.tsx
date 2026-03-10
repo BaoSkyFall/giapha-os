@@ -4,6 +4,7 @@ import { useUser } from "@/components/UserProvider";
 import {
     BarChart3,
     Database,
+    FileText,
     Import,
     Settings,
 } from "lucide-react";
@@ -18,6 +19,12 @@ interface NavItem {
 }
 
 const adminItems: NavItem[] = [
+    {
+        key: "blog",
+        href: "/dashboard/blog",
+        label: "Bài viết",
+        icon: <FileText className="size-5" />,
+    },
     {
         key: "users",
         href: "/dashboard/users",

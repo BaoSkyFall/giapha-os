@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Playfair+Display:wght@400;700;900&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#b41d1d",
+                        "gold": "#D4AF37",
+                        "paper": "#F7F3EA",
+                        "background-light": "#f8f6f6",
+                        "background-dark": "#201212",
+                    },
+                    fontFamily: {
+                        "display": ["Newsreader", "serif"],
+                        "serif-title": ["Playfair Display", "serif"],
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>.paper-texture {
+    background-color: #F7F3EA;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuD3Rv4-k37V8fXFO_29dusBqPQOnvc1LWUNscTbvOvmuFITbHqHQLv6XW5mDfEkmpJpSQ0Uzh7xg50G8Dsk5pujddwSXYX7UucNMfskkZ8eB2EMh1Keh5H1GN4_e0pCr48tPRKl5eammiWVnktXsQ1xf7SHAYd6WfC3uOcCr12IPpgzxYj1_M67xTFx5CwrObluj1Vd3eYdhptBRq1qDmPVxZ0elPsLtsrUylInScOLMzW-1smIqnAC2h_SYtecR_edagkXHHDPaqM)
+    }
+.gold-underline {
+    position: relative
+    }
+.gold-underline::after {
+    content: "";
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background-color: #D4AF37
+    }</style>
+</head>
+<body class="paper-texture font-sans text-slate-900">
+<!-- Sticky Header -->
+<header class="sticky top-0 z-50 bg-primary shadow-lg border-b border-gold/30 px-6 lg:px-20 py-4">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<div class="flex items-center gap-4 text-white">
+<div class="size-10 flex items-center justify-center bg-white/10 rounded-full border border-gold/50">
+<span class="material-symbols-outlined text-gold">history_edu</span>
+</div>
+<h1 class="font-serif-title text-2xl font-bold tracking-tight text-white">Tộc Phạm Phú</h1>
+</div>
+<nav class="hidden md:flex items-center gap-10">
+<a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#">Trang chủ</a>
+<a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#">Gia phả</a>
+<a class="text-white font-bold text-sm relative" href="#">
+                    Tin tức
+                    <span class="absolute -bottom-2 left-0 w-full h-1 bg-gold rounded-full"></span>
+</a>
+<a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#">Sự kiện</a>
+<a class="text-white/80 hover:text-white text-sm font-medium transition-colors" href="#">Liên hệ</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 text-white/80 hover:text-white">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="bg-white text-primary px-6 py-2 rounded-full font-bold text-sm hover:bg-gold hover:text-white transition-all">
+                    Đăng nhập
+                </button>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-6 lg:px-20 py-12">
+<!-- Page Title -->
+<div class="mb-12">
+<h2 class="font-serif-title text-5xl font-black text-slate-900 mb-4 gold-underline">Bài Viết &amp; Tin Tức</h2>
+<p class="font-display italic text-lg text-slate-600 max-w-2xl">Lưu giữ hào khí tổ tiên, kết nối tình thân dòng tộc qua những trang sử và tin tức đương thời.</p>
+</div>
+<!-- Featured Hero Card -->
+<section class="mb-16">
+<div class="flex flex-col lg:flex-row bg-white rounded-xl shadow-xl overflow-hidden border border-gold/20">
+<div class="lg:w-3/5 relative h-80 lg:h-auto min-h-[400px] overflow-hidden">
+<img alt="Cảnh làng quê truyền thống" class="absolute inset-0 w-full h-full object-cover" data-alt="Ancient Vietnamese village temple scenic landscape" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5VRWy_3f2pM8FEU4EBEdWZ_kQnI4rDPTq9CTZ-YXEcy-tEO7xO9c7UxHAvJlcWxtDR9IsQUcoE8P4YunGEct2oYRDv8VZM1LrNnMSw9ywQEIBEgINQKi0tJtmBdcI66zl-9VyY06FGL0cNlqo9WecOPWK-6gXrJJZqWHSqgvbSw6f-4WXSJ4ArDUugb-eTxiZjhWr9X1wjuh7vQ5TgfN42obH9vWbiKNfD3opa9Ejxtej8ckHgw5rVscGPZUHPg8VhbYgT30sUxc"/>
+<div class="absolute top-6 left-6">
+<span class="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full uppercase tracking-widest border border-gold/40">Nổi bật</span>
+</div>
+</div>
+<div class="lg:w-2/5 p-10 flex flex-col justify-center bg-white">
+<p class="text-gold font-bold text-xs tracking-widest uppercase mb-3">Lịch sử dòng họ</p>
+<h3 class="font-serif-title text-3xl font-bold text-slate-900 mb-4 leading-tight">Gốc tích và sự phát triển của Tộc Phạm Phú qua các triều đại</h3>
+<p class="text-slate-600 font-sans mb-8 leading-relaxed">
+                        Từ những bước chân đầu tiên định cư tại vùng đất Quảng Nam, dòng họ Phạm Phú đã trải qua bao thăng trầm để gây dựng nên một gia tộc hiển hách với nhiều bậc hiền tài đóng góp cho quốc gia...
+                    </p>
+<div class="flex items-center gap-4 mb-8">
+<div class="size-10 rounded-full border border-gold p-0.5">
+<img alt="Tác giả" class="rounded-full w-full h-full object-cover" data-alt="Portrait of an elderly Vietnamese scholar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ8zXqK6R33BkxkfUd6EFjQe9KO-VLkEzRYloNrQBWInaXOdxP7ZSBxKVV1Z3SwqJBlljtdD8HLLS4-cIyXn3Hy0lkF53xBi9rvBlF8TbHvGCgqeOrD9AHCTyeKXv6WY_geaZ4n3uFVQXAKlgbDymuYC8LX510j8HafeZEbFoDrEq9-PibTfXrn2dVNmBDGd1eY1N8T60hmGGePIQJSoWPcmxzNSVOdpmOwGTmpR8WEQ0Mz5Eh08f4MVMxuIpb71LYe72hME7DcY0"/>
+</div>
+<div>
+<p class="text-sm font-bold text-slate-900 leading-none">Trưởng ban Liên lạc</p>
+<p class="text-xs text-slate-500">12 Tháng 10, 2023</p>
+</div>
+</div>
+<button class="flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-full font-bold w-fit hover:bg-primary/90 transition-all">
+                        Đọc toàn văn
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Filter & Search Bar -->
+<section class="mb-12 flex flex-col md:flex-row items-center justify-between gap-6 border-b border-gold/20 pb-8">
+<div class="flex flex-wrap items-center gap-3">
+<button class="bg-primary text-white px-6 py-2 rounded-full text-sm font-bold border border-primary shadow-sm">Tất cả</button>
+<button class="bg-white text-slate-600 px-6 py-2 rounded-full text-sm font-semibold border border-gold/30 hover:bg-gold hover:text-white transition-all">Lịch sử</button>
+<button class="bg-white text-slate-600 px-6 py-2 rounded-full text-sm font-semibold border border-gold/30 hover:bg-gold hover:text-white transition-all">Văn hóa</button>
+<button class="bg-white text-slate-600 px-6 py-2 rounded-full text-sm font-semibold border border-gold/30 hover:bg-gold hover:text-white transition-all">Hướng dẫn</button>
+<button class="bg-white text-slate-600 px-6 py-2 rounded-full text-sm font-semibold border border-gold/30 hover:bg-gold hover:text-white transition-all">Thông báo</button>
+</div>
+<div class="relative w-full md:w-80">
+<input class="w-full bg-white border border-gold/40 rounded-full px-6 py-2 text-sm focus:ring-primary focus:border-primary outline-none italic" placeholder="Tìm kiếm bài viết..." type="text"/>
+<span class="material-symbols-outlined absolute right-4 top-2 text-gold">search</span>
+</div>
+</section>
+<!-- Article Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Card 1 -->
+<article class="bg-white rounded-xl overflow-hidden border border-gold/10 shadow-sm hover:shadow-md transition-shadow group">
+<div class="h-56 overflow-hidden border-b-4 border-gold">
+<img alt="Gia phả cổ" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Antique handwritten Vietnamese genealogy book on paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAp_Bh5Dft-5tPLtn4KReqFB7RClzw79IPBUpIYm_L5VBjsQxLQ_ha4XpCYLPEhj0BsVSKej0rRMWEUQHTNd-fV6gTd-SOEZfx0wzwi41Yu4dQ-RrAX2EDpviCQuOONYH3sT1VIXndT6OIfsHvY9x8SJ0CthsObMnNmEqYimM3onbW0SUsHlzZ-rtn37y9DL6frSuC5O2M9s1L4MUkw2d1eySLLyiW1U8dJFCv3Y9jh9p8pTBwjYRhU57RVFFIdleHxym7c-2HSoco"/>
+</div>
+<div class="p-6">
+<span class="text-primary font-bold text-[10px] uppercase tracking-widest mb-2 block">Văn hóa • Nghi lễ</span>
+<h4 class="font-serif-title text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">Nghi thức cúng tổ tại Nhà thờ Tộc Phạm Phú</h4>
+<p class="text-slate-600 text-sm font-sans line-clamp-3 mb-6">Chi tiết các bước thực hiện nghi lễ cúng giỗ đầu năm, danh sách lễ vật và các bài văn tế cổ truyền được lưu truyền.</p>
+<div class="flex items-center justify-between border-t border-slate-100 pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-sm">person</span>
+<span class="text-xs font-semibold text-slate-500">Phạm Phú Hưng</span>
+</div>
+<span class="text-xs text-slate-400 italic">05/10/2023</span>
+</div>
+</div>
+</article>
+<!-- Card 2 -->
+<article class="bg-white rounded-xl overflow-hidden border border-gold/10 shadow-sm hover:shadow-md transition-shadow group">
+<div class="h-56 overflow-hidden border-b-4 border-gold">
+<img alt="Đình làng" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Traditional Vietnamese temple architecture with red roof" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNzdxqc4mBVJh_-_fpG_tlZKkc-2PRf2UKoglbyt0z6PUCm9zTgChQy9NCCSvl7K961IuBDxlkB25Vk3HrR37M2Ei-smYQbePIwFhLzeUmQu5-Fvtxo9CKuZRyPhmOm-_tjWuinU63NsH5AN2oBLPSAoj89GVg4VYBB6ZHLlFl-_52crHhrCDPRIr__aBkO2hfx21pnB30nRgH9xPVxzCLxExmUwxbbKNVaHOQNFPe8i3Rz_L7G2pqHigsqxtX5T_cpf6YKCIxC5Q"/>
+</div>
+<div class="p-6">
+<span class="text-primary font-bold text-[10px] uppercase tracking-widest mb-2 block">Lịch sử • Nhân vật</span>
+<h4 class="font-serif-title text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">Danh nhân Phạm Phú Thứ và những đóng góp cho dân tộc</h4>
+<p class="text-slate-600 text-sm font-sans line-clamp-3 mb-6">Tìm hiểu về cuộc đời và sự nghiệp của vị đại thần triều Nguyễn, người con ưu tú của dòng họ Phạm Phú.</p>
+<div class="flex items-center justify-between border-t border-slate-100 pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-sm">person</span>
+<span class="text-xs font-semibold text-slate-500">Ban biên tập</span>
+</div>
+<span class="text-xs text-slate-400 italic">28/09/2023</span>
+</div>
+</div>
+</article>
+<!-- Card 3 -->
+<article class="bg-white rounded-xl overflow-hidden border border-gold/10 shadow-sm hover:shadow-md transition-shadow group">
+<div class="h-56 overflow-hidden border-b-4 border-gold">
+<img alt="Hội nghị" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Vietnamese community meeting in a traditional wooden hall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDY4A2rb8As5IETuZaPiv1pbz2lCrGxr4kbU5cl6qDbEfu6XEDZOPDdE5xRQr1aXCQpQrb4D2nZ_11bXtfBk7VtnSDRCYaMBTcYUh5K9snvjdw_FFurjZH4leNZny3EtIvD7dJfApe8s8rdpvCk25nYRkZGCx8j3CWBVAl4HkfxIfuIUI6gnJTx0VjoxjCHQsfonJ5s_Muo6pwi_sYCGb8CulLs1D0HT2OkE1MdxKkC4bzX87LMKiJgoAUg8okNm1FkedSsSorxaNU"/>
+</div>
+<div class="p-6">
+<span class="text-primary font-bold text-[10px] uppercase tracking-widest mb-2 block">Thông báo • Sự kiện</span>
+<h4 class="font-serif-title text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">Kế hoạch tổ chức Đại hội Đại biểu Tộc Phạm Phú 2024</h4>
+<p class="text-slate-600 text-sm font-sans line-clamp-3 mb-6">Thông tin chi tiết về thời gian, địa điểm và nội dung chương trình họp mặt đại gia đình vào mùa xuân tới.</p>
+<div class="flex items-center justify-between border-t border-slate-100 pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-sm">person</span>
+<span class="text-xs font-semibold text-slate-500">Thư ký hội đồng</span>
+</div>
+<span class="text-xs text-slate-400 italic">15/09/2023</span>
+</div>
+</div>
+</article>
+<!-- Card 4 -->
+<article class="bg-white rounded-xl overflow-hidden border border-gold/10 shadow-sm hover:shadow-md transition-shadow group">
+<div class="h-56 overflow-hidden border-b-4 border-gold">
+<img alt="Giáo dục" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Asian student studying with books and traditional brush" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2bZBRup-I9qzvpNOZMC5hXpiZWfWYttE-FxOpHJmctNzAUiJ9qbJ3wROxYQ5Q0FgWnejJDlg1x82ZtEvIl0tDzIEfj__PESPumL2fgtfuzgdsnQRYZAYlNAa4_IXBlKvHRVjn0w7pbG6Y94dAkuC2hNDKSZGNhBOuBdhzBsvqC_ZDk8k0hUI-3Ab_cyx4XRfkV9HNdlofn-5u7kzndk5QQgaOts0Oi_lA-8G0k8-tDysAPIS7UyUDQ0fkB2cs5wBVCrTIpx72QXs"/>
+</div>
+<div class="p-6">
+<span class="text-primary font-bold text-[10px] uppercase tracking-widest mb-2 block">Hướng dẫn • Giáo dục</span>
+<h4 class="font-serif-title text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">Khuyến học Tộc Phạm Phú: Chắp cánh ước mơ trẻ</h4>
+<p class="text-slate-600 text-sm font-sans line-clamp-3 mb-6">Quy trình đăng ký nhận học bổng khuyến tài dành cho con em dòng tộc có thành tích xuất sắc trong học tập.</p>
+<div class="flex items-center justify-between border-t border-slate-100 pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-sm">person</span>
+<span class="text-xs font-semibold text-slate-500">Ban Khuyến học</span>
+</div>
+<span class="text-xs text-slate-400 italic">02/09/2023</span>
+</div>
+</div>
+</article>
+<!-- Card 5 -->
+<article class="bg-white rounded-xl overflow-hidden border border-gold/10 shadow-sm hover:shadow-md transition-shadow group">
+<div class="h-56 overflow-hidden border-b-4 border-gold">
+<img alt="Cổ vật" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Close up of ancient Chinese calligraphy on parchment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO80O7M2Vd8dlh3SUp-5D8w4rkXscKgSlgExVJyCvPFDgV_3HrNuYkD3DbXlRg-N78fBPxb2jd0YNdT5NEP2_uniwr8ErTPnyxGxTOsxRrmo1fxNP9ymIt_CFI7QqVAh3S06L7dCIqEpGFcQRlRo8BUkjlp_5G5A0azrPuVU5-AzY8Yia4tW3iFYUayvOzn1Bs_XGhuV0JjgWiiq1IMUxXulBbIeUgOdHr8-NEOBPOZJhCVF7iIxAaVxe_yGzu9rXXNJnFkV-Vh7I"/>
+</div>
+<div class="p-6">
+<span class="text-primary font-bold text-[10px] uppercase tracking-widest mb-2 block">Văn hóa • Di sản</span>
+<h4 class="font-serif-title text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">Những bài vè và ca dao về cội nguồn Tộc Phạm</h4>
+<p class="text-slate-600 text-sm font-sans line-clamp-3 mb-6">Sưu tầm những tác phẩm văn học dân gian nhắc về tổ tiên và công đức sinh thành của cha ông.</p>
+<div class="flex items-center justify-between border-t border-slate-100 pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-sm">person</span>
+<span class="text-xs font-semibold text-slate-500">Phạm Phú Lan</span>
+</div>
+<span class="text-xs text-slate-400 italic">20/08/2023</span>
+</div>
+</div>
+</article>
+<!-- Card 6 -->
+<article class="bg-white rounded-xl overflow-hidden border border-gold/10 shadow-sm hover:shadow-md transition-shadow group">
+<div class="h-56 overflow-hidden border-b-4 border-gold">
+<img alt="Kết nối" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="A bridge connecting two islands in a green lake" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFU_K1P3f_Ble2GD0KWbBq5e8hycFTlYvygLQOvj2mSQ_OJRH3BgcHgrJJyRiFeWdFjzhKDls880dpeCuWDRqGefo2_CFEzySjNMnbNaoVQCq05YJgsZjsXcbLezDxPcWU6b8eXNjA-ubq9q81Uo9hqR3FT1uzswGIAXwBhZeK-KN5i-8FqbP8rPwcwrc25km5QfCRz_ZTgI7HZZQCxLRnDSiA93o39Liueb4Xv2lHO7rV-3bVeK5GApsHa8zfnMz3hkuaBdksZU0"/>
+</div>
+<div class="p-6">
+<span class="text-primary font-bold text-[10px] uppercase tracking-widest mb-2 block">Kết nối • Cộng đồng</span>
+<h4 class="font-serif-title text-xl font-bold text-slate-900 mb-3 group-hover:text-primary transition-colors">Kết nối kiều bào dòng họ Phạm Phú tại hải ngoại</h4>
+<p class="text-slate-600 text-sm font-sans line-clamp-3 mb-6">Chương trình tìm về cội nguồn dành cho con cháu đang sinh sống và làm việc tại nước ngoài hướng về quê cha đất tổ.</p>
+<div class="flex items-center justify-between border-t border-slate-100 pt-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-gold text-sm">person</span>
+<span class="text-xs font-semibold text-slate-500">Ban liên lạc</span>
+</div>
+<span class="text-xs text-slate-400 italic">10/08/2023</span>
+</div>
+</div>
+</article>
+</section>
+<!-- Pagination -->
+<div class="mt-16 flex justify-center gap-2">
+<button class="size-10 rounded-full flex items-center justify-center border border-gold/30 text-gold hover:bg-gold hover:text-white transition-colors">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="size-10 rounded-full flex items-center justify-center bg-primary text-white font-bold">1</button>
+<button class="size-10 rounded-full flex items-center justify-center border border-gold/30 text-slate-600 hover:border-gold transition-colors font-semibold">2</button>
+<button class="size-10 rounded-full flex items-center justify-center border border-gold/30 text-slate-600 hover:border-gold transition-colors font-semibold">3</button>
+<button class="size-10 rounded-full flex items-center justify-center border border-gold/30 text-gold hover:bg-gold hover:text-white transition-colors">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-primary border-t-4 border-gold mt-20 text-white">
+<div class="max-w-7xl mx-auto px-6 lg:px-20 py-16">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+<div>
+<h5 class="font-serif-title text-2xl font-bold mb-6 text-gold">Tộc Phạm Phú</h5>
+<p class="font-display italic text-white/80 leading-relaxed">
+                        "Uống nước nhớ nguồn, làm rạng danh tiên tổ, bồi đắp nghĩa tình con cháu muôn đời sau."
+                    </p>
+</div>
+<div>
+<h6 class="font-bold text-sm uppercase tracking-widest mb-6 text-gold">Liên kết nhanh</h6>
+<ul class="space-y-3">
+<li><a class="text-white/70 hover:text-gold transition-colors text-sm" href="#">Về dòng tộc</a></li>
+<li><a class="text-white/70 hover:text-gold transition-colors text-sm" href="#">Thư viện ảnh</a></li>
+<li><a class="text-white/70 hover:text-gold transition-colors text-sm" href="#">Gia huấn truyền thống</a></li>
+<li><a class="text-white/70 hover:text-gold transition-colors text-sm" href="#">Ban chấp hành</a></li>
+</ul>
+</div>
+<div>
+<h6 class="font-bold text-sm uppercase tracking-widest mb-6 text-gold">Liên hệ</h6>
+<div class="space-y-4">
+<div class="flex items-start gap-3 text-sm text-white/70">
+<span class="material-symbols-outlined text-gold">location_on</span>
+<span>Nhà thờ Tộc Phạm Phú, Điện Bàn, Quảng Nam, Việt Nam</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-white/70">
+<span class="material-symbols-outlined text-gold">mail</span>
+<span>lienlac@tocphamphu.org</span>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
+<p class="text-xs text-white/50">© 2023 Tộc Phạm Phú. Tất cả quyền được bảo lưu.</p>
+<div class="flex items-center gap-6">
+<a class="text-white/50 hover:text-gold" href="#"><span class="material-symbols-outlined">social_leaderboard</span></a>
+<a class="text-white/50 hover:text-gold" href="#"><span class="material-symbols-outlined">share</span></a>
+<a class="text-white/50 hover:text-gold" href="#"><span class="material-symbols-outlined">rss_feed</span></a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

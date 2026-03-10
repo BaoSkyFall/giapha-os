@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tộc Phạm Phú Admin Blog Editor</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Playfair+Display:wght@700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#b41d1d",
+              "gold": "#D4AF37",
+              "background-light": "#f8f6f6",
+              "background-dark": "#201212",
+            },
+            fontFamily: {
+              "display": ["Inter", "sans-serif"],
+              "serif": ["Playfair Display", "serif"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .sidebar-active {
+            border-left: 4px solid #D4AF37;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .paper-card {
+            background-color: #ffffff;
+            border: 1px solid #e5dcdc;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100">
+<div class="flex min-h-screen">
+<!-- Left Sidebar -->
+<aside class="w-[260px] bg-primary text-white flex flex-col fixed h-full z-20">
+<div class="p-6 flex items-center gap-3">
+<div class="size-10 rounded-full bg-white/20 flex items-center justify-center border border-white/30 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Tộc Phạm Phú logo or emblem" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9Qq-aoit_oaY-BodFSzZ28Z-tKMlWbFemIH9LTHFApvgkRWqDhPvhQdiSKE0Nf4GCchbIpmFVAw9_v6FbFYV3eI-K-1J_-hbIlgw1zp0T9VvWsefPvTWxXO0VUQNWK6W8Zn1qt0vTcxl4cKv-cbMV_D0MfxFigrO3MMgjPB0hk2jEesuyHTRLn1b--QmXyhme4ejqaBjEMT1HwIjn6XNkiMGDZcGJti3K_FcdOb67HaklREm7Idc2QEpJgSit_4UCAqZbPJZ1ydg"/>
+</div>
+<div>
+<h1 class="font-bold text-sm leading-tight">Tộc Phạm Phú</h1>
+<p class="text-white/70 text-xs">Hệ thống Quản trị</p>
+</div>
+</div>
+<nav class="flex-1 mt-4">
+<a class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-sm font-medium">Tổng quan</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 sidebar-active transition-colors" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="text-sm font-medium">Bài viết</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-sm font-medium">Thành viên</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition-colors" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+<span class="text-sm font-medium">Cây gia phả</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-3 hover:bg-white/10 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-medium">Cài đặt</span>
+</a>
+</nav>
+<div class="p-6 border-t border-white/10">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-full bg-gold/20 border border-gold/50 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCk7sKbltEsl5A3d21M5nGwiJvuI0cnUzZkqLDFTrV65pucclng7xCPfzqnNeed7fOXOBqgH14oE5bE4QBSrqi4ZxG7QtPsxYHOx3YuZhZYOct2DL015TEQObli9JbgtkSmfr6y7kc-5vQJCS4e-3Y0pu9h_7HU0ldg5KCDrqVx5gYlqNmefCzZCCbK3AbswDeeUiduPiyBH4-scd-FvhNvyKh6rFXcneuaiex_U3AwSfCYgSWwAfQz21SfID549P0XdsLPUp7VxZc"/>
+</div>
+<div class="text-xs">
+<p class="font-bold">Phạm Phú An</p>
+<p class="text-white/60">Quản trị viên</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 ml-[260px] flex flex-col">
+<!-- Header -->
+<header class="h-16 bg-primary text-white flex items-center justify-between px-8 sticky top-0 z-10">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-gold">edit_note</span>
+<h2 class="font-bold text-lg">Admin Blog Editor</h2>
+</div>
+<div class="flex items-center gap-6">
+<a class="text-sm font-medium hover:text-gold flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-sm">open_in_new</span>
+                        Xem trang chính
+                    </a>
+<div class="flex gap-2">
+<button class="px-4 py-2 border border-white/30 rounded-lg text-sm font-bold hover:bg-white/10 transition-colors">
+                            Lưu nháp
+                        </button>
+<button class="px-4 py-2 bg-gold text-primary rounded-lg text-sm font-bold hover:bg-gold/90 transition-colors">
+                            Xuất bản
+                        </button>
+</div>
+</div>
+</header>
+<div class="flex flex-1 p-8 gap-8 overflow-y-auto">
+<!-- Editor Area (Left 70%) -->
+<div class="w-[70%] space-y-6">
+<div class="bg-white dark:bg-slate-900 rounded-xl p-8 shadow-sm paper-card">
+<input class="w-full font-serif text-5xl font-bold border-none focus:ring-0 placeholder:text-slate-300 bg-transparent mb-6" placeholder="Viết Bài Mới" type="text"/>
+<!-- Cover Image Zone -->
+<div class="w-full aspect-[21/9] border-2 border-dashed border-gold/40 rounded-xl flex flex-col items-center justify-center bg-background-light dark:bg-background-dark/50 group cursor-pointer hover:border-gold transition-all mb-8">
+<span class="material-symbols-outlined text-gold text-4xl mb-2">image</span>
+<p class="text-slate-900 dark:text-slate-100 font-bold">Ảnh bìa bài viết</p>
+<p class="text-slate-500 text-sm">Kéo thả hoặc chọn ảnh để tải lên (1200x630px)</p>
+<button class="mt-4 px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-sm font-bold shadow-sm">Tải ảnh lên</button>
+</div>
+<!-- Rich Text Toolbar -->
+<div class="flex items-center gap-1 border-b border-slate-100 pb-4 mb-6">
+<button class="p-2 hover:bg-slate-100 rounded text-slate-600"><span class="material-symbols-outlined">format_bold</span></button>
+<button class="p-2 hover:bg-slate-100 rounded text-slate-600"><span class="material-symbols-outlined">format_italic</span></button>
+<button class="p-2 hover:bg-slate-100 rounded text-slate-600 font-bold text-xs">H1</button>
+<button class="p-2 hover:bg-slate-100 rounded text-slate-600 font-bold text-xs">H2</button>
+<div class="w-px h-6 bg-slate-200 mx-2"></div>
+<button class="p-2 hover:bg-slate-100 rounded text-slate-600"><span class="material-symbols-outlined">format_quote</span></button>
+<button class="p-2 hover:bg-slate-100 rounded text-slate-600"><span class="material-symbols-outlined">format_list_bulleted</span></button>
+<button class="p-2 hover:bg-slate-100 rounded text-slate-600"><span class="material-symbols-outlined">link</span></button>
+<div class="w-px h-6 bg-slate-200 mx-2"></div>
+<button class="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold">
+<span class="material-symbols-outlined text-sm">add_photo_alternate</span>
+                                Chèn ảnh
+                            </button>
+</div>
+<!-- Content Area -->
+<div class="prose prose-slate max-w-none dark:prose-invert">
+<p class="text-lg leading-relaxed text-slate-700 dark:text-slate-300">
+                                Lịch sử dòng họ Phạm Phú khởi nguồn từ vùng đất Quảng Nam địa linh nhân kiệt. Trải qua bao thăng trầm của lịch sử, các thế hệ con cháu luôn giữ vững nếp nhà, phát huy truyền thống hiếu học và lòng yêu nước nồng nàn...
+                            </p>
+<blockquote class="border-l-4 border-gold bg-gold/5 p-6 my-8 italic text-slate-800 dark:text-slate-200 rounded-r-lg">
+                                "Dòng tộc là cội rễ, văn hóa là nhựa sống. Cây có vững gốc mới xanh lá, người có nhớ nguồn mới nên danh."
+                                <cite class="block mt-2 font-bold not-italic text-sm text-primary">— Lời tựa Gia Phả Tộc Phạm Phú</cite>
+</blockquote>
+<p class="text-lg leading-relaxed text-slate-700 dark:text-slate-300">
+                                Việc biên soạn lại sử liệu dòng họ không chỉ là trách nhiệm của những người làm công tác quản trị, mà còn là tâm nguyện của toàn thể con cháu hướng về nguồn cội. Trong bài viết này, chúng ta sẽ cùng điểm lại những cột mốc quan trọng trong quá trình hình thành...
+                            </p>
+</div>
+</div>
+</div>
+<!-- Settings Sidebar (Right 30%) -->
+<aside class="w-[30%] space-y-6">
+<!-- Status Card -->
+<div class="paper-card rounded-xl p-6 border-t-4 border-t-gold">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">info</span>
+                            Trạng thái &amp; Hiển thị
+                        </h3>
+<div class="space-y-4">
+<div>
+<label class="text-xs font-semibold text-slate-600 block mb-1">Tình trạng</label>
+<select class="w-full rounded-lg border-slate-200 text-sm focus:ring-primary focus:border-primary">
+<option>Đang soạn thảo</option>
+<option>Chờ duyệt</option>
+<option>Công khai</option>
+</select>
+</div>
+<div class="flex items-center justify-between py-2 border-t border-slate-100">
+<span class="text-sm text-slate-600">Hiển thị nổi bật</span>
+<input class="rounded text-primary focus:ring-primary" type="checkbox"/>
+</div>
+</div>
+</div>
+<!-- Categories Card -->
+<div class="paper-card rounded-xl p-6 border-t-4 border-t-gold">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">category</span>
+                            Chuyên mục
+                        </h3>
+<div class="space-y-2 max-h-40 overflow-y-auto pr-2">
+<label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+<input checked="" class="rounded text-primary focus:ring-primary" type="checkbox"/>
+                                Lịch sử dòng họ
+                            </label>
+<label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+<input class="rounded text-primary focus:ring-primary" type="checkbox"/>
+                                Tin tức sự kiện
+                            </label>
+<label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+<input class="rounded text-primary focus:ring-primary" type="checkbox"/>
+                                Gương sáng hiếu học
+                            </label>
+<label class="flex items-center gap-2 text-sm text-slate-700 cursor-pointer">
+<input class="rounded text-primary focus:ring-primary" type="checkbox"/>
+                                Văn hóa truyền thống
+                            </label>
+</div>
+<button class="mt-4 text-xs font-bold text-primary hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">add</span>
+                            Thêm chuyên mục mới
+                        </button>
+</div>
+<!-- Tags Card -->
+<div class="paper-card rounded-xl p-6 border-t-4 border-t-gold">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">sell</span>
+                            Thẻ (Tags)
+                        </h3>
+<div class="flex flex-wrap gap-2 mb-4">
+<span class="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded">
+                                Quảng Nam
+                                <button class="material-symbols-outlined text-xs">close</button>
+</span>
+<span class="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded">
+                                Cội nguồn
+                                <button class="material-symbols-outlined text-xs">close</button>
+</span>
+</div>
+<div class="relative">
+<input class="w-full rounded-lg border-slate-200 text-sm focus:ring-primary focus:border-primary pr-10" placeholder="Thêm thẻ..." type="text"/>
+<span class="material-symbols-outlined absolute right-3 top-2 text-slate-400">add</span>
+</div>
+</div>
+<!-- Author Card -->
+<div class="paper-card rounded-xl p-6 border-t-4 border-t-gold">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">person</span>
+                            Tác giả
+                        </h3>
+<div class="flex items-center gap-3 p-2 bg-background-light rounded-lg mb-4">
+<div class="size-8 rounded-full bg-slate-200 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Author profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCim0HysYBG9_2Skhc18l7UG9t00RBPZZL4u08SUAZCwtUj0zvjf5d0bVv7IHIzaO7Ctmo8QvaQ6qq0-3QpLvH1tLv1KXFG6QWASM-fSMekVvUF-aWSuI5Z9txn7J4Xmb2cpW73LBquc2Vljk-TFvcTxGngpQcTH_sRL4vU0UFj-uEOXZX9I1eB8sdV2FEHi6Tcs8vO4ERWBq4dplN7jWARTZMskR8XD1w2cKnSOIjHKtjWb6vKqU-dJkaaO48qmG4Ph9AwTbx_Z6E"/>
+</div>
+<span class="text-sm font-medium">Phạm Phú An</span>
+<span class="material-symbols-outlined text-slate-400 text-sm ml-auto">expand_more</span>
+</div>
+</div>
+<!-- Excerpt Card -->
+<div class="paper-card rounded-xl p-6 border-t-4 border-t-gold">
+<h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">short_text</span>
+                            Tóm tắt nội dung
+                        </h3>
+<textarea class="w-full rounded-lg border-slate-200 text-sm focus:ring-primary focus:border-primary h-24 resize-none" placeholder="Viết một đoạn ngắn giới thiệu bài viết..."></textarea>
+<p class="text-[10px] text-slate-400 mt-2 italic">Tóm tắt sẽ hiển thị ở trang danh sách bài viết.</p>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</body></html>

@@ -1,7 +1,7 @@
 {
     "name": "projects/7998967920457136760",
     "projectId": "7998967920457136760",
-    "title": "Tộc Phạm Phú — Tộc Phạm Phú",
+    "title": "Gia Phả OS — Tộc Phạm Phú",
     "visibility": "PRIVATE",
     "createTime": "2026-03-09T06:14:55.363673Z",
     "updateTime": "2026-03-09T06:40:00.000000Z",
@@ -127,6 +127,38 @@
             "y": 9200,
             "width": 2560,
             "height": 4022
+        },
+        "blog": {
+            "id": "1dc49bfcd4c644e68ec579da5b4d377a",
+            "sourceScreen": "projects/7998967920457136760/screens/1dc49bfcd4c644e68ec579da5b4d377a",
+            "x": 0,
+            "y": 13500,
+            "width": 2560,
+            "height": 5312
+        },
+        "article": {
+            "id": "496bd025f5514abe9a5a5114c52d6f47",
+            "sourceScreen": "projects/7998967920457136760/screens/496bd025f5514abe9a5a5114c52d6f47",
+            "x": 2700,
+            "y": 13500,
+            "width": 2560,
+            "height": 8206
+        },
+        "admin-blog": {
+            "id": "72ffa6664cb54ef1964057476f82e8ba",
+            "sourceScreen": "projects/7998967920457136760/screens/72ffa6664cb54ef1964057476f82e8ba",
+            "x": 5400,
+            "y": 13500,
+            "width": 2560,
+            "height": 2366
+        },
+        "admin-blog-list": {
+            "id": "819763d9531142bb8f8b062f044da6f2",
+            "sourceScreen": "projects/7998967920457136760/screens/819763d9531142bb8f8b062f044da6f2",
+            "x": 8100,
+            "y": 13500,
+            "width": 2560,
+            "height": 2390
         }
     },
     "metadata": {

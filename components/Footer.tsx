@@ -142,39 +142,26 @@ export default function Footer({
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-2">
           <p className="text-white/50 text-sm">
             © 2026 Hội đồng Gia tộc Phạm Phú. Tất cả quyền được bảo lưu.
           </p>
-          <div className="flex items-center gap-4 text-white/50 text-sm">
-            <a
-              href="https://github.com/homielab/giapha-os"
-              target="_blank"
+          <div className="flex items-center gap-1 text-white/50 text-sm">
+            {/* <a
               rel="noopener noreferrer"
-              className="hover:text-heritage-gold transition-colors inline-flex items-center gap-1.5"
+              className="hover:text-heritage-gold transition-colors inline-flex items-center"
             >
-              <svg
-                viewBox="0 0 24 24"
-                width="16"
-                height="16"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
-              </svg>
+
               Tộc Phạm Phú
-            </a>
-            <span>by</span>
+            </a> */}
+            <span>Made by</span>
             <a
-              href="https://homielab.com"
+              href="https://www.facebook.com/pham.bao.173130/"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-heritage-gold transition-colors font-semibold"
             >
-              HomieLab
+              Phạm Phú Quốc Bảo
             </a>
           </div>
         </div>

@@ -44,10 +44,10 @@ const features = [
 ];
 
 const ancestors = [
-  { name: "Phạm Phú Thứ", years: "1821 – 1882", image: "/phamphuthu_2.png" },
-  { name: "Phạm Phú Quốc", years: "1935 – 1965", image: "/phamphuquoc_1.jpg" },
-  { name: "Phạm Phú Tiết", years: "" },
-  { name: "Phạm Phú Bằng", years: "1930 – 2024", image: "/phamphubang_1.jpeg" },
+  { name: "Phạm Phú Thứ", years: "1821 – 1882", image: "/phamphuthu_2.png", slug: "pham-phu-thu-nha-canh-tan-tien-phong" },
+  { name: "Phạm Phú Quốc", years: "1935 – 1965", image: "/phamphuquoc_1.jpg", slug: "pham-phu-quoc-phi-cong-huyen-thoai" },
+  { name: "Phạm Phú Tiết", years: "", slug: "pham-phu-tiet-tong-doc-chien-si-cach-mang" },
+  { name: "Phạm Phú Bằng", years: "1930 – 2024", image: "/phamphubang_1.jpeg", slug: "pham-phu-bang-dai-ta-nha-bao" },
 ];
 
 const events = [
@@ -172,33 +172,49 @@ export default function LandingHero() {
             </a>
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {ancestors.map((ancestor, idx) => (
-              <motion.div
-                key={idx}
-                variants={fadeIn}
-                whileHover={{ y: -4, transition: { duration: 0.3 } }}
-                className="bg-white p-4 rounded-lg shadow-sm group cursor-pointer border border-heritage-gold/10 hover:shadow-md transition-all"
-              >
-                <div className="aspect-[3/4] rounded-md mb-4 bg-gradient-to-br from-heritage-red/5 to-heritage-gold/10 overflow-hidden relative flex items-center justify-center">
-                  {ancestor.image ? (
-                    <Image
-                      src={ancestor.image}
-                      alt={ancestor.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                    />
-                  ) : (
-                    <UserRound className="size-16 text-heritage-red/20 group-hover:scale-110 transition-transform duration-500" />
-                  )}
-                  <div className="absolute inset-0 bg-heritage-red/5 group-hover:bg-transparent transition-colors" />
-                </div>
-                <h4 className="font-serif font-bold text-lg text-altar-wood">
-                  {ancestor.name}
-                </h4>
-                <p className="text-altar-wood/50 text-sm">{ancestor.years}</p>
-              </motion.div>
-            ))}
+            {ancestors.map((ancestor, idx) => {
+              const CardWrapper = ancestor.slug ? Link : "div";
+              const cardProps = ancestor.slug
+                ? { href: `/blog/${ancestor.slug}` }
+                : {};
+              return (
+                <motion.div
+                  key={idx}
+                  variants={fadeIn}
+                  whileHover={{ y: -4, transition: { duration: 0.3 } }}
+                  className="group cursor-pointer"
+                >
+                  <CardWrapper
+                    {...(cardProps as any)}
+                    className="block bg-white p-4 rounded-lg shadow-sm border border-heritage-gold/10 hover:shadow-md transition-all h-full"
+                  >
+                    <div className="aspect-[3/4] rounded-md mb-4 bg-gradient-to-br from-heritage-red/5 to-heritage-gold/10 overflow-hidden relative flex items-center justify-center">
+                      {ancestor.image ? (
+                        <Image
+                          src={ancestor.image}
+                          alt={ancestor.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                        />
+                      ) : (
+                        <UserRound className="size-16 text-heritage-red/20 group-hover:scale-110 transition-transform duration-500" />
+                      )}
+                      <div className="absolute inset-0 bg-heritage-red/5 group-hover:bg-transparent transition-colors" />
+                    </div>
+                    <h4 className="font-serif font-bold text-lg text-altar-wood">
+                      {ancestor.name}
+                    </h4>
+                    <p className="text-altar-wood/50 text-sm">{ancestor.years}</p>
+                    {ancestor.slug && (
+                      <span className="text-heritage-red text-xs font-medium mt-1 inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Đọc tiểu sử <ArrowRight className="size-3" />
+                      </span>
+                    )}
+                  </CardWrapper>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
       </motion.section>
