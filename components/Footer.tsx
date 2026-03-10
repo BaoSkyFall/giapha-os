@@ -1,9 +1,8 @@
 import {
   TreePine,
   MapPin,
-  Mail,
-  Phone,
 } from "lucide-react";
+import Link from "next/link";
 
 export interface FooterProps {
   className?: string;
@@ -44,44 +43,44 @@ export default function Footer({
             </h4>
             <ul className="space-y-4 text-white/80">
               <li>
-                <a
+                <Link
                   className="hover:text-heritage-gold transition-colors"
                   href="/"
                 >
                   Trang chủ
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-heritage-gold transition-colors"
                   href="/about"
                 >
                   Giới thiệu
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-heritage-gold transition-colors"
                   href="/dashboard/members"
                 >
                   Gia phả
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-heritage-gold transition-colors"
                   href="/blog"
                 >
                   Tin tức
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-heritage-gold transition-colors"
                   href="/gallery"
                 >
                   Thư viện
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -93,20 +92,20 @@ export default function Footer({
             </h4>
             <ul className="space-y-4 text-white/80">
               <li>
-                <a
+                <Link
                   className="hover:text-heritage-gold transition-colors"
                   href="/login"
                 >
                   Đăng nhập / Đăng ký
-                </a>
+                </Link>
               </li>
               <li>
-                <a
+                <Link
                   className="hover:text-heritage-gold transition-colors"
                   href="/about"
                 >
                   Quyền riêng tư và Bảo mật
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
