@@ -23,7 +23,7 @@ const navLinks: NavLink[] = [
     { label: "Thư viện", href: "/gallery" },
     { label: "Sự kiện", href: "/dashboard/events", authOnly: true },
     { label: "Tra cứu", href: "/dashboard/kinship", authOnly: true },
-    { label: "Dòng dõi", href: "/dashboard/lineage", authOnly: true },
+    // { label: "Dòng dõi", href: "/dashboard/lineage", authOnly: true },
 ];
 
 interface HeaderProps {
@@ -67,8 +67,8 @@ export default function Header({ siteName = "Tộc Phạm Phú" }: HeaderProps) 
                             key={link.href}
                             href={link.href}
                             className={`text-sm font-medium transition-colors ${isActive(link.href)
-                                    ? "text-heritage-gold"
-                                    : "text-white/90 hover:text-heritage-gold"
+                                ? "text-heritage-gold"
+                                : "text-white/90 hover:text-heritage-gold"
                                 }`}
                         >
                             {link.label}
@@ -112,8 +112,8 @@ export default function Header({ siteName = "Tộc Phạm Phú" }: HeaderProps) 
                                 href={link.href}
                                 onClick={() => setMobileMenuOpen(false)}
                                 className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive(link.href)
-                                        ? "bg-white/10 text-heritage-gold"
-                                        : "text-white/90 hover:bg-white/5 hover:text-heritage-gold"
+                                    ? "bg-white/10 text-heritage-gold"
+                                    : "text-white/90 hover:bg-white/5 hover:text-heritage-gold"
                                     }`}
                             >
                                 {link.label}

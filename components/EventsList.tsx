@@ -80,27 +80,25 @@ function EventCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
       onClick={handleClick}
-      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-md group ${
-        isToday
-          ? "bg-amber-50 border-amber-300 shadow-sm"
-          : isBirthday
-            ? "bg-white/80 border-stone-200/60 hover:border-blue-200"
-            : isCustom
-              ? "bg-white/80 border-stone-200/60 hover:border-purple-200"
-              : "bg-white/80 border-stone-200/60 hover:border-rose-200"
-      }`}
+      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-md group ${isToday
+        ? "bg-amber-50 border-amber-300 shadow-sm"
+        : isBirthday
+          ? "bg-white/80 border-stone-200/60 hover:border-blue-200"
+          : isCustom
+            ? "bg-white/80 border-stone-200/60 hover:border-purple-200"
+            : "bg-white/80 border-stone-200/60 hover:border-rose-200"
+        }`}
     >
       {/* Icon */}
       <div
-        className={`shrink-0 size-11 flex items-center justify-center rounded-xl mt-0.5 ${
-          isToday
-            ? "bg-amber-100 text-amber-600"
-            : isBirthday
-              ? "bg-blue-50 text-blue-500"
-              : isCustom
-                ? "bg-purple-50 text-purple-500"
-                : "bg-rose-50 text-rose-500"
-        }`}
+        className={`shrink-0 size-11 flex items-center justify-center rounded-xl mt-0.5 ${isToday
+          ? "bg-amber-100 text-amber-600"
+          : isBirthday
+            ? "bg-blue-50 text-blue-500"
+            : isCustom
+              ? "bg-purple-50 text-purple-500"
+              : "bg-rose-50 text-rose-500"
+          }`}
       >
         {isBirthday ? (
           <Cake className="size-5" />
@@ -160,13 +158,12 @@ function EventCard({
 
       {/* Days badge */}
       <div
-        className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${
-          isToday
-            ? "bg-amber-400 text-white"
-            : isSoon
-              ? "bg-red-100 text-red-600"
-              : "bg-stone-100 text-stone-500"
-        }`}
+        className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold ${isToday
+          ? "bg-amber-400 text-white"
+          : isSoon
+            ? "bg-red-100 text-red-600"
+            : "bg-stone-100 text-stone-500"
+          }`}
       >
         <Clock className="size-3" />
         {daysUntilLabel(event.daysUntil)}
@@ -324,7 +321,6 @@ export default function EventsList({
           {(
             [
               { key: "all", label: "Tất cả" },
-              { key: "birthday", label: "Sinh nhật" },
               { key: "death_anniversary", label: "Ngày giỗ" },
               { key: "custom_event", label: "Tuỳ chỉnh" },
             ] as const
@@ -332,11 +328,10 @@ export default function EventsList({
             <button
               key={tab.key}
               onClick={() => setFilter(tab.key)}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                filter === tab.key
-                  ? "bg-amber-500 text-white shadow-sm"
-                  : "bg-white/80 text-stone-600 border border-stone-200/60 hover:border-amber-200 hover:text-amber-700"
-              }`}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${filter === tab.key
+                ? "bg-amber-500 text-white shadow-sm"
+                : "bg-white/80 text-stone-600 border border-stone-200/60 hover:border-amber-200 hover:text-amber-700"
+                }`}
             >
               {tab.label}
             </button>
@@ -347,7 +342,7 @@ export default function EventsList({
         </div>
 
         {/* Toggle options */}
-        <div className="flex px-1">
+        {/* <div className="flex px-1">
           <label className="flex items-center gap-2.5 text-sm font-medium text-stone-600 cursor-pointer hover:text-stone-900 transition-colors select-none">
             <input
               type="checkbox"
@@ -357,7 +352,7 @@ export default function EventsList({
             />
             Hiển thị sinh nhật của người đã mất
           </label>
-        </div>
+        </div> */}
       </div>
 
       {/* Event list */}

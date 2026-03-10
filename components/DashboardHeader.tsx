@@ -16,7 +16,7 @@ const navLinks = [
   { label: "Thư viện", href: "/gallery" },
   { label: "Sự kiện", href: "/dashboard/events" },
   { label: "Tra cứu", href: "/dashboard/kinship" },
-  { label: "Dòng dõi", href: "/dashboard/lineage" },
+  // { label: "Dòng dõi", href: "/dashboard/lineage" },
 ];
 
 export default function DashboardHeader() {
