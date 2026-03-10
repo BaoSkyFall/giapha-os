@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
+import NavigationProgress from "@/components/NavigationProgress";
 import { getUser, getProfile } from "@/utils/supabase/queries";
 import config from "./config";
 import "./globals.css";
@@ -58,6 +59,7 @@ export default async function RootLayout({
         className={`${inter.variable} ${playfair.variable} font-sans antialiased relative`}
       >
         <AuthProvider user={user} profile={profile}>
+          <NavigationProgress />
           {children}
         </AuthProvider>
       </body>

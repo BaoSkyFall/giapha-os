@@ -283,9 +283,18 @@ export default function BlogEditorContent({
                                     alt="Cover"
                                     className="w-full h-64 object-cover lg:object-contain"
                                 />
+                                {isUploading && (
+                                    <div className="absolute inset-0 bg-black/50 flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
+                                        <Loader2 className="size-8 text-white animate-spin" />
+                                        <span className="text-white text-sm font-medium">
+                                            Đang tải ảnh mới...
+                                        </span>
+                                    </div>
+                                )}
                                 <button
                                     onClick={() => fileInputRef.current?.click()}
-                                    className="absolute bottom-3 right-3 px-3 py-1.5 bg-black/60 text-white text-xs font-bold rounded-lg hover:bg-black/80 transition-colors"
+                                    disabled={isUploading}
+                                    className="absolute bottom-3 right-3 px-3 py-1.5 bg-black/60 text-white text-xs font-bold rounded-lg hover:bg-black/80 transition-colors disabled:opacity-50"
                                 >
                                     Đổi ảnh bìa
                                 </button>
