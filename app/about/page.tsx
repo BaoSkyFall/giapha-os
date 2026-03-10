@@ -246,7 +246,7 @@ export default function AboutPage() {
         </div>
       </motion.section>
 
-      {/* Disclaimer & Privacy */}
+      {/* Privacy */}
       <motion.section
         className="py-16 bg-rice-paper"
         initial="hidden"
@@ -261,52 +261,45 @@ export default function AboutPage() {
                 <ShieldAlert className="size-5" />
               </div>
               <h2 className="text-2xl font-bold text-altar-wood">
-                Tuyên bố từ chối trách nhiệm & Quyền riêng tư
+                Quyền riêng tư và Bảo mật
               </h2>
             </div>
 
             <div className="bg-white border border-heritage-gold/10 rounded-xl p-6 text-[14.5px] leading-relaxed">
-              <p className="font-bold text-altar-wood mb-4 bg-heritage-gold/10 py-2 px-3 rounded-lg inline-block">
-                Dự án này chỉ cung cấp mã nguồn (source code). Không có bất kỳ
-                dữ liệu cá nhân nào được thu thập hay lưu trữ bởi tác giả.
-              </p>
-
               <ul className="space-y-4 text-altar-wood/70 list-disc pl-5">
                 <li>
                   <strong className="text-altar-wood">
-                    Tự lưu trữ hoàn toàn (Self-hosted):
+                    Bảo mật dữ liệu Tộc Phạm Phú:
                   </strong>{" "}
-                  Khi bạn triển khai ứng dụng, toàn bộ dữ liệu gia phả (tên,
-                  ngày sinh, quan hệ, thông tin liên hệ...) được lưu trữ{" "}
+                  Toàn bộ thông tin gia phả, dữ liệu cá nhân và hình ảnh của
+                  các thành viên trong dòng họ được{" "}
                   <strong className="text-altar-wood">
-                    trong tài khoản Supabase của chính bạn
-                  </strong>
-                  . Tác giả dự án không có quyền truy cập vào database đó.
+                    lưu trữ an toàn trên hệ thống đám mây
+                  </strong>{" "}
+                  với mã hóa tiêu chuẩn công nghiệp.
                 </li>
                 <li>
                   <strong className="text-altar-wood">
-                    Không thu thập dữ liệu:
+                    Quyền truy cập hạn chế:
                   </strong>{" "}
-                  Không có analytics, không có tracking, không có telemetry,
-                  không có bất kỳ hình thức thu thập thông tin người dùng nào
-                  được tích hợp trong mã nguồn.
+                  Chỉ những thành viên được Quản trị viên dòng họ phê duyệt mới
+                  có thể xem và chỉnh sửa thông tin gia phả. Người ngoài không
+                  thể truy cập dữ liệu của dòng họ.
                 </li>
                 <li>
                   <strong className="text-altar-wood">
-                    Bạn kiểm soát dữ liệu của bạn:
+                    Không chia sẻ cho bên thứ ba:
                   </strong>{" "}
-                  Mọi dữ liệu gia đình, thông tin thành viên đều nằm hoàn toàn
-                  trong cơ sở dữ liệu Supabase mà bạn tạo và quản lý. Bạn có
-                  thể xóa, xuất hoặc di chuyển dữ liệu bất cứ lúc nào.
+                  Thông tin cá nhân và dữ liệu gia đình của bạn không được chia
+                  sẻ, bán hoặc cung cấp cho bất kỳ bên thứ ba nào. Dữ liệu chỉ
+                  phục vụ mục đích quản lý gia phả của dòng họ.
                 </li>
                 <li>
-                  <strong className="text-altar-wood">Demo công khai:</strong>{" "}
-                  Trang demo tại{" "}
-                  <code className="bg-heritage-gold/10 border border-heritage-gold/20 px-1 py-0.5 rounded text-[13px] text-heritage-red">
-                    giapha-os.homielab.com
-                  </code>{" "}
-                  sử dụng dữ liệu mẫu hư cấu, không chứa thông tin của người
-                  thật. Không nên nhập thông tin cá nhân thật vào trang demo.
+                  <strong className="text-altar-wood">
+                    Quyền của bạn:
+                  </strong>{" "}
+                  Bạn có quyền yêu cầu xem, chỉnh sửa hoặc xóa thông tin cá
+                  nhân của mình bằng cách liên hệ Quản trị viên hệ thống.
                 </li>
               </ul>
             </div>
@@ -315,7 +308,7 @@ export default function AboutPage() {
       </motion.section>
 
       {/* Open Source CTA */}
-      <motion.section
+      {/* <motion.section
         className="py-20 bg-white text-center"
         initial="hidden"
         whileInView="visible"
@@ -371,7 +364,7 @@ export default function AboutPage() {
             </div>
           </motion.div>
         </div>
-      </motion.section>
+      </motion.section> */}
 
       <Footer />
     </div>
