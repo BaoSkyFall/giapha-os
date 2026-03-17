@@ -46,6 +46,7 @@ export interface Person {
   is_in_law: boolean;
   birth_order: number | null;
   generation: number | null;
+  branch: string | null;
   other_names: string | null;
   birth_date_text: string | null;
   death_date_text: string | null;

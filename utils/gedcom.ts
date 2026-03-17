@@ -12,6 +12,7 @@ export interface GedcomPerson {
   is_in_law?: boolean;
   birth_order?: number | null;
   generation?: number | null;
+  branch?: string | null;
   avatar_url?: string | null;
   note?: string | null;
 }
@@ -339,6 +340,7 @@ export function parseGedcom(gedcom: string): {
       is_in_law: false,
       birth_order: null,
       generation: null,
+      branch: null,
       avatar_url: null,
       note: note.length > 0 ? note : null,
     });
