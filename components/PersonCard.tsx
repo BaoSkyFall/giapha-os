@@ -95,7 +95,8 @@ export default function PersonCard({ person }: PersonCardProps) {
           {(isDeceased ||
             person.is_in_law ||
             person.birth_order != null ||
-            person.generation != null) && (
+            person.generation != null ||
+            person.branch) && (
               <div className="flex flex-wrap items-center gap-1.5 shrink-0 mt-2">
                 {isDeceased && (
                   <>
@@ -130,6 +131,11 @@ export default function PersonCard({ person }: PersonCardProps) {
                 {person.generation != null && (
                   <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/60 uppercase tracking-widest shadow-xs">
                     Đời thứ {person.generation}
+                  </span>
+                )}
+                {person.branch && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-bold bg-violet-50 text-violet-700 border border-violet-200/60 uppercase tracking-widest shadow-xs">
+                    {person.branch}
                   </span>
                 )}
               </div>

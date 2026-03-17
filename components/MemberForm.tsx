@@ -82,6 +82,7 @@ export default function MemberForm({
   const [birthOrder, setBirthOrder] = useState<number | "">(
     initialData?.birth_order || "",
   );
+  const [branch, setBranch] = useState(initialData?.branch || "");
   const [generation, setGeneration] = useState<number | "">(
     initialData?.generation || "",
   );
@@ -192,6 +193,7 @@ export default function MemberForm({
         is_in_law: isInLaw,
         birth_order: birthOrder === "" ? null : Number(birthOrder),
         generation: generation === "" ? null : Number(generation),
+        branch: branch || null,
         other_names: otherNames || null,
         birth_date_text: birthDateText || null,
         death_date_text: isDeceased ? deathDateText || null : null,
@@ -389,6 +391,22 @@ export default function MemberForm({
               onChange={(e) =>
                 setGeneration(e.target.value ? Number(e.target.value) : "")
               }
+              className={inputClasses}
+            />
+            <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
+              <span>💡</span> Để trống nếu không rõ
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+              Nhánh
+            </label>
+            <input
+              type="text"
+              placeholder="VD: Phái Nhất Chi Một, Phái Nhì Chi Bốn..."
+              value={branch}
+              onChange={(e) => setBranch(e.target.value)}
               className={inputClasses}
             />
             <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
