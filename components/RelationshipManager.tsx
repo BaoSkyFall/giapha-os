@@ -14,6 +14,8 @@ interface RelationshipManagerProps {
   isAdmin: boolean;
   canEdit?: boolean;
   personGender: string; // Passed down to calculate default spouse gender
+  personGeneration?: number | null;
+  personBranch?: string | null;
 }
 
 interface EnrichedRelationship {
@@ -29,6 +31,8 @@ export default function RelationshipManager({
   isAdmin,
   canEdit = false,
   personGender,
+  personGeneration,
+  personBranch,
 }: RelationshipManagerProps) {
   const supabase = createClient();
   const dashboardContext = useContext(DashboardContext);
@@ -298,15 +302,70 @@ export default function RelationshipManager({
     let successCount = 0;
 
     try {
+      // Calculate child generation from parent
+      const childGeneration =
+        personGeneration != null ? personGeneration + 1 : null;
+
+      // Query existing children to get max birth_order per gender
+      // Find all person_b IDs where person_a = personId and type is biological/adopted child
+      const { data: existingChildRels } = await supabase
+        .from("relationships")
+        .select("person_b")
+        .eq("person_a", personId)
+        .in("type", ["biological_child", "adopted_child"]);
+
+      let maleCounter = 0;
+      let femaleCounter = 0;
+
+      if (existingChildRels && existingChildRels.length > 0) {
+        const childIds = existingChildRels.map((r) => r.person_b);
+        const { data: existingChildren } = await supabase
+          .from("persons")
+          .select("gender, birth_order")
+          .in("id", childIds);
+
+        if (existingChildren) {
+          for (const child of existingChildren) {
+            if (
+              child.gender === "male" &&
+              child.birth_order != null &&
+              child.birth_order > maleCounter
+            ) {
+              maleCounter = child.birth_order;
+            }
+            if (
+              child.gender === "female" &&
+              child.birth_order != null &&
+              child.birth_order > femaleCounter
+            ) {
+              femaleCounter = child.birth_order;
+            }
+          }
+        }
+      }
+
       // For each child row, insert a Person, then insert Relationship(s)
       for (let i = 0; i < validChildren.length; i++) {
         const child = validChildren[i];
+
+        // Calculate gender-specific birth_order
+        let birthOrder: number | null = null;
+        if (child.gender === "male") {
+          maleCounter++;
+          birthOrder = maleCounter;
+        } else if (child.gender === "female") {
+          femaleCounter++;
+          birthOrder = femaleCounter;
+        }
 
         // 1. Insert Person
         const personPayload: {
           full_name: string;
           gender: "male" | "female" | "other";
           birth_year?: number;
+          generation?: number;
+          birth_order?: number;
+          branch?: string;
         } = {
           full_name: child.name.trim(),
           gender: child.gender,
@@ -314,6 +373,15 @@ export default function RelationshipManager({
         if (child.birthYear.trim() !== "") {
           const year = parseInt(child.birthYear);
           if (!isNaN(year)) personPayload.birth_year = year;
+        }
+        if (childGeneration != null) {
+          personPayload.generation = childGeneration;
+        }
+        if (birthOrder != null) {
+          personPayload.birth_order = birthOrder;
+        }
+        if (personBranch) {
+          personPayload.branch = personBranch;
         }
 
         const { data: newPersonData, error: insertError } = await supabase

@@ -400,6 +400,8 @@ export default function MemberDetailContent({
                   isAdmin={isAdmin}
                   canEdit={canEdit}
                   personGender={person.gender}
+                  personGeneration={person.generation}
+                  personBranch={person.branch}
                 />
               </div>
             </motion.section>
