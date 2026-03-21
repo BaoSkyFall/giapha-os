@@ -1,5 +1,6 @@
 import DeleteMemberButton from "@/components/DeleteMemberButton";
 import MemberDetailContent from "@/components/MemberDetailContent";
+import SyncFamilyButton from "@/components/SyncFamilyButton";
 import { getProfile, getSupabase } from "@/utils/supabase/queries";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -66,6 +67,12 @@ export default async function MemberDetailPage({ params }: PageProps) {
             >
               Chỉnh sửa
             </Link>
+            <SyncFamilyButton
+              personId={id}
+              personGeneration={person.generation}
+              personBranch={person.branch}
+              className="px-4 py-2 bg-emerald-100/80 text-emerald-800 rounded-lg hover:bg-emerald-200 hover:text-emerald-900 shadow-sm"
+            />
             <DeleteMemberButton memberId={id} />
           </div>
         )}

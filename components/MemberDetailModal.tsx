@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useDashboard } from "./DashboardContext";
+import SyncFamilyButton from "./SyncFamilyButton";
 import { useUser } from "./UserProvider";
 
 export default function MemberDetailModal() {
@@ -197,6 +198,12 @@ export default function MemberDetailModal() {
                       <Edit2 className="size-4" />
                       <span className="hidden sm:inline">Chỉnh sửa</span>
                     </button>
+                    <SyncFamilyButton
+                      personId={person.id}
+                      personGeneration={person.generation}
+                      personBranch={person.branch}
+                      className="px-4 py-2 bg-emerald-100/80 text-emerald-800 rounded-full hover:bg-emerald-200 font-semibold shadow-sm border border-emerald-200/50"
+                    />
                   </>
                 )
               )}

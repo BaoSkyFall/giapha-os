@@ -57,13 +57,33 @@ export default function FamilyTree({
   const handleZoomOut = () => setScale((s) => Math.max(s - 0.1, 0.3));
   const handleResetZoom = () => setScale(1);
 
+  const hasInitiallyScrolledRef = useRef(false);
+  const savedScrollLeftRef = useRef<number | null>(null);
+
   useEffect(() => {
-    // Center the scroll area horizontally on initial render
     if (containerRef.current) {
       const el = containerRef.current;
-      el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+      if (!hasInitiallyScrolledRef.current) {
+        // First render: center the scroll area horizontally
+        el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+        hasInitiallyScrolledRef.current = true;
+      } else if (savedScrollLeftRef.current != null) {
+        // Subsequent re-renders (e.g. router.refresh): restore previous position
+        el.scrollLeft = savedScrollLeftRef.current;
+      }
     }
   }, [roots]);
+
+  // Persist horizontal scroll position so it survives re-renders
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      savedScrollLeftRef.current = el.scrollLeft;
+    };
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsPressed(true);

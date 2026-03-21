@@ -81,11 +81,20 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const DEFAULT_ROOT_ID = "0911c310-31cd-43c2-a705-67770bd074df";
+
   const setView = (v: ViewMode) => {
     setViewState(v);
+    // Auto-set default rootId when switching to tree/mindmap if none is set
+    if ((v === "tree" || v === "mindmap") && !rootId) {
+      setRootId(DEFAULT_ROOT_ID);
+    }
     if (typeof window !== "undefined") {
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.set("view", v);
+      if ((v === "tree" || v === "mindmap") && !rootId) {
+        newUrl.searchParams.set("rootId", DEFAULT_ROOT_ID);
+      }
       window.history.replaceState(null, "", newUrl.toString());
     }
   };
