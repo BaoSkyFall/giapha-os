@@ -10,6 +10,7 @@ import {
   getZodiacSign,
   getZodiacAnimal,
 } from "@/utils/dateHelpers";
+import { isHallOfFame } from "@/utils/hallOfFame";
 import { motion, Variants } from "framer-motion";
 import {
   Briefcase,
@@ -42,6 +43,7 @@ export default function MemberDetailContent({
   const note = (fullPerson.note as string) || "";
   const notePlainText = note.replace(/<[^>]*>/g, "");
   const isNoteLong = notePlainText.length > 300;
+  const isFamous = isHallOfFame(person.full_name);
 
   const isDeceased =
     !!person.death_year || !!person.death_month || !!person.death_day;
@@ -68,27 +70,33 @@ export default function MemberDetailContent({
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="bg-stone-50/50"
+      className={`${isFamous ? "border-[4px] border-amber-400/90 shadow-[inset_0_0_0_3px_rgba(127,29,29,0.8),inset_0_0_0_6px_rgba(251,191,36,0.3),0_0_30px_rgba(220,38,38,0.2)] rounded-2xl overflow-hidden" : "bg-stone-50/50"}`}
     >
       {/* Header / Cover */}
-      <div className="h-28 sm:h-36 bg-linear-to-r from-stone-200 via-stone-100 to-stone-200 relative shrink-0">
+      <div className={`h-28 sm:h-36 relative shrink-0 ${isFamous ? "bg-gradient-to-r from-red-800 via-red-700 to-red-800" : "bg-linear-to-r from-stone-200 via-stone-100 to-stone-200"}`}>
         {/* Decorative blur in cover */}
         <div
-          className={`absolute right-0 -top-20 w-64 h-64 rounded-full blur-[60px] opacity-40 ${person.gender === "male" ? "bg-sky-300" : person.gender === "female" ? "bg-rose-300" : "bg-stone-300"}`}
+          className={`absolute right-0 -top-20 w-64 h-64 rounded-full blur-[60px] opacity-40 ${isFamous ? "bg-red-500" : person.gender === "male" ? "bg-sky-300" : person.gender === "female" ? "bg-rose-300" : "bg-stone-300"}`}
         />
-        <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full blur-[60px] opacity-20 bg-amber-200" />
+        <div className={`absolute -left-20 -bottom-20 w-64 h-64 rounded-full blur-[60px] ${isFamous ? "opacity-50 bg-amber-500" : "opacity-20 bg-amber-200"}`} />
+        {isFamous && (
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgyNTEsMTkxLDM2LDAuMikiLz48L3N2Zz4=')] opacity-60" />
+        )}
 
         <motion.div
           variants={itemVariants}
           className="absolute -bottom-12 sm:-bottom-16 left-6 sm:left-8 z-10"
         >
           <div
-            className={`h-24 w-24 sm:h-32 sm:w-32 rounded-full border-4 sm:border-[6px] border-white flex items-center justify-center text-3xl sm:text-4xl font-bold text-white overflow-hidden shadow-xl shrink-0
-             ${person.gender === "male"
-                ? "bg-linear-to-br from-sky-400 to-sky-700"
-                : person.gender === "female"
-                  ? "bg-linear-to-br from-rose-400 to-rose-700"
-                  : "bg-linear-to-br from-stone-400 to-stone-600"
+            className={`h-24 w-24 sm:h-32 sm:w-32 rounded-full flex items-center justify-center text-3xl sm:text-4xl font-bold text-white overflow-hidden shadow-xl shrink-0
+             ${isFamous
+                ? "border-[6px] border-red-500 shadow-[0_0_30px_rgba(220,38,38,0.4)] bg-gradient-to-br from-red-600 to-red-900"
+                : `border-4 sm:border-[6px] border-white ${person.gender === "male"
+                    ? "bg-linear-to-br from-sky-400 to-sky-700"
+                    : person.gender === "female"
+                      ? "bg-linear-to-br from-rose-400 to-rose-700"
+                      : "bg-linear-to-br from-stone-400 to-stone-600"
+                  }`
               }`}
           >
             {person.avatar_url ? (
@@ -106,11 +114,13 @@ export default function MemberDetailContent({
           </div>
           {/* Gender Indicator Icon */}
           <div
-            className={`absolute bottom-1 right-1 sm:bottom-2 sm:right-2 size-6 sm:size-8 rounded-full ring-2 sm:ring-4 ring-white shadow-md flex items-center justify-center ${person.gender === "male"
-              ? "bg-sky-100 text-sky-600"
-              : person.gender === "female"
-                ? "bg-rose-100 text-rose-600"
-                : "bg-stone-100 text-stone-600"
+            className={`absolute bottom-1 right-1 sm:bottom-2 sm:right-2 size-6 sm:size-8 rounded-full ring-2 sm:ring-4 ring-white shadow-md flex items-center justify-center ${isFamous
+              ? "bg-red-100 text-red-700"
+              : person.gender === "male"
+                ? "bg-sky-100 text-sky-600"
+                : person.gender === "female"
+                  ? "bg-rose-100 text-rose-600"
+                  : "bg-stone-100 text-stone-600"
               }`}
           >
             {person.gender === "male" ? (
@@ -161,6 +171,11 @@ export default function MemberDetailContent({
               {person.generation != null && (
                 <span className="text-[10px] sm:text-xs font-sans font-bold rounded-md px-2 py-0.5 whitespace-nowrap shadow-xs border text-emerald-700 bg-emerald-50/60 border-emerald-200/60 uppercase tracking-wider">
                   Đời thứ {person.generation}
+                </span>
+              )}
+              {isFamous && (
+                <span className="text-[10px] sm:text-xs font-sans font-bold rounded-md px-2 py-0.5 whitespace-nowrap shadow-xs border text-red-800 bg-gradient-to-r from-red-100 to-amber-100 border-red-300/70 uppercase tracking-wider">
+                  ★ Danh Nhân Dòng Họ
                 </span>
               )}
               {person.branch && (

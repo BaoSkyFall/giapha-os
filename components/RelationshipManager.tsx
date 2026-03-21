@@ -909,6 +909,12 @@ export default function RelationshipManager({
                     onChange={(e) => {
                       const newBulk = [...bulkChildren];
                       newBulk[index].name = e.target.value;
+                      // Auto-select gender: "Phạm Phú" = male, else female
+                      if (e.target.value.trim()) {
+                        newBulk[index].gender = e.target.value.includes("Phạm Phú")
+                          ? "male"
+                          : "female";
+                      }
                       setBulkChildren(newBulk);
                     }}
                     className="flex-2 bg-white text-stone-900 placeholder-stone-400 text-sm rounded-md border-stone-300 shadow-sm focus:border-sky-500 focus:ring-sky-500 p-2 border"

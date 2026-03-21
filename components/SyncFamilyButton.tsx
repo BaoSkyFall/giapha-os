@@ -88,24 +88,45 @@ export default function SyncFamilyButton({
 
       const childIds = childRels?.map((r) => r.person_b) ?? [];
 
-      // Update children: same branch, generation = parent + 1
+      // Update children: same branch, generation = parent + 1, and birth_order by gender
       if (childIds.length > 0) {
-        const childPayload: Record<string, unknown> = {};
-        if (personBranch !== undefined) childPayload.branch = personBranch;
-        if (personGeneration != null) {
-          childPayload.generation = personGeneration + 1;
-        }
+        // Fetch children person records to get gender and order
+        const { data: children } = await supabase
+          .from("persons")
+          .select("id, gender, created_at")
+          .in("id", childIds)
+          .order("created_at", { ascending: true });
 
-        if (Object.keys(childPayload).length > 0) {
-          const { error: childError } = await supabase
-            .from("persons")
-            .update(childPayload)
-            .in("id", childIds);
+        if (children && children.length > 0) {
+          // Assign birth_order per gender
+          let maleOrder = 0;
+          let femaleOrder = 0;
 
-          if (childError) {
-            console.error("Error syncing children:", childError);
-          } else {
-            updatedCount += childIds.length;
+          for (const child of children) {
+            const payload: Record<string, unknown> = {};
+            if (personBranch !== undefined) payload.branch = personBranch;
+            if (personGeneration != null) {
+              payload.generation = personGeneration + 1;
+            }
+
+            if (child.gender === "male") {
+              maleOrder++;
+              payload.birth_order = maleOrder;
+            } else if (child.gender === "female") {
+              femaleOrder++;
+              payload.birth_order = femaleOrder;
+            }
+
+            const { error: childError } = await supabase
+              .from("persons")
+              .update(payload)
+              .eq("id", child.id);
+
+            if (childError) {
+              console.error("Error syncing child:", child.id, childError);
+            } else {
+              updatedCount++;
+            }
           }
         }
       }

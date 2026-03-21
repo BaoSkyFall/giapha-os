@@ -1,6 +1,7 @@
 "use client";
 
 import { Person } from "@/types";
+import { isHallOfFame } from "@/utils/hallOfFame";
 import { Minus, Plus } from "lucide-react";
 import Image from "next/image";
 import { useDashboard } from "./DashboardContext";
@@ -30,12 +31,23 @@ export default function FamilyNodeCard({
   const { showAvatar, setMemberModalId } = useDashboard();
 
   const isDeceased = person.is_deceased;
+  const isFamous = isHallOfFame(person.full_name);
 
   const content = (
     <div
       onClick={onClickCard}
-      className={`group py-2 px-1 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 hover:shadow-xl relative bg-white/70 rounded-2xl${isDeceased ? " grayscale-[0.4] opacity-80" : ""}${showAvatar ? " w-20 sm:w-24 md:w-28 h-22 sm:h-26 md:h-28" : " px-2 w-18 h-20"}`}
+      className={`group py-2 px-1 flex flex-col items-center justify-start transition-all duration-300 hover:-translate-y-1 hover:shadow-xl relative rounded-2xl${isDeceased ? " grayscale-[0.4] opacity-80" : ""}${showAvatar ? " w-20 sm:w-24 md:w-28 h-22 sm:h-26 md:h-28" : " px-2 w-18 h-20"}${isFamous ? " bg-gradient-to-b from-red-800 via-red-700 to-red-800 shadow-[0_0_20px_rgba(220,38,38,0.3)]" : " bg-white/70"}`}
     >
+      {/* Ornate gold frame overlay for Hall of Fame */}
+      {isFamous && (
+        <Image
+          src="/frame.png"
+          alt=""
+          fill
+          className="absolute inset-0 z-30 pointer-events-none object-fill"
+          unoptimized
+        />
+      )}
       {isRingVisible && (
         <div className="absolute top-[15%] -left-2.5 sm:-left-4 size-5 sm:size-6 rounded-full shadow-sm bg-white z-100 flex items-center justify-center text-[10px] sm:text-sm">
           <span className="leading-none pt-px pl-0.5">💍</span>
@@ -66,7 +78,11 @@ export default function FamilyNodeCard({
       {showAvatar && (
         <div className="relative z-10 mb-1.5 sm:mb-2">
           <div
-            className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg ring-2 ring-white transition-transform duration-300 group-hover:scale-105
+            className={`h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 rounded-full flex items-center justify-center text-[10px] sm:text-xs md:text-sm text-white overflow-hidden shrink-0 shadow-lg transition-transform duration-300 group-hover:scale-105
+              ${isFamous
+                ? "ring-[3px] ring-red-500 shadow-[0_0_15px_rgba(220,38,38,0.35)] bg-gradient-to-br from-red-600 to-red-900"
+                : "ring-2 ring-white"
+              }
               ${
                 person.gender === "male"
                   ? "bg-linear-to-br from-sky-400 to-sky-700"
@@ -95,7 +111,9 @@ export default function FamilyNodeCard({
       <div className="flex flex-col items-center justify-center gap-1 w-full px-0.5 sm:px-1 relative z-10">
         <div
           className={`text-[10px] sm:text-[11px] md:text-xs font-bold text-center leading-tight transition-colors cursor-pointer
-            ${onClickName ? "text-stone-800 group-hover:text-amber-700 hover:underline" : "text-stone-800 group-hover:text-amber-800"}`}
+            ${isFamous
+              ? "text-amber-300 group-hover:text-amber-200 font-extrabold drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]"
+              : onClickName ? "text-stone-800 group-hover:text-amber-700 hover:underline" : "text-stone-800 group-hover:text-amber-800"}`}
           title={person.full_name}
           onClick={(e) => {
             if (onClickName) {
