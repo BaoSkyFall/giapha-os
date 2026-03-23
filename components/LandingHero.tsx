@@ -1,8 +1,9 @@
 "use client";
 
 import { FamilyEvent } from "@/utils/eventHelpers";
-import { motion, Variants } from "framer-motion";
-import { ArrowRight, CalendarDays, Search, TreePine, UserRound } from "lucide-react";
+import { AnimatePresence, motion, Variants } from "framer-motion";
+import { useEffect, useState } from "react";
+import { ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Search, TreePine, UserRound } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -55,6 +56,98 @@ const ancestors = [
 type SerializedEvent = Omit<FamilyEvent, "nextOccurrence"> & {
   nextOccurrence: string;
 };
+
+// ---------------------------------------------------------------------------
+// Hero image slider (auto-slide + drag, no arrows, no dots)
+// ---------------------------------------------------------------------------
+
+const SLIDES = [
+  { src: "/hero-temple.jpg", alt: "Nhà thờ tộc truyền thống Việt Nam" },
+  { src: "/hero-dinh.jpg",   alt: "Đình làng truyền thống" },
+  { src: "/hero-lotus.jpg",  alt: "Ao sen làng quê Việt Nam" },
+  { src: "/hero-altar.jpg",  alt: "Bàn thờ gia tiên" },
+];
+
+const SLIDE_DURATION = 4000; // ms between auto-advances
+const DRAG_THRESHOLD = 50;   // px to trigger slide on drag
+
+const slideVariants: Variants = {
+  enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
+  center: { x: 0, opacity: 1, transition: { duration: 0.55, ease: "easeOut" } },
+  exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0, transition: { duration: 0.45, ease: "easeIn" } }),
+};
+
+function HeroSlider() {
+  const [[index, dir], setSlide] = useState([0, 1]);
+
+  const paginate = (newDir: number) => {
+    setSlide(([prev]) => [(prev + newDir + SLIDES.length) % SLIDES.length, newDir]);
+  };
+
+  // Auto-advance
+  useEffect(() => {
+    const timer = setInterval(() => paginate(1), SLIDE_DURATION);
+    return () => clearInterval(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index]);
+
+  return (
+    <motion.div className="flex-1 relative w-full" variants={fadeIn}>
+      {/* Gold corner accents */}
+      <div className="absolute -top-3 -left-3 w-16 h-16 border-l-4 border-t-4 border-heritage-gold/60 rounded-tl-xl pointer-events-none z-20" />
+      <div className="absolute -bottom-3 -right-3 w-16 h-16 border-r-4 border-b-4 border-heritage-gold/60 rounded-br-xl pointer-events-none z-20" />
+
+      <div className="group relative rounded-2xl overflow-hidden shadow-2xl h-[380px] md:h-[460px] cursor-grab active:cursor-grabbing select-none">
+        <AnimatePresence initial={false} custom={dir} mode="popLayout">
+          <motion.div
+            key={index}
+            custom={dir}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.12}
+            onDragEnd={(_, info) => {
+              if (info.offset.x < -DRAG_THRESHOLD) paginate(1);
+              else if (info.offset.x > DRAG_THRESHOLD) paginate(-1);
+            }}
+            className="absolute inset-0 w-full h-full"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={SLIDES[index].src}
+              alt={SLIDES[index].alt}
+              draggable={false}
+              className="w-full h-full object-cover pointer-events-none"
+            />
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Prev arrow */}
+        <button
+          onClick={() => paginate(-1)}
+          className="absolute left-3 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-9 h-9 rounded-full bg-white/60 text-heritage-red backdrop-blur-sm shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-heritage-red hover:text-white"
+          aria-label="Previous image"
+        >
+          <ChevronLeft className="size-5" />
+        </button>
+
+        {/* Next arrow */}
+        <button
+          onClick={() => paginate(1)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-9 h-9 rounded-full bg-white/60 text-heritage-red backdrop-blur-sm shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-heritage-red hover:text-white"
+          aria-label="Next image"
+        >
+          <ChevronRight className="size-5" />
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+
 
 interface LandingHeroProps {
   events: SerializedEvent[];
@@ -119,26 +212,7 @@ export default function LandingHero({ events }: LandingHeroProps) {
             </div>
 
             {/* Right: Temple Image */}
-            <motion.div className="flex-1 relative w-full" variants={fadeIn}>
-              {/* Gold corner accents */}
-              <div className="absolute -top-3 -left-3 w-16 h-16 border-l-4 border-t-4 border-heritage-gold/60 rounded-tl-xl pointer-events-none z-20" />
-              <div className="absolute -bottom-3 -right-3 w-16 h-16 border-r-4 border-b-4 border-heritage-gold/60 rounded-br-xl pointer-events-none z-20" />
-
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/hero-temple.jpg"
-                  alt="Nhà thờ tộc truyền thống Việt Nam"
-                  className="w-full h-[380px] md:h-[460px] object-cover"
-                />
-                {/* Fade shadow: bottom-to-top, blending into rice-paper background */}
-                {/* <div className="absolute inset-0 bg-gradient-to-t from-[#F7F3EA] via-[#F7F3EA]/10 to-transparent" /> */}
-                {/* Left-side fade to blend into page */}
-                {/* <div className="absolute inset-0 bg-gradient-to-r from-[#F7F3EA]/60 via-transparent to-transparent" /> */}
-                {/* Subtle red warm overlay */}
-                {/* <div className="absolute inset-0 bg-heritage-red/10" /> */}
-              </div>
-            </motion.div>
+            <HeroSlider />
 
           </div>
         </div>
