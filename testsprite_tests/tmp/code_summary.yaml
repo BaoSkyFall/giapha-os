@@ -1,0 +1,365 @@
+version: "2"
+type: frontend
+tech_stack:
+  - TypeScript
+  - Next.js 16
+  - React 19
+  - Tailwind CSS 4
+  - Supabase (Auth + Database)
+  - Framer Motion
+  - Tiptap (Rich Text Editor)
+  - Lucide React (Icons)
+  - Cloudinary (Image Upload)
+routes:
+  - path: /
+    file: app/page.tsx
+    auth_required: false
+    description: Landing page with hero section and upcoming family events
+  - path: /login
+    file: app/login/page.tsx
+    auth_required: false
+    description: Login and registration page with email/password authentication
+  - path: /about
+    file: app/about/page.tsx
+    auth_required: false
+    description: About page with project information and privacy policy
+  - path: /blog
+    file: app/blog/page.tsx
+    auth_required: false
+    description: Public blog listing page
+  - path: /blog/[slug]
+    file: app/blog/[slug]/page.tsx
+    auth_required: false
+    description: Individual blog post page
+  - path: /gallery
+    file: app/gallery/page.tsx
+    auth_required: false
+    description: Photo gallery page
+  - path: /dashboard
+    file: app/dashboard/page.tsx
+    auth_required: true
+    description: Main dashboard overview with family stats
+  - path: /dashboard/members
+    file: app/dashboard/members/page.tsx
+    auth_required: true
+    description: Family members list with tree and mindmap view modes
+  - path: /dashboard/members/[id]
+    file: app/dashboard/members/[id]/page.tsx
+    auth_required: true
+    description: Member detail page showing full profile
+  - path: /dashboard/members/[id]/edit
+    file: app/dashboard/members/[id]/edit/page.tsx
+    auth_required: true
+    description: Edit member profile form
+  - path: /dashboard/members/new
+    file: app/dashboard/members/new/page.tsx
+    auth_required: true
+    description: Create new family member form
+  - path: /dashboard/events
+    file: app/dashboard/events/page.tsx
+    auth_required: true
+    description: Family events management page
+  - path: /dashboard/stats
+    file: app/dashboard/stats/page.tsx
+    auth_required: true
+    description: Family statistics and analytics
+  - path: /dashboard/lineage
+    file: app/dashboard/lineage/page.tsx
+    auth_required: true
+    description: Lineage branch management
+  - path: /dashboard/kinship
+    file: app/dashboard/kinship/page.tsx
+    auth_required: true
+    description: Kinship/relationship finder between members
+  - path: /dashboard/data
+    file: app/dashboard/data/page.tsx
+    auth_required: true
+    description: Data import and export management
+  - path: /dashboard/users
+    file: app/dashboard/users/page.tsx
+    auth_required: true
+    description: Admin user management page
+  - path: /dashboard/blog
+    file: app/dashboard/blog/page.tsx
+    auth_required: true
+    description: Admin blog post listing and management
+  - path: /dashboard/blog/new
+    file: app/dashboard/blog/new/page.tsx
+    auth_required: true
+    description: Create new blog post editor
+  - path: /dashboard/blog/[id]
+    file: app/dashboard/blog/[id]/page.tsx
+    auth_required: true
+    description: Edit existing blog post
+  - path: /setup
+    file: app/setup/page.tsx
+    auth_required: false
+    description: Initial project setup wizard
+features:
+  - name: User Authentication
+    description: Login and registration with email/password via Supabase Auth
+    files:
+      - app/login/page.tsx
+      - components/AuthProvider.tsx
+      - components/UserProvider.tsx
+      - utils/supabase/client.ts
+    entry_route: /login
+    user_interactions:
+      - Fill email input field
+      - Fill password input field
+      - Click Login button to submit
+      - Toggle between Login and Register modes
+      - See error message on invalid credentials
+      - Redirect to dashboard on successful login
+    api_calls:
+      - method: POST
+        endpoint: Supabase Auth signInWithPassword
+      - method: POST
+        endpoint: Supabase Auth signUp
+    auth_required: false
+  - name: Landing Page
+    description: Public landing page with animated hero section and upcoming family events
+    files:
+      - app/page.tsx
+      - components/LandingHero.tsx
+      - components/Header.tsx
+      - components/Footer.tsx
+    entry_route: /
+    user_interactions:
+      - View hero section with animations
+      - View upcoming family events list
+      - Navigate to login or other sections via header
+    api_calls:
+      - method: GET
+        endpoint: Supabase select persons
+      - method: GET
+        endpoint: Supabase select custom_events
+    auth_required: false
+  - name: Family Members Management
+    description: CRUD operations for family members with list, tree, and mindmap views
+    files:
+      - app/dashboard/members/page.tsx
+      - app/dashboard/members/new/page.tsx
+      - app/dashboard/members/[id]/page.tsx
+      - app/dashboard/members/[id]/edit/page.tsx
+      - components/DashboardMemberList.tsx
+      - components/FamilyTree.tsx
+      - components/MindmapTree.tsx
+      - components/MemberForm.tsx
+      - components/MemberDetailContent.tsx
+      - components/PersonCard.tsx
+      - components/DeleteMemberButton.tsx
+      - components/ViewToggle.tsx
+    entry_route: /dashboard/members
+    user_interactions:
+      - View members in list, tree, or mindmap view
+      - Toggle between view modes
+      - Search and filter members
+      - Click on a member to view details
+      - Click edit to modify member profile
+      - Fill member form fields (name, birthdate, gender, etc.)
+      - Upload member avatar photo
+      - Add rich text notes using Tiptap editor
+      - Delete a member
+      - Create a new member
+    api_calls:
+      - method: GET
+        endpoint: Supabase select persons
+      - method: POST
+        endpoint: Supabase insert persons
+      - method: PATCH
+        endpoint: Supabase update persons
+      - method: DELETE
+        endpoint: Supabase delete persons (via server action)
+    auth_required: true
+  - name: Relationship Management
+    description: Manage family relationships between members (parent-child, spouse, siblings)
+    files:
+      - components/RelationshipManager.tsx
+      - components/PersonSelector.tsx
+    entry_route: /dashboard/members
+    user_interactions:
+      - Add parent-child relationship
+      - Add spouse relationship
+      - Add sibling relationship
+      - Remove existing relationships
+      - Search and select persons for relationships
+    api_calls:
+      - method: GET
+        endpoint: Supabase select relationships
+      - method: POST
+        endpoint: Supabase insert relationships
+      - method: DELETE
+        endpoint: Supabase delete relationships
+    auth_required: true
+  - name: Family Events
+    description: View and manage family events including custom events and auto-generated birthday/death anniversaries
+    files:
+      - app/dashboard/events/page.tsx
+      - components/EventsList.tsx
+      - components/CustomEventModal.tsx
+    entry_route: /dashboard/events
+    user_interactions:
+      - View list of upcoming events
+      - Create custom family events
+      - Edit existing custom events
+      - Delete custom events
+      - Filter events by type
+    api_calls:
+      - method: GET
+        endpoint: Supabase select custom_events
+      - method: POST
+        endpoint: Supabase insert custom_events
+      - method: PATCH
+        endpoint: Supabase update custom_events
+      - method: DELETE
+        endpoint: Supabase delete custom_events
+    auth_required: true
+  - name: Data Import/Export
+    description: Import and export family data as JSON backup files
+    files:
+      - app/dashboard/data/page.tsx
+      - components/DataImportExport.tsx
+      - app/actions/data.ts
+    entry_route: /dashboard/data
+    user_interactions:
+      - Click export button to download JSON backup
+      - Select a JSON file to import
+      - Confirm import action
+      - View import/export status messages
+    api_calls:
+      - method: GET
+        endpoint: Supabase select persons + relationships (via server action)
+      - method: POST
+        endpoint: Supabase upsert persons + insert relationships (via server action)
+    auth_required: true
+  - name: User Management (Admin)
+    description: Admin-only user management with role assignment, user creation, and status toggling
+    files:
+      - app/dashboard/users/page.tsx
+      - components/AdminUserList.tsx
+      - app/actions/user.ts
+    entry_route: /dashboard/users
+    user_interactions:
+      - View list of registered users
+      - Change user role (admin, editor, member)
+      - Create new user with email/password/role
+      - Toggle user active status
+      - Delete a user
+    api_calls:
+      - method: GET
+        endpoint: Supabase RPC get_all_users
+      - method: POST
+        endpoint: Supabase RPC admin_create_user
+      - method: POST
+        endpoint: Supabase RPC set_user_role
+      - method: POST
+        endpoint: Supabase RPC set_user_active_status
+      - method: POST
+        endpoint: Supabase RPC delete_user
+    auth_required: true
+  - name: Blog Management
+    description: Admin blog post creation, editing, and publishing with rich text editor
+    files:
+      - app/dashboard/blog/page.tsx
+      - app/dashboard/blog/new/page.tsx
+      - app/dashboard/blog/[id]/page.tsx
+      - app/api/blog/route.ts
+      - app/api/blog/[id]/route.ts
+    entry_route: /dashboard/blog
+    user_interactions:
+      - View list of blog posts
+      - Create new blog post
+      - Edit existing blog post
+      - Upload cover image for blog
+      - Write content with rich text editor
+      - Set blog status (draft, published)
+      - Delete blog post
+    api_calls:
+      - method: GET
+        endpoint: /api/blog
+      - method: POST
+        endpoint: /api/blog
+      - method: GET
+        endpoint: /api/blog/[id]
+      - method: PATCH
+        endpoint: /api/blog/[id]
+      - method: DELETE
+        endpoint: /api/blog/[id]
+    auth_required: true
+  - name: Kinship Finder
+    description: Find and display the relationship path between two family members
+    files:
+      - app/dashboard/kinship/page.tsx
+      - components/KinshipFinder.tsx
+    entry_route: /dashboard/kinship
+    user_interactions:
+      - Select first person
+      - Select second person
+      - Click find relationship button
+      - View relationship path and description
+    api_calls:
+      - method: GET
+        endpoint: Supabase select persons + relationships
+    auth_required: true
+  - name: Lineage Management
+    description: Manage family lineage branches and generation tracking
+    files:
+      - app/dashboard/lineage/page.tsx
+      - components/LineageManager.tsx
+    entry_route: /dashboard/lineage
+    user_interactions:
+      - View lineage branches
+      - Select a lineage root
+      - View generation breakdown
+    api_calls:
+      - method: GET
+        endpoint: Supabase select persons + relationships
+    auth_required: true
+  - name: Family Statistics
+    description: View family statistics including generation counts, gender distribution, and age analytics
+    files:
+      - app/dashboard/stats/page.tsx
+      - components/FamilyStats.tsx
+    entry_route: /dashboard/stats
+    user_interactions:
+      - View statistics dashboard with charts
+      - View generation distribution
+      - View gender breakdown
+    api_calls:
+      - method: GET
+        endpoint: Supabase select persons
+    auth_required: true
+  - name: Public Blog
+    description: Public-facing blog listing and individual post viewing
+    files:
+      - app/blog/page.tsx
+      - app/blog/[slug]/page.tsx
+    entry_route: /blog
+    user_interactions:
+      - Browse blog post listing
+      - Click on a blog post to read full content
+      - Navigate between posts
+    api_calls:
+      - method: GET
+        endpoint: Supabase select blog_posts (published only)
+    auth_required: false
+  - name: Image Upload
+    description: Upload images to Cloudinary for member avatars and blog cover photos
+    files:
+      - app/api/upload/route.ts
+    entry_route: N/A
+    user_interactions:
+      - Select image file
+      - Upload via form
+    api_calls:
+      - method: POST
+        endpoint: /api/upload
+    auth_required: true
+known_limitations:
+  - issue: App uses Vietnamese language throughout the UI
+    location: all components
+    impact: All UI text, error messages, and labels are in Vietnamese
+  - issue: Supabase RLS policies control data access
+    location: all data operations
+    impact: Data visibility depends on user role and authentication status

@@ -65,46 +65,82 @@ export default function LandingHero({ events }: LandingHeroProps) {
     <>
       {/* Hero Section */}
       <motion.section
-        className="relative py-24 md:py-32 bg-rice-paper border-b border-heritage-gold/20 overflow-hidden"
+        className="relative py-16 md:py-24 bg-rice-paper border-b border-heritage-gold/20 overflow-hidden"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
       >
-        {/* Decorative background motif */}
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none flex items-center justify-center">
-          <TreePine className="size-[400px] text-heritage-red" />
-        </div>
+        <div className="max-w-[1200px] mx-auto px-4 relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
 
-        <div className="max-w-[1200px] mx-auto px-4 text-center relative z-10">
-          <motion.h2
-            className="text-5xl md:text-7xl font-serif font-black text-heritage-red leading-tight mb-6"
-            variants={fadeIn}
-          >
-            Lưu giữ lịch sử –<br />
-            Kết nối hậu duệ
-          </motion.h2>
-          <motion.p
-            className="text-lg md:text-xl text-altar-wood/70 max-w-2xl mx-auto mb-10 leading-relaxed font-light"
-            variants={fadeIn}
-          >
-            Khám phá cội nguồn và kết nối các thế hệ trong dòng họ qua nền
-            tảng gia phả trực tuyến hiện đại nhưng đậm chất truyền thống.
-          </motion.p>
-          <motion.div
-            className="flex flex-wrap justify-center gap-4"
-            variants={fadeIn}
-          >
-            <Link
-              href="/login"
-              className="bg-heritage-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-heritage-red-dark transition-all shadow-xl flex items-center gap-2 hover:-translate-y-0.5"
-            >
-              <TreePine className="size-5" />
-              Xem cây gia phả
-            </Link>
-            <button className="border-2 border-heritage-red text-heritage-red px-8 py-4 rounded-lg font-bold text-lg hover:bg-heritage-red hover:text-white transition-all hover:-translate-y-0.5">
-              Thêm thành viên
-            </button>
-          </motion.div>
+            {/* Left: Text */}
+            <div className="flex-1 text-center md:text-left">
+              <motion.p
+                className="text-heritage-gold font-semibold uppercase tracking-widest text-sm mb-3"
+                variants={fadeIn}
+              >
+                Gia Phả Điện Tử · Tộc Phạm Phú
+              </motion.p>
+              <motion.h2
+                className="text-5xl md:text-6xl font-serif font-black text-heritage-red leading-tight mb-6"
+                variants={fadeIn}
+              >
+                Lưu giữ lịch sử –<br />
+                Kết nối hậu duệ
+              </motion.h2>
+              <motion.p
+                className="text-lg text-altar-wood/70 max-w-xl mb-10 leading-relaxed font-light"
+                variants={fadeIn}
+              >
+                Khám phá cội nguồn và kết nối các thế hệ trong dòng họ qua nền
+                tảng gia phả trực tuyến hiện đại nhưng đậm chất truyền thống.
+              </motion.p>
+              <motion.div
+                className="flex flex-wrap justify-center md:justify-start gap-4"
+                variants={fadeIn}
+              >
+                <Link
+                  href="/login"
+                  className="bg-heritage-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-heritage-red-dark transition-all shadow-xl flex items-center gap-2 hover:-translate-y-0.5"
+                >
+                  <TreePine className="size-5" />
+                  Xem cây gia phả
+                </Link>
+                <button className="border-2 border-heritage-red text-heritage-red px-8 py-4 rounded-lg font-bold text-lg hover:bg-heritage-red hover:text-white transition-all hover:-translate-y-0.5">
+                  Thêm thành viên
+                </button>
+              </motion.div>
+              <motion.p
+                className="mt-8 text-altar-wood/40 italic text-sm"
+                variants={fadeIn}
+              >
+                "Cây có cội, nước có nguồn. Chim có tổ, người có tông."
+              </motion.p>
+            </div>
+
+            {/* Right: Temple Image */}
+            <motion.div className="flex-1 relative w-full" variants={fadeIn}>
+              {/* Gold corner accents */}
+              <div className="absolute -top-3 -left-3 w-16 h-16 border-l-4 border-t-4 border-heritage-gold/60 rounded-tl-xl pointer-events-none z-20" />
+              <div className="absolute -bottom-3 -right-3 w-16 h-16 border-r-4 border-b-4 border-heritage-gold/60 rounded-br-xl pointer-events-none z-20" />
+
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/hero-temple.jpg"
+                  alt="Nhà thờ tộc truyền thống Việt Nam"
+                  className="w-full h-[380px] md:h-[460px] object-cover"
+                />
+                {/* Fade shadow: bottom-to-top, blending into rice-paper background */}
+                {/* <div className="absolute inset-0 bg-gradient-to-t from-[#F7F3EA] via-[#F7F3EA]/10 to-transparent" /> */}
+                {/* Left-side fade to blend into page */}
+                {/* <div className="absolute inset-0 bg-gradient-to-r from-[#F7F3EA]/60 via-transparent to-transparent" /> */}
+                {/* Subtle red warm overlay */}
+                {/* <div className="absolute inset-0 bg-heritage-red/10" /> */}
+              </div>
+            </motion.div>
+
+          </div>
         </div>
       </motion.section>
 

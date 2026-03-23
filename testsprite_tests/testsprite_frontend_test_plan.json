@@ -1,0 +1,2962 @@
+[
+  {
+    "id": "TC001",
+    "title": "Landing page renders hero section and core navigation",
+    "description": "Verifies the public landing page loads and shows the hero section and primary navigation elements.",
+    "category": "Landing Page",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Gia\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Header navigation\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Hero section\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Footer\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Navigate from landing page header to login page",
+    "description": "Verifies a user can reach the login page from the landing page using the header link.",
+    "category": "Landing Page",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Header navigation\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Đăng nhập\" in the header"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/login\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Login form\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Upcoming family events preview displays on landing page",
+    "description": "Verifies the upcoming family events preview section appears and shows event items when available.",
+    "category": "Landing Page",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Upcoming events section\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to \"Upcoming events section\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Upcoming events list\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Event item\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Upcoming events shows a loading state while fetching data",
+    "description": "Verifies the landing page shows a visible loading state for upcoming events during initial fetch.",
+    "category": "Landing Page",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to \"Upcoming events section\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Upcoming events loading indicator\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Wait for element \"Upcoming events list\" to appear"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Upcoming events list\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Graceful empty state when no upcoming events exist",
+    "description": "Verifies the landing page shows a clear empty state message if there are no upcoming events to display.",
+    "category": "Landing Page",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to \"Upcoming events section\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Upcoming events section\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Không có\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Upcoming events list\" is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Header navigation links to public sections from landing page",
+    "description": "Verifies the user can navigate from the landing page header to a public page and see it loaded.",
+    "category": "Landing Page",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Header navigation\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Giới thiệu\" in the header"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/about\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"About page content\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "View members and toggle between list, tree, and mindmap modes",
+    "description": "Verifies an authenticated user can open Members page and switch between view modes while seeing member content.",
+    "category": "Family Members Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thành viên\" (Members) item in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the view mode toggle for \"Cây\" (Tree) view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Cây gia phả\" (family tree) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Search members by name and open a member details page from results",
+    "description": "Verifies search/filter narrows the members list and a user can open a member detail page from the filtered results.",
+    "category": "Family Members Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thành viên\" (Members) item in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thành viên\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Type \"a\" into the member search field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member shown in the filtered results"
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Edit an existing member profile and save changes",
+    "description": "Verifies an authenticated user can edit a member, change basic fields, save, and see updated details.",
+    "category": "Family Members Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thành viên\" (Members) item in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Chỉnh sửa\" (Edit) button"
+      },
+      {
+        "type": "action",
+        "description": "Type \" (đã sửa)\" into the Họ và tên (Full name) field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Lưu\" (Save) button"
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Add rich-text notes for a member and verify notes appear after saving",
+    "description": "Verifies Tiptap rich-text notes can be entered and are visible after saving member changes.",
+    "category": "Family Members Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thành viên\" (Members) item in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Chỉnh sửa\" (Edit) button"
+      },
+      {
+        "type": "action",
+        "description": "Click into the Ghi chú (Notes) rich text editor area"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Ghi chú kiểm thử\" into the notes editor"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Lưu\" (Save) button"
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Create a new member and verify it appears in the members list",
+    "description": "Verifies an authenticated user can create a new member and see the new record in the members list.",
+    "category": "Family Members Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thành viên\" (Members) item in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Tạo thành viên mới\" (Create New Member) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/members/new\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"Thành viên kiểm thử\" into the Họ và tên (Full name) field"
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Attempt to save a new member with missing required name and see validation message",
+    "description": "Verifies required-field validation prevents saving when key fields are missing and shows a visible error message.",
+    "category": "Family Members Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thành viên\" (Members) item in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Tạo thành viên mới\" (Create New Member) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"bắt buộc\" (required) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "Delete member is blocked when relationships exist and user cancels deletion",
+    "description": "Verifies deletion integrity check shows an error instructing to remove relationships first, and cancel keeps the member intact.",
+    "category": "Family Members Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thành viên\" (Members) item in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Xóa\" (Delete) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"xóa các mối quan hệ\" (remove relationships) is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Hủy\" (Cancel) button"
+      }
+    ]
+  },
+  {
+    "id": "TC014",
+    "title": "Switch to mindmap view and open a member from the visualization",
+    "description": "Verifies mindmap mode renders and user can open a member detail by selecting a person card/node.",
+    "category": "Family Members Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thành viên\" (Members) item in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the view mode toggle for \"Mindmap\" view"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Sơ đồ tư duy\" (mindmap) is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on a person card/node in the mindmap visualization"
+      }
+    ]
+  },
+  {
+    "id": "TC015",
+    "title": "Add a spouse relationship successfully from a member detail page",
+    "description": "Verifies an authenticated user can add a spouse relationship and see it reflected on the member detail view.",
+    "category": "Relationship Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Thành viên\" (Members) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thêm mối quan hệ\" (Add Relationship) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the relationship type option for \"Vợ/Chồng\" (Spouse)"
+      },
+      {
+        "type": "action",
+        "description": "Click into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"a\" into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Click the first person result in the search results"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Vợ/Chồng\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC016",
+    "title": "Add a parent-child relationship successfully from a member detail page",
+    "description": "Verifies an authenticated user can add a parent-child relationship and see it reflected on the member detail view.",
+    "category": "Relationship Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Thành viên\" (Members) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thêm mối quan hệ\" (Add Relationship) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the relationship type option for \"Cha/Mẹ - Con\" (Parent-Child)"
+      },
+      {
+        "type": "action",
+        "description": "Click into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"a\" into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Click the first person result in the search results"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Cha\" or \"Mẹ\" or \"Con\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC017",
+    "title": "Add a sibling relationship successfully from a member detail page",
+    "description": "Verifies an authenticated user can add a sibling relationship and see it reflected on the member detail view.",
+    "category": "Relationship Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Thành viên\" (Members) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thêm mối quan hệ\" (Add Relationship) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the relationship type option for \"Anh/Chị/Em\" (Sibling)"
+      },
+      {
+        "type": "action",
+        "description": "Click into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"a\" into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Click the first person result in the search results"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Anh\" or \"Chị\" or \"Em\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC018",
+    "title": "Prevent adding a duplicate relationship (duplicate constraint error)",
+    "description": "Verifies that attempting to add a relationship that already exists shows a visible duplicate error message and does not add a second entry.",
+    "category": "Relationship Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Thành viên\" (Members) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the relationships section on the member detail page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"relationships list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thêm mối quan hệ\" (Add Relationship) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the relationship type that matches an existing relationship shown in the relationships list"
+      },
+      {
+        "type": "action",
+        "description": "Click into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"a\" into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Click the same person that is already listed in the existing relationship"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"đã tồn tại\" (already exists) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC019",
+    "title": "Remove an existing relationship successfully",
+    "description": "Verifies an authenticated user can remove an existing relationship and the relationship is no longer visible on the member detail page.",
+    "category": "Relationship Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Thành viên\" (Members) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the relationships section on the member detail page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"relationships list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Xóa\" (Remove/Delete) control for the first relationship in the list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Đã xóa\" (Deleted) or \"Xóa thành công\" (Delete successful) is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify the removed relationship entry is not visible in the relationships list"
+      }
+    ]
+  },
+  {
+    "id": "TC020",
+    "title": "Relationship person selector returns results for a common search term",
+    "description": "Verifies the searchable person selector shows a visible list of matching people when the user types a query.",
+    "category": "Relationship Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Thành viên\" (Members) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thêm mối quan hệ\" (Add Relationship) button"
+      },
+      {
+        "type": "action",
+        "description": "Click into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"a\" into the person search field"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"person search results\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify at least one person result row is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC021",
+    "title": "Prevent saving a relationship when no person is selected",
+    "description": "Verifies the Save action is blocked and a visible validation message appears if the user does not select any person for the relationship.",
+    "category": "Relationship Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Thành viên\" (Members) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thêm mối quan hệ\" (Add Relationship) button"
+      },
+      {
+        "type": "action",
+        "description": "Click the relationship type option for \"Vợ/Chồng\" (Spouse)"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Vui lòng chọn\" (Please select) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC022",
+    "title": "Prevent saving a relationship when relationship type is not selected",
+    "description": "Verifies the Save action is blocked and a visible validation message appears if the user selects a person but does not choose a relationship type.",
+    "category": "Relationship Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Thành viên\" (Members) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first member in the members list"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Thêm mối quan hệ\" (Add Relationship) button"
+      },
+      {
+        "type": "action",
+        "description": "Click into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"a\" into the person search field"
+      },
+      {
+        "type": "action",
+        "description": "Click the first person result in the search results"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Chọn loại quan hệ\" (Select relationship type) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC023",
+    "title": "View upcoming events list sorted by next occurrence",
+    "description": "Verifies an authenticated user can open the Events page and see the upcoming events list in a sensible upcoming order.",
+    "category": "Family Events",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sự kiện\" (Events) item in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/events\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Sự kiện\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC024",
+    "title": "Create a new custom event and confirm it appears in the list",
+    "description": "Verifies the user can create a custom event with valid data and see it displayed in the events list.",
+    "category": "Family Events",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sự kiện\" (Events) item in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Tạo sự kiện\" / \"Tạo sự kiện tùy chỉnh\" (Create custom event) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Tạo sự kiện\" (Create event) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC025",
+    "title": "Save a custom event with all fields populated",
+    "description": "Verifies the custom event modal/form accepts valid inputs for name, date, location, and content and saves successfully.",
+    "category": "Family Events",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Sự kiện\" (Events) item in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Tạo sự kiện\" / \"Tạo sự kiện tùy chỉnh\" (Create custom event) button"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Giỗ họ - Kiểm thử\" into the event name field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"2030-01-15\" into the event date field"
+      }
+    ]
+  },
+  {
+    "id": "TC026",
+    "title": "Prevent import when no file is selected",
+    "description": "Verifies the import confirm action is blocked or shows a validation message if no JSON file is selected.",
+    "category": "Data Import/Export",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Dữ liệu\" (Data) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click Confirm import action"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Vui lòng chọn tệp\" (Please select a file) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC027",
+    "title": "Admin creates a new user and sees it in the users list",
+    "description": "Verifies an admin can create a new user with a selected role and the new user appears in the list.",
+    "category": "User Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Users\" (Quản lý người dùng) in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/users\""
+      },
+      {
+        "type": "action",
+        "description": "Click \"Create New User\" (Tạo người dùng mới)"
+      }
+    ]
+  },
+  {
+    "id": "TC028",
+    "title": "Admin completes user creation form successfully",
+    "description": "Verifies the create user form accepts valid inputs and returns to a list where the created user is visible.",
+    "category": "User Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Users\" (Quản lý người dùng) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Create New User\" (Tạo người dùng mới)"
+      },
+      {
+        "type": "action",
+        "description": "Type \"e2e.user.create+1@example.com\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"TempPass!234\" into the password field"
+      }
+    ]
+  },
+  {
+    "id": "TC029",
+    "title": "Admin selects role and submits create user, then verifies user appears",
+    "description": "Verifies the admin can choose a role, create the user, and confirm the new email is shown in the list with the chosen role.",
+    "category": "User Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Users\" (Quản lý người dùng) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Create New User\" (Tạo người dùng mới)"
+      },
+      {
+        "type": "action",
+        "description": "Select \"editor\" from the role dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Create\" (Tạo) button"
+      }
+    ]
+  },
+  {
+    "id": "TC030",
+    "title": "Admin changes an existing user's role to editor and saves",
+    "description": "Verifies an admin can open a user row, change role to editor, save, and see the updated role in the list.",
+    "category": "User Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Users\" (Quản lý người dùng) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on a user row in the list (not yourself)"
+      },
+      {
+        "type": "action",
+        "description": "Select \"editor\" from the role dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Save\" (Lưu) button"
+      }
+    ]
+  },
+  {
+    "id": "TC031",
+    "title": "Admin toggles a user's active status and sees status change",
+    "description": "Verifies an admin can deactivate or reactivate a user and the list shows the updated active status.",
+    "category": "User Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Users\" (Quản lý người dùng) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the active status toggle for a user (not yourself)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"inactive\" or \"không hoạt động\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC032",
+    "title": "Admin deletes a user and verifies it disappears from the list",
+    "description": "Verifies an admin can delete a user and the user is no longer visible in the users list afterward.",
+    "category": "User Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Users\" (Quản lý người dùng) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Delete\" (Xóa) action for a user that is not yourself"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Confirm\" (Xác nhận) button in the delete confirmation UI"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Deleted\" or \"Đã xóa\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC033",
+    "title": "Admin cannot delete their own account (safeguard)",
+    "description": "Verifies the UI prevents an admin from deleting their own user account and shows an error or disabled control.",
+    "category": "User Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Users\" (Quản lý người dùng) in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the user row corresponding to the currently logged-in account"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Delete\" (Xóa) control is not visible or is disabled"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"cannot delete yourself\" or \"không thể tự xóa\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC034",
+    "title": "Non-admin sees restricted access message when visiting User Management",
+    "description": "Verifies a non-admin user cannot use the user management interface and sees a permission denied/restricted message.",
+    "category": "User Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"nonadmin.user@example.com\" into the email field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"WrongOrNonAdminPass!234\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "action",
+        "description": "Click \"Users\" (Quản lý người dùng) in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"permission denied\" or \"không có quyền\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Create New User\" (Tạo người dùng mới) is not visible"
+      }
+    ]
+  },
+  {
+    "id": "TC035",
+    "title": "Create and publish a new blog post (text-only) and see it in the admin list",
+    "description": "Verifies an admin can create a new blog post, publish it, save successfully, and see it listed in the admin blog list.",
+    "category": "Blog Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Blog\" in the dashboard navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Tạo bài viết mới\" (Create new blog post) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog/new\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"Bài viết kiểm thử tự động\" into the Title field"
+      },
+      {
+        "type": "action",
+        "description": "Click into the rich-text editor content area"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Nội dung bài viết kiểm thử. Đây là đoạn văn mẫu.\" into the editor"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Published\" (or the Vietnamese equivalent) from the Status dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Bài viết kiểm thử tự động\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC036",
+    "title": "Create and save a new blog post as Draft and verify it appears in admin list",
+    "description": "Verifies an admin can create a new blog post, set it as draft, save, and see it listed with draft status indicator.",
+    "category": "Blog Management (Admin)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Blog\" in the dashboard navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Tạo bài viết mới\" (Create new blog post) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog/new\""
+      },
+      {
+        "type": "action",
+        "description": "Type \"Bài viết nháp kiểm thử\" into the Title field"
+      },
+      {
+        "type": "action",
+        "description": "Click into the rich-text editor content area"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Nội dung nháp để kiểm thử trạng thái.\" into the editor"
+      },
+      {
+        "type": "action",
+        "description": "Select \"Draft\" (or the Vietnamese equivalent) from the Status dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Bài viết nháp kiểm thử\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC037",
+    "title": "Edit an existing blog post content and verify changes are reflected in admin list",
+    "description": "Verifies an admin can open an existing post from the list, update its content, save, and return to the list successfully.",
+    "category": "Blog Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Blog\" in the dashboard navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the first blog post in the admin list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog/\""
+      },
+      {
+        "type": "action",
+        "description": "Click into the rich-text editor content area"
+      },
+      {
+        "type": "action",
+        "description": "Type \"\nCập nhật nội dung: thêm đoạn kiểm thử.\" into the editor"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog posts list\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC038",
+    "title": "Attempt to save a new post with empty title and verify validation prevents saving/publishing",
+    "description": "Verifies validation triggers when the title is missing and prevents saving/publishing a new blog post.",
+    "category": "Blog Management (Admin)",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Blog\" in the dashboard navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Tạo bài viết mới\" (Create new blog post) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog/new\""
+      },
+      {
+        "type": "action",
+        "description": "Click into the rich-text editor content area"
+      },
+      {
+        "type": "action",
+        "description": "Type \"Nội dung có nhưng thiếu tiêu đề.\" into the editor"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Tiêu đề\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"bắt buộc\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC039",
+    "title": "Toggle status from Draft to Published for an existing post and save",
+    "description": "Verifies an admin can change an existing post status and save successfully.",
+    "category": "Blog Management (Admin)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Blog\" in the dashboard navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "action",
+        "description": "Click on a blog post that appears to be in Draft status"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog/\""
+      },
+      {
+        "type": "action",
+        "description": "Select \"Published\" (or the Vietnamese equivalent) from the Status dropdown"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Lưu\" (Save) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog posts list\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC040",
+    "title": "Verify public blog listing shows a published post",
+    "description": "Verifies that a published post managed in admin is visible on the public /blog page.",
+    "category": "Blog Management (Admin)",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Blog\" in the dashboard navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog posts list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on the site header logo or \"Trang chủ\" (Home) link"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Blog\" in the public site navigation/menu"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify at least one blog post title is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC041",
+    "title": "Find kinship between two connected members and display term + path",
+    "description": "Verifies a user can select two different connected members and see the Vietnamese kinship term plus the relationship path/description.",
+    "category": "Kinship Finder",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Danh xưng\" or \"Quan hệ\" (Kinship) item in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/kinship\""
+      },
+      {
+        "type": "action",
+        "description": "Select an option from the first person selector (Person 1)"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the second person selector (Person 2)"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Relationship path\" (path/result section) is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Vietnamese kinship term\" (kinship term result) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC042",
+    "title": "Validation when selecting the same person for both selectors",
+    "description": "Verifies the UI blocks searching when the same member is chosen twice and shows an instruction to select two different people.",
+    "category": "Kinship Finder",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Danh xưng\" or \"Quan hệ\" (Kinship) item in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/kinship\""
+      },
+      {
+        "type": "action",
+        "description": "Select an option from the first person selector (Person 1)"
+      },
+      {
+        "type": "action",
+        "description": "Select the same person option in the second person selector (Person 2)"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Chọn hai người khác nhau\" (Select two different people) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC043",
+    "title": "No relationship found for two unconnected members",
+    "description": "Verifies the UI shows a 'No relationship found' state when two selected members have no relationship path in the data.",
+    "category": "Kinship Finder",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Danh xưng\" or \"Quan hệ\" (Kinship) item in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/kinship\""
+      },
+      {
+        "type": "action",
+        "description": "Select an option from the first person selector (Person 1) that is expected to be unconnected to the second choice"
+      },
+      {
+        "type": "action",
+        "description": "Select an option from the second person selector (Person 2) that is expected to be unconnected to the first choice"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Không tìm thấy quan hệ\" (No relationship found) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC044",
+    "title": "Search button disabled or blocked until both people are selected",
+    "description": "Verifies the user cannot run a search until both selectors have valid selections, and the UI clearly indicates this state.",
+    "category": "Kinship Finder",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Danh xưng\" or \"Quan hệ\" (Kinship) item in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/kinship\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Find relationship\" button is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Vui lòng chọn\" (Please select) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC045",
+    "title": "Results update when changing one person and searching again",
+    "description": "Verifies changing one selected member and rerunning the search updates the displayed relationship term/path.",
+    "category": "Kinship Finder",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Danh xưng\" or \"Quan hệ\" (Kinship) item in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/kinship\""
+      },
+      {
+        "type": "action",
+        "description": "Select an option from the first person selector (Person 1)"
+      },
+      {
+        "type": "action",
+        "description": "Select an option from the second person selector (Person 2)"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Relationship path\" (path/result section) is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the second person selector (Person 2)"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Vietnamese kinship term\" (kinship term result) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC046",
+    "title": "Swap the two selected people and confirm a valid result still displays",
+    "description": "Verifies that reversing Person 1 and Person 2 and searching produces a visible kinship result (term/path section shown).",
+    "category": "Kinship Finder",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Danh xưng\" or \"Quan hệ\" (Kinship) item in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/kinship\""
+      },
+      {
+        "type": "action",
+        "description": "Select an option from the first person selector (Person 1)"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the second person selector (Person 2)"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Vietnamese kinship term\" (kinship term result) is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select the previous Person 2 option in the first person selector (Person 1)"
+      },
+      {
+        "type": "action",
+        "description": "Select the previous Person 1 option in the second person selector (Person 2)"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Relationship path\" (path/result section) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC047",
+    "title": "Clear and reselect people after a successful search",
+    "description": "Verifies the user can change selections after results are shown and the page remains usable without stale/overlapping results.",
+    "category": "Kinship Finder",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Danh xưng\" or \"Quan hệ\" (Kinship) item in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/kinship\""
+      },
+      {
+        "type": "action",
+        "description": "Select an option from the first person selector (Person 1)"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the second person selector (Person 2)"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Relationship path\" (path/result section) is visible"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the first person selector (Person 1)"
+      },
+      {
+        "type": "action",
+        "description": "Select a different option from the second person selector (Person 2)"
+      },
+      {
+        "type": "action",
+        "description": "Click the find relationship button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Vietnamese kinship term\" (kinship term result) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC048",
+    "title": "View lineage branches list on Lineage page after login",
+    "description": "Verifies that an authenticated user can reach Lineage Management and see the lineage branches section/list.",
+    "category": "Lineage Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Lineage\" / \"Dòng họ\" in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/lineage\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Dòng họ\" or \"Lineage\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC049",
+    "title": "Select a lineage root and see generation breakdown",
+    "description": "Verifies selecting a lineage root updates the view to show a generation breakdown for that root.",
+    "category": "Lineage Management",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Lineage\" / \"Dòng họ\" in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Lineage branches\" section is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible lineage root option in the lineage branches list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Generation\" / \"Thế hệ\" breakdown section is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC050",
+    "title": "Switch lineage root selection updates generation breakdown",
+    "description": "Verifies changing the selected lineage root changes the visible generation breakdown content.",
+    "category": "Lineage Management",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Lineage\" / \"Dòng họ\" in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible lineage root option in the lineage branches list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Generation\" / \"Thế hệ\" breakdown section is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on a different visible lineage root option in the lineage branches list"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thế hệ\" (Generation) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC051",
+    "title": "Lineage page displays a clear prompt when no lineage root is selected",
+    "description": "Verifies the UI guides the user to select a lineage root before showing generation details.",
+    "category": "Lineage Management",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Lineage\" / \"Dòng họ\" in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/lineage\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text prompting selection such as \"Chọn\" / \"Vui lòng chọn\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC052",
+    "title": "Generation breakdown remains visible after scrolling the lineage page",
+    "description": "Verifies that the generation breakdown section is still accessible/visible after the user scrolls the page.",
+    "category": "Lineage Management",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" (Login) button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Lineage\" / \"Dòng họ\" in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible lineage root option in the lineage branches list"
+      },
+      {
+        "type": "action",
+        "description": "Scroll to the bottom of the lineage page"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thế hệ\" (Generation) is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC053",
+    "title": "Open Family Statistics dashboard and see core charts and summary cards",
+    "description": "Verifies that an authenticated user can open the statistics page and view the main dashboard content (charts/cards).",
+    "category": "Family Statistics",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Thống kê\" in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard/stats\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Biểu đồ\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC054",
+    "title": "View generation distribution section on Family Statistics",
+    "description": "Verifies that the generation distribution section is visible on the statistics dashboard.",
+    "category": "Family Statistics",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Thống kê\" in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Thế hệ\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Biểu đồ phân bố thế hệ\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC055",
+    "title": "View gender breakdown section on Family Statistics",
+    "description": "Verifies that the gender breakdown section is visible on the statistics dashboard.",
+    "category": "Family Statistics",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Thống kê\" in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Giới tính\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Biểu đồ giới tính\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC056",
+    "title": "Loading state appears before statistics render",
+    "description": "Verifies that a visible loading state is shown while statistics data is being fetched.",
+    "category": "Family Statistics",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Thống kê\" in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Đang tải\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Bảng thống kê\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC057",
+    "title": "Age analytics section is visible on Family Statistics",
+    "description": "Verifies that age-related analytics content (age chart/summary) is present on the statistics dashboard.",
+    "category": "Family Statistics",
+    "priority": "Low",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Thống kê\" in the dashboard navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Tuổi\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Biểu đồ độ tuổi\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC058",
+    "title": "Refresh statistics view using in-page refresh/retry control",
+    "description": "Verifies that the user can retry/refresh the statistics content from within the stats page (if a refresh/retry control is present).",
+    "category": "Family Statistics",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /login"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_USER}}\" into the email/username field"
+      },
+      {
+        "type": "action",
+        "description": "Type \"{{LOGIN_PASSWORD}}\" into the password field"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Đăng nhập\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/dashboard\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Thống kê\" in the dashboard navigation"
+      },
+      {
+        "type": "action",
+        "description": "Click on the \"Tải lại\" or \"Thử lại\" button"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Biểu đồ\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC059",
+    "title": "Open Public Blog listing page and see published posts",
+    "description": "Verifies the public blog listing page loads and shows a visible list of published posts without requiring login.",
+    "category": "Public Blog",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /blog"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify page title contains \"Blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog post listing\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"A blog post card/item in the list\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC060",
+    "title": "Open a blog post from listing and read full content",
+    "description": "Verifies a user can open an individual blog post from the public listing and see full content on the post page.",
+    "category": "Public Blog",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /blog"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"A blog post card/item in the list\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible blog post in the listing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/blog/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog post title\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog post content\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC061",
+    "title": "Navigate between posts using in-post navigation",
+    "description": "Verifies the user can move to another blog post from within a blog post page using visible navigation elements.",
+    "category": "Public Blog",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /blog"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible blog post in the listing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog post title\" is visible"
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Next post\" (or an equivalent in-post navigation link)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/blog/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog post title\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC062",
+    "title": "Return from a blog post back to the blog listing via UI link",
+    "description": "Verifies the user can return to the blog listing from an individual blog post page using a visible UI control.",
+    "category": "Public Blog",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /blog"
+      },
+      {
+        "type": "action",
+        "description": "Click on the first visible blog post in the listing"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/blog/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Back to Blog\" (or the Blog link in the header/navigation)"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog post listing\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC063",
+    "title": "Access a non-existent blog slug directly shows not found state",
+    "description": "Verifies navigating to an invalid blog post URL displays a visible 404/not-found message instead of a broken page.",
+    "category": "Public Blog",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /blog/this-slug-should-not-exist-12345"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/blog/\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify text \"Không tìm thấy\" is visible"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Not found / 404 state\" is visible"
+      }
+    ]
+  },
+  {
+    "id": "TC064",
+    "title": "Blog listing remains accessible without authentication from the landing page",
+    "description": "Verifies an unauthenticated user can reach the public blog listing using site navigation from the landing page.",
+    "category": "Public Blog",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Navigate to /"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/\""
+      },
+      {
+        "type": "action",
+        "description": "Click on \"Blog\" in the site header/navigation"
+      },
+      {
+        "type": "assertion",
+        "description": "Verify URL contains \"/blog\""
+      },
+      {
+        "type": "assertion",
+        "description": "Verify element \"Blog post listing\" is visible"
+      }
+    ]
+  }
+]

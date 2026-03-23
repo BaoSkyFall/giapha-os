@@ -1,0 +1,20 @@
+{
+  "status": "commited",
+  "type": "frontend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3002",
+  "loginUser": "baoit128@gmail.com",
+  "loginPassword": "Chuanhan128",
+  "executionArgs": {
+    "projectName": "giapha-os",
+    "projectPath": "c:\\Users\\Admin\\Desktop\\Project\\mine\\giapha-os",
+    "testIds": [],
+    "additionalInstruction": "Login credentials: email=baoit128@gmail.com password=Chuanhan128. The app uses Vietnamese language. Look for email input field and password input field on the /login page. The login button text is \"Đăng nhập\". After login, the user is redirected to /dashboard.",
+    "serverMode": "development",
+    "envs": {
+      "API_KEY": "sk-user-M-a_zLh77kH1DD1tjH9UQUQk0Fn5Yitjun6S80GmGTk6PJF25N_JlQ0dgnoK8IKKuvAlborSZ-UQO1wvyc5ddtCYtBbwljcQmTQ5aEJe-Is5dhsojm6miB1_A6gPHDM5OAc"
+    }
+  },
+  "serverPort": 63855,
+  "proxy": "http://7399fc3b-f9e1-4a04-9de0-dbcf80ec2472:eBlYYYknZrERZHfwkf3F9pRJbDYiip2S@tun.testsprite.com:8080"
+}

@@ -42,7 +42,9 @@
 * [x] `member-detail.html` — Member profile detail view with bio, relationships, quick actions.
 * [x] `member-form.html` — Add/Edit member form with avatar, dates, relationships.
 * [x] `users.html` — Admin user management panel with role assignment.
-* [x] `login.html` — Phone number + OTP login/register page.
+* [x] `login.html` — Phone number + 6-digit PIN login page.
+* [x] `register.html` — Registration with phone OTP verification + 6-digit PIN setup.
+* [x] `forgot-password.html` — Password reset with phone OTP verification + new 6-digit PIN.
 * [x] `about.html` — About page with mission, features, family history, and open source info.
 * [x] `lineage.html` — Lineage book view mimicking traditional gia phả format.
 * [x] `data.html` — Data import/export center for JSON, CSV, GEDCOM, PDF.

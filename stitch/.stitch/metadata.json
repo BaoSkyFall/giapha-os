@@ -89,12 +89,28 @@
             "height": 3328
         },
         "login": {
-            "id": "0a7631fa8cf64b68bcfc21a8b846c89f",
-            "sourceScreen": "projects/7998967920457136760/screens/0a7631fa8cf64b68bcfc21a8b846c89f",
+            "id": "8b654068fc6d42d389a90399b694dc75",
+            "sourceScreen": "projects/7998967920457136760/screens/8b654068fc6d42d389a90399b694dc75",
             "x": 10800,
             "y": 5600,
             "width": 2560,
-            "height": 3100
+            "height": 2874
+        },
+        "register": {
+            "id": "cb86f4d78d334afea99b9ae7a39ecda4",
+            "sourceScreen": "projects/7998967920457136760/screens/cb86f4d78d334afea99b9ae7a39ecda4",
+            "x": 10800,
+            "y": 8800,
+            "width": 2560,
+            "height": 2086
+        },
+        "forgot-password": {
+            "id": "b837fa3b2aaa41059d256a819b44e0e0",
+            "sourceScreen": "projects/7998967920457136760/screens/b837fa3b2aaa41059d256a819b44e0e0",
+            "x": 10800,
+            "y": 11200,
+            "width": 2560,
+            "height": 3516
         },
         "about": {
             "id": "fb533917f1724721831c8df5a89cbb95",
