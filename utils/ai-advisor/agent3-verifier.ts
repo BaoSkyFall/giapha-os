@@ -1,6 +1,8 @@
 import type { PersonSearchResult, VerificationResult } from "@/types/ai-advisor";
 
-const MULTI_MATCH_THRESHOLD = 2;
+// Only ask for disambiguation when there are 2+ genuinely close-scoring candidates
+const AUTO_PICK_GAP = 0.1;         // score gap — top wins automatically if wider
+const HIGH_CONFIDENCE_SCORE = 0.85; // if top score ≥ this, auto-pick regardless
 
 export function verifyCandidates(
   candidates: PersonSearchResult[]
@@ -13,16 +15,19 @@ export function verifyCandidates(
     return { status: "FOUND_ONE", subject: candidates[0] };
   }
 
-  // Check if first result is significantly better than second
-  // (score gap > 0.2 means the top result is likely the right person)
   const topScore = candidates[0].score;
   const secondScore = candidates[1].score;
-  if (
-    topScore - secondScore > 0.2 &&
-    candidates.length < MULTI_MATCH_THRESHOLD + 1
-  ) {
+
+  // Auto-pick if top result is highly confident
+  if (topScore >= HIGH_CONFIDENCE_SCORE) {
     return { status: "FOUND_ONE", subject: candidates[0] };
   }
 
+  // Auto-pick if top result is significantly better than second
+  if (topScore - secondScore > AUTO_PICK_GAP) {
+    return { status: "FOUND_ONE", subject: candidates[0] };
+  }
+
+  // Genuinely ambiguous — ask user to disambiguate
   return { status: "FOUND_MANY", candidates };
 }
