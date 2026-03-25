@@ -15,7 +15,6 @@ interface PersonRecord {
   death_year: number | null;
   is_deceased: boolean;
   gender: string;
-  parent_id: string | null;
   note: string | null;
 }
 
@@ -26,7 +25,6 @@ function formatPerson(p: PersonRecord): string {
   if (p.birth_year) parts.push(`sinh ${p.birth_year}`);
   if (p.death_year) parts.push(`mất ${p.death_year}`);
   parts.push(p.is_deceased ? "(đã mất)" : "(còn sống)");
-  if (p.parent_id) parts.push(`cha/mẹ ID: ${p.parent_id}`);
   if (p.note) parts.push(`ghi chú: ${p.note}`);
   return parts.join(", ");
 }
@@ -41,7 +39,7 @@ export async function getMembersContext(): Promise<string> {
   const { data, error } = await supabase
     .from("persons")
     .select(
-      "id, full_name, other_names, generation, birth_year, death_year, is_deceased, gender, parent_id, note"
+      "id, full_name, other_names, generation, birth_year, death_year, is_deceased, gender, note"
     )
     .order("generation", { ascending: true })
     .order("birth_year", { ascending: true });

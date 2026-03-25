@@ -78,7 +78,9 @@ export async function parseIntent(
   const rawJson = data.choices?.[0]?.message?.content ?? "";
 
   try {
-    const parsed = JSON.parse(rawJson.trim());
+    // Strip markdown code fences if LLM wraps output (e.g. ```json ... ```)
+    const stripped = rawJson.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "");
+    const parsed = JSON.parse(stripped);
     return {
       subject: parsed.subject ?? "",
       related_to: parsed.related_to || undefined,
