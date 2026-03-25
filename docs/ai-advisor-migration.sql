@@ -20,22 +20,34 @@ CREATE EXTENSION IF NOT EXISTS unaccent;
 
 
 -- ============================================================
--- STEP 2: Fuzzy search indexes on persons table
+-- STEP 2: IMMUTABLE unaccent wrapper
+-- PostgreSQL requires index expressions to use IMMUTABLE functions.
+-- unaccent() is STABLE by default, so we wrap it.
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.f_unaccent(TEXT)
+RETURNS TEXT
+LANGUAGE SQL IMMUTABLE PARALLEL SAFE STRICT
+AS $$ SELECT unaccent('unaccent', $1) $$;
+
+
+-- ============================================================
+-- STEP 3: Fuzzy search indexes on persons table
 -- ============================================================
 
 -- Index on full_name (unaccented) for diacritic-insensitive search
 CREATE INDEX IF NOT EXISTS idx_persons_full_name_trgm
   ON public.persons
-  USING GIN (unaccent(full_name) gin_trgm_ops);
+  USING GIN (public.f_unaccent(full_name) gin_trgm_ops);
 
 -- Index on other_names (unaccented) — users may be known by alternate names
 CREATE INDEX IF NOT EXISTS idx_persons_other_names_trgm
   ON public.persons
-  USING GIN (unaccent(COALESCE(other_names, '')) gin_trgm_ops);
+  USING GIN (public.f_unaccent(COALESCE(other_names, '')) gin_trgm_ops);
 
 
 -- ============================================================
--- STEP 3: Fuzzy search helper function
+-- STEP 4: Fuzzy search helper function
 -- Returns top candidates matching a name query
 -- Uses unaccent() on both sides to normalize tone marks
 -- ============================================================
@@ -71,13 +83,13 @@ AS $$
     p.is_deceased,
     p.gender::TEXT,
     GREATEST(
-      similarity(unaccent(p.full_name), unaccent(search_query)),
-      similarity(unaccent(COALESCE(p.other_names, '')), unaccent(search_query))
+      similarity(public.f_unaccent(p.full_name), public.f_unaccent(search_query)),
+      similarity(public.f_unaccent(COALESCE(p.other_names, '')), public.f_unaccent(search_query))
     ) AS score
   FROM public.persons p
   WHERE
-    similarity(unaccent(p.full_name), unaccent(search_query)) > similarity_threshold
-    OR similarity(unaccent(COALESCE(p.other_names, '')), unaccent(search_query)) > similarity_threshold
+    similarity(public.f_unaccent(p.full_name), public.f_unaccent(search_query)) > similarity_threshold
+    OR similarity(public.f_unaccent(COALESCE(p.other_names, '')), public.f_unaccent(search_query)) > similarity_threshold
   ORDER BY score DESC
   LIMIT max_results;
 $$;
@@ -87,7 +99,7 @@ GRANT EXECUTE ON FUNCTION public.search_persons_fuzzy(TEXT, FLOAT, INT) TO authe
 
 
 -- ============================================================
--- STEP 4: chat_sessions table
+-- STEP 5: chat_sessions table
 -- Stores conversation history and agent scratchpad per session
 -- ============================================================
 
@@ -107,7 +119,7 @@ CREATE INDEX IF NOT EXISTS idx_chat_sessions_user_id
 
 
 -- ============================================================
--- STEP 5: chat_sessions updated_at trigger
+-- STEP 6: chat_sessions updated_at trigger
 -- Reuses existing handle_updated_at() function from schema.sql
 -- ============================================================
 
@@ -118,7 +130,7 @@ CREATE TRIGGER tr_chat_sessions_updated_at
 
 
 -- ============================================================
--- STEP 6: Row Level Security for chat_sessions
+-- STEP 7: Row Level Security for chat_sessions
 -- Users can ONLY access their own sessions.
 -- Admins do NOT get cross-user access (chat history is private).
 -- ============================================================
