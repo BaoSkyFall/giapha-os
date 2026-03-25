@@ -2,16 +2,24 @@ import { getSupabase, getUser } from "@/utils/supabase/queries";
 import { parseIntent } from "@/utils/ai-advisor/agent1-intent-parser";
 import { searchPersons } from "@/utils/ai-advisor/agent2-db-search";
 import { verifyCandidates } from "@/utils/ai-advisor/agent3-verifier";
+import { generateClarification } from "@/utils/ai-advisor/agent4-clarifier";
 import { narrateResponse } from "@/utils/ai-advisor/agent5-narrator";
 import type {
   ChatRequestBody,
   StreamChunk,
   ChatMessage,
+  ChatScratchpad,
   PersonSummary,
+  PersonSearchResult,
 } from "@/types/ai-advisor";
 import { NextRequest } from "next/server";
 
-// Helper: encode a StreamChunk as NDJSON line
+const MAX_CLARIFICATION_ROUNDS = 2;
+
+// Pronoun/reference words that indicate "same person as before"
+const PRONOUN_PATTERNS =
+  /^(ông|bà|cụ|anh|chị|em|ngài|họ|người đó|ông ấy|bà ấy|ngài ấy)$/i;
+
 function encodeChunk(chunk: StreamChunk): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(chunk) + "\n");
 }
@@ -49,6 +57,7 @@ export async function POST(request: NextRequest) {
   const supabase = await getSupabase();
   let sessionId: string | undefined = session_id;
   let previousMessages: ChatMessage[] = [];
+  let scratchpad: ChatScratchpad = {};
 
   if (sessionId) {
     const { data: session } = await supabase
@@ -60,6 +69,7 @@ export async function POST(request: NextRequest) {
 
     if (session) {
       previousMessages = (session.messages as ChatMessage[]) ?? [];
+      scratchpad = (session.scratchpad as ChatScratchpad) ?? {};
     } else {
       // Session not found or belongs to another user — start fresh
       sessionId = undefined;
@@ -71,9 +81,10 @@ export async function POST(request: NextRequest) {
     async start(controller) {
       let fullResponseText = "";
       let resolvedSubject: PersonSummary | undefined;
+      let updatedScratchpad: ChatScratchpad = { ...scratchpad };
 
       try {
-        // Step 1: Agent 1 — Intent Parser
+        // ── Agent 1: Intent Parser ──────────────────────────
         controller.enqueue(
           encodeChunk({
             type: "agent_step",
@@ -84,75 +95,263 @@ export async function POST(request: NextRequest) {
 
         const intent = await parseIntent(message, previousMessages);
 
-        // Step 2: Agent 2 — DB Search
-        controller.enqueue(
-          encodeChunk({
-            type: "agent_step",
-            step: "searching",
-            label: "Đang tìm kiếm trong gia phả...",
-          })
-        );
+        // ── Detect pronoun reference (use confirmed subject) ──
+        const isPronounRef =
+          !intent.subject.trim() ||
+          PRONOUN_PATTERNS.test(intent.subject.trim());
 
-        const candidates = intent.subject.trim()
-          ? await searchPersons(intent.subject)
-          : [];
+        if (isPronounRef && scratchpad.confirmed_subject_id) {
+          // ── Fast-path: confirmed subject re-use ─────────────
+          controller.enqueue(
+            encodeChunk({
+              type: "agent_step",
+              step: "searching",
+              label: "Đang tải thông tin...",
+            })
+          );
+          controller.enqueue(
+            encodeChunk({
+              type: "agent_step",
+              step: "verifying",
+              label: "Xác minh danh tính...",
+            })
+          );
 
-        // Step 3: Agent 3 — Verifier
-        controller.enqueue(
-          encodeChunk({
-            type: "agent_step",
-            step: "verifying",
-            label: "Xác minh danh tính...",
-          })
-        );
+          const { data: confirmedPerson } = await supabase
+            .from("persons")
+            .select(
+              "id, full_name, other_names, generation, birth_year, death_year, is_deceased, gender"
+            )
+            .eq("id", scratchpad.confirmed_subject_id)
+            .single();
 
-        const verification = verifyCandidates(candidates);
+          if (confirmedPerson) {
+            resolvedSubject = confirmedPerson as PersonSummary;
 
-        // Phase 3 will add Agent 4 (Clarifier) for FOUND_MANY.
-        // For Phase 2: treat FOUND_MANY as FOUND_ONE — use top result.
-        const subject =
-          verification.status === "FOUND_ONE"
-            ? verification.subject
-            : verification.status === "FOUND_MANY"
-              ? verification.candidates[0]
-              : null;
+            controller.enqueue(
+              encodeChunk({
+                type: "agent_step",
+                step: "narrating",
+                label: "Tổng hợp hồ sơ...",
+              })
+            );
 
-        if (subject) {
-          resolvedSubject = {
-            id: subject.id,
-            full_name: subject.full_name,
-            generation: subject.generation,
-            birth_year: subject.birth_year,
-            death_year: subject.death_year,
-            is_deceased: subject.is_deceased,
-          };
+            for await (const chunk of narrateResponse(
+              intent,
+              confirmedPerson as PersonSearchResult,
+              previousMessages
+            )) {
+              controller.enqueue(encodeChunk(chunk));
+              if (chunk.type === "text") fullResponseText += chunk.delta;
+              if (chunk.type === "error") break;
+            }
+          }
+        } else if (
+          scratchpad.pending_clarification &&
+          scratchpad.candidates?.length
+        ) {
+          // ── Re-search path: user replied to disambiguation ──
+          const round = scratchpad.clarification_round ?? 0;
+          const savedCandidateName = scratchpad.candidates[0].full_name;
+
+          controller.enqueue(
+            encodeChunk({
+              type: "agent_step",
+              step: "searching",
+              label: "Đang tìm kiếm lại...",
+            })
+          );
+
+          // Combined query: original name + user clarification for better trigram match
+          const combinedQuery = `${savedCandidateName} ${message}`;
+          const reCandidates = await searchPersons(combinedQuery);
+
+          controller.enqueue(
+            encodeChunk({
+              type: "agent_step",
+              step: "verifying",
+              label: "Xác minh danh tính...",
+            })
+          );
+
+          const reVerification = verifyCandidates(reCandidates);
+
+          if (reVerification.status === "FOUND_ONE") {
+            // Resolved — save confirmed subject and narrate
+            resolvedSubject = {
+              id: reVerification.subject.id,
+              full_name: reVerification.subject.full_name,
+              generation: reVerification.subject.generation,
+              birth_year: reVerification.subject.birth_year,
+              death_year: reVerification.subject.death_year,
+              is_deceased: reVerification.subject.is_deceased,
+            };
+            updatedScratchpad = {
+              confirmed_subject_id: reVerification.subject.id,
+              pending_clarification: false,
+              clarification_round: 0,
+            };
+
+            controller.enqueue(
+              encodeChunk({
+                type: "agent_step",
+                step: "narrating",
+                label: "Tổng hợp hồ sơ...",
+              })
+            );
+
+            for await (const chunk of narrateResponse(
+              intent,
+              reVerification.subject,
+              previousMessages
+            )) {
+              controller.enqueue(encodeChunk(chunk));
+              if (chunk.type === "text") fullResponseText += chunk.delta;
+              if (chunk.type === "error") break;
+            }
+          } else if (
+            reVerification.status === "FOUND_MANY" &&
+            round < MAX_CLARIFICATION_ROUNDS
+          ) {
+            // Ask again (increment round)
+            const newCandidates = reVerification.candidates;
+            const question = await generateClarification(
+              savedCandidateName,
+              newCandidates
+            );
+            updatedScratchpad = {
+              ...updatedScratchpad,
+              pending_clarification: true,
+              candidates: newCandidates,
+              clarification_round: round + 1,
+            };
+            controller.enqueue(
+              encodeChunk({ type: "clarify", question, candidates: newCandidates })
+            );
+            fullResponseText = question;
+          } else {
+            // Max rounds reached or FOUND_NONE — graceful fallback via Narrator
+            updatedScratchpad = {
+              pending_clarification: false,
+              clarification_round: 0,
+            };
+
+            controller.enqueue(
+              encodeChunk({
+                type: "agent_step",
+                step: "narrating",
+                label: "Tổng hợp câu trả lời...",
+              })
+            );
+
+            for await (const chunk of narrateResponse(
+              intent,
+              null,
+              previousMessages
+            )) {
+              controller.enqueue(encodeChunk(chunk));
+              if (chunk.type === "text") fullResponseText += chunk.delta;
+              if (chunk.type === "error") break;
+            }
+          }
+        } else {
+          // ── Normal search path ──────────────────────────────
+          controller.enqueue(
+            encodeChunk({
+              type: "agent_step",
+              step: "searching",
+              label: "Đang tìm kiếm trong gia phả...",
+            })
+          );
+
+          const candidates = intent.subject.trim()
+            ? await searchPersons(intent.subject)
+            : [];
+
+          controller.enqueue(
+            encodeChunk({
+              type: "agent_step",
+              step: "verifying",
+              label: "Xác minh danh tính...",
+            })
+          );
+
+          const verification = verifyCandidates(candidates);
+
+          if (verification.status === "FOUND_NONE") {
+            // Not found — let Narrator compose a graceful "not found" reply
+            controller.enqueue(
+              encodeChunk({
+                type: "agent_step",
+                step: "narrating",
+                label: "Tổng hợp câu trả lời...",
+              })
+            );
+            for await (const chunk of narrateResponse(
+              intent,
+              null,
+              previousMessages
+            )) {
+              controller.enqueue(encodeChunk(chunk));
+              if (chunk.type === "text") fullResponseText += chunk.delta;
+              if (chunk.type === "error") break;
+            }
+          } else if (verification.status === "FOUND_ONE") {
+            // Exact match — save and narrate
+            resolvedSubject = {
+              id: verification.subject.id,
+              full_name: verification.subject.full_name,
+              generation: verification.subject.generation,
+              birth_year: verification.subject.birth_year,
+              death_year: verification.subject.death_year,
+              is_deceased: verification.subject.is_deceased,
+            };
+            updatedScratchpad = {
+              confirmed_subject_id: verification.subject.id,
+              pending_clarification: false,
+              clarification_round: 0,
+            };
+
+            controller.enqueue(
+              encodeChunk({
+                type: "agent_step",
+                step: "narrating",
+                label: "Tổng hợp hồ sơ...",
+              })
+            );
+
+            for await (const chunk of narrateResponse(
+              intent,
+              verification.subject,
+              previousMessages
+            )) {
+              controller.enqueue(encodeChunk(chunk));
+              if (chunk.type === "text") fullResponseText += chunk.delta;
+              if (chunk.type === "error") break;
+            }
+          } else {
+            // FOUND_MANY — trigger Agent 4 disambiguation
+            const question = await generateClarification(
+              intent.subject,
+              verification.candidates
+            );
+            updatedScratchpad = {
+              pending_clarification: true,
+              candidates: verification.candidates,
+              clarification_round: 0,
+            };
+            controller.enqueue(
+              encodeChunk({
+                type: "clarify",
+                question,
+                candidates: verification.candidates,
+              })
+            );
+            fullResponseText = question;
+          }
         }
 
-        // Step 4: Agent 5 — Narrator (streaming LLM)
-        controller.enqueue(
-          encodeChunk({
-            type: "agent_step",
-            step: "narrating",
-            label: "Tổng hợp hồ sơ...",
-          })
-        );
-
-        for await (const chunk of narrateResponse(
-          intent,
-          subject,
-          previousMessages
-        )) {
-          controller.enqueue(encodeChunk(chunk));
-          if (chunk.type === "text") {
-            fullResponseText += chunk.delta;
-          }
-          if (chunk.type === "error") {
-            // Still emit done so client knows stream ended
-            break;
-          }
-        }
-
-        // ── Persist to chat_sessions ────────────────────────
+        // ── Persist turn to chat_sessions ───────────────────
         const userMessage: ChatMessage = {
           role: "user",
           content: message,
@@ -163,9 +362,7 @@ export async function POST(request: NextRequest) {
           content: fullResponseText,
           timestamp: new Date().toISOString(),
           subject_id: resolvedSubject?.id,
-          metadata: {
-            query_type: intent.query_type,
-          },
+          metadata: { query_type: intent.query_type },
         };
 
         const updatedMessages = [...previousMessages, userMessage, aiMessage];
@@ -180,9 +377,7 @@ export async function POST(request: NextRequest) {
             ...(sessionId ? { id: sessionId } : {}),
             user_id: user.id,
             messages: updatedMessages,
-            scratchpad: resolvedSubject
-              ? { confirmed_subject_id: resolvedSubject.id }
-              : {},
+            scratchpad: updatedScratchpad,
             ...(title ? { title } : {}),
           })
           .select("id")
@@ -190,7 +385,6 @@ export async function POST(request: NextRequest) {
 
         const finalSessionId = savedSession?.id ?? sessionId ?? "unknown";
 
-        // ── Done chunk ────────────────────────────────────────
         controller.enqueue(
           encodeChunk({
             type: "done",

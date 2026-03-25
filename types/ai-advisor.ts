@@ -10,6 +10,7 @@ export type StreamChunk =
   | { type: "agent_step"; step: AgentStep; label: string }
   | { type: "text"; delta: string }
   | { type: "done"; sessionId: string; subject?: PersonSummary }
+  | { type: "clarify"; question: string; candidates: PersonSearchResult[] }
   | { type: "error"; message: string; code?: string };
 
 // Person data returned by search_persons_fuzzy RPC
@@ -87,8 +88,9 @@ export interface ChatSession {
 // Scratchpad stored in chat_sessions.scratchpad
 export interface ChatScratchpad {
   confirmed_subject_id?: string;
-  candidates?: PersonSearchResult[];
-  pending_clarification?: boolean;
+  candidates?: PersonSearchResult[];      // saved candidates for follow-up re-search
+  pending_clarification?: boolean;        // true = last turn ended with clarify chunk
+  clarification_round?: number;           // 0-indexed, max MAX_CLARIFICATION_ROUNDS (2)
 }
 
 // POST /api/chat request body
