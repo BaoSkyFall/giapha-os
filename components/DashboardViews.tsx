@@ -41,10 +41,11 @@ export default function DashboardViews({
     // If no rootId is provided, fallback to the earliest created person
     if (!finalRootId || !pMap.has(finalRootId)) {
       const rootsFallback = persons.filter((p) => !childIds.has(p.id));
-      if (rootsFallback.length > 1) {
-        finalRootId = rootsFallback[1].id;
-      } else if (rootsFallback.length > 0) {
-        finalRootId = rootsFallback[0].id;
+      // Prefer non-in-law roots (actual blood ancestors), fall back to any root
+      const preferredRoot =
+        rootsFallback.find((p) => !p.is_in_law) ?? rootsFallback[0];
+      if (preferredRoot) {
+        finalRootId = preferredRoot.id;
       } else if (persons.length > 0) {
         finalRootId = persons[0].id; // ultimate fallback
       }
