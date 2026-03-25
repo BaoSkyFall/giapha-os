@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
             })
           );
 
-          const reVerification = verifyCandidates(reCandidates);
+          const reVerification = verifyCandidates(reCandidates, savedCandidateName);
 
           if (reVerification.status === "FOUND_ONE") {
             // Resolved — save confirmed subject and narrate
@@ -305,7 +305,7 @@ export async function POST(request: NextRequest) {
             })
           );
 
-          const verification = verifyCandidates(candidates);
+          const verification = verifyCandidates(candidates, intent.subject);
 
           if (verification.status === "FOUND_NONE") {
             // Not found — let Narrator compose a graceful "not found" reply
@@ -345,7 +345,7 @@ export async function POST(request: NextRequest) {
             let kinshipContext: string | undefined;
             if (intent.query_type === "relationship" && intent.related_to) {
               const relatedCandidates = await searchPersons(intent.related_to);
-              const relatedVerification = verifyCandidates(relatedCandidates);
+              const relatedVerification = verifyCandidates(relatedCandidates, intent.related_to);
               if (relatedVerification.status === "FOUND_ONE") {
                 const relatedPerson = relatedVerification.subject;
                 const kinship = await computeKinship(
