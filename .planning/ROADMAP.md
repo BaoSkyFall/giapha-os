@@ -34,7 +34,7 @@
 **Requirements:** AGT-01, AGT-02, AGT-03, AGT-05, AGT-07, API-01, API-06, MEM-01
 
 **Plans:**
-1. Create `POST /api/chat` route skeleton with Supabase auth guard
+0/4 plans complete
 2. Implement Agent 1 (Intent Parser) — LLM call via `PROXY_BASE_URL`
 3. Implement Agent 2 (DB Search) — pg_trgm query
 4. Implement Agent 3 (Verifier) — pure TypeScript branching
@@ -56,7 +56,7 @@
 **Requirements:** AGT-04, AGT-06, MEM-02, MEM-04, API-05
 
 **Plans:**
-1. Set up Vercel KV — store `candidates[]` and `confirmed_subject_id` per session
+0/3 plans complete
 2. Implement Agent 4 (Clarifier) — generates natural disambiguation question
 3. Implement scratchpad persistence — save after every turn to `chat_sessions.scratchpad`
 4. Implement session continuity — skip disambiguation if `confirmed_subject_id` already set
@@ -77,7 +77,7 @@
 **Requirements:** API-02, API-03, API-04
 
 **Plans:**
-1. Implement `GET /api/chat/sessions` — list user sessions, ordered by updated_at DESC
+0/2 plans complete
 2. Implement `GET /api/chat/sessions/:id` — load full message history
 3. Implement `DELETE /api/chat/sessions/:id` — soft/hard delete with ownership check
 
@@ -96,7 +96,7 @@
 **Requirements:** UI-01 through UI-21
 
 **Plans:**
-1. Create `/dashboard/ai-advisor` Next.js page with 3-column layout (sidebar + drawer + main)
+0/5 plans complete
 2. Build fixed crimson icon sidebar — active `psychology` icon highlighted
 3. Build session history drawer — "Bắt đầu phiên mới" button + scrollable session list
 4. Build top app bar — title, green pulse indicator, search input, action icons
@@ -143,10 +143,10 @@
 | # | Phase | Key Output | Requirements |
 |---|-------|-----------|--------------|
 | 1 | Database Foundation | pg_trgm + chat_sessions | DB-01..04, MEM-03 |
-| 2 | Core Agent Pipeline | Streaming /api/chat | AGT-01..03, 05, 07, API-01, 06, MEM-01 |
-| 3 | Memory & Disambiguation | Multi-turn + KV | AGT-04, 06, MEM-02, 04, API-05 |
-| 4 | Session Management API | CRUD endpoints | API-02..04 |
-| 5 | Pixel-Perfect Chat UI | Full UI (Stitch match) | UI-01..21 |
+| 2 | Core Agent Pipeline | Complete    | 2026-03-25 |
+| 3 | Memory & Disambiguation | Complete    | 2026-03-25 |
+| 4 | Session Management API | Complete    | 2026-03-25 |
+| 5 | Pixel-Perfect Chat UI | Complete    | 2026-03-25 |
 | 6 | Integration & Deploy | Production-ready | All v1 |
 
 ---

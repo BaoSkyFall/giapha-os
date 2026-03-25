@@ -14,33 +14,33 @@
 
 ### Agent Pipeline
 
-- [ ] **AGT-01**: Agent 1 (Intent Parser) extracts `{subject, query_type}` from user message via LLM (~100 tokens)
-- [ ] **AGT-02**: Agent 2 (DB Search) executes pg_trgm fuzzy query and returns candidate list
-- [ ] **AGT-03**: Agent 3 (Verifier) categorizes: 0 results / 1 result / multiple results
-- [ ] **AGT-04**: Agent 4 (Clarifier) generates natural-language disambiguation question when multiple results found
-- [ ] **AGT-05**: Agent 5 (Narrator) generates conversational answer from confirmed data via LLM (~400 tokens)
-- [ ] **AGT-06**: `confirmed_subject_id` persisted in Vercel KV scratchpad — reused across turns in same session
-- [ ] **AGT-07**: Full pipeline runs within single `POST /api/chat` request, streaming response
+- [x] **AGT-01**: Agent 1 (Intent Parser) extracts `{subject, query_type}` from user message via LLM (~100 tokens)
+- [x] **AGT-02**: Agent 2 (DB Search) executes pg_trgm fuzzy query and returns candidate list
+- [x] **AGT-03**: Agent 3 (Verifier) categorizes: 0 results / 1 result / multiple results
+- [x] **AGT-04**: Agent 4 (Clarifier) generates natural-language disambiguation question when multiple results found
+- [x] **AGT-05**: Agent 5 (Narrator) generates conversational answer from confirmed data via LLM (~400 tokens)
+- [x] **AGT-06**: `confirmed_subject_id` persisted in Vercel KV scratchpad — reused across turns in same session
+- [x] **AGT-07**: Full pipeline runs within single `POST /api/chat` request, streaming response
 
 ### API Routes
 
-- [ ] **API-01**: `POST /api/chat` — authenticates Supabase session, runs 5-agent pipeline, returns streaming response
-- [ ] **API-02**: `GET /api/chat/sessions` — returns list of user's past chat sessions
-- [ ] **API-03**: `GET /api/chat/sessions/:id` — returns full message history for a session
-- [ ] **API-04**: `DELETE /api/chat/sessions/:id` — deletes a session
-- [ ] **API-05**: Rate limiting enforced at 10 requests/minute/user via Vercel KV
-- [ ] **API-06**: All LLM calls route through `PROXY_BASE_URL` — API key never exposed to client
+- [x] **API-01**: `POST /api/chat` — authenticates Supabase session, runs 5-agent pipeline, returns streaming response
+- [x] **API-02**: `GET /api/chat/sessions` — returns list of user's past chat sessions
+- [x] **API-03**: `GET /api/chat/sessions/:id` — returns full message history for a session
+- [x] **API-04**: `DELETE /api/chat/sessions/:id` — deletes a session
+- [x] **API-05**: Rate limiting enforced at 10 requests/minute/user via Vercel KV
+- [x] **API-06**: All LLM calls route through `PROXY_BASE_URL` — API key never exposed to client
 
 ### Memory & Session
 
-- [ ] **MEM-01**: Layer 1 — conversation messages array sent with each LLM call
-- [ ] **MEM-02**: Layer 2 — Vercel KV scratchpad stores `candidates[]` and `confirmed_subject_id` per session (30-min TTL)
+- [x] **MEM-01**: Layer 1 — conversation messages array sent with each LLM call
+- [x] **MEM-02**: Layer 2 — Vercel KV scratchpad stores `candidates[]` and `confirmed_subject_id` per session (30-min TTL)
 - [ ] **MEM-03**: Layer 3 — `chat_sessions` table persists messages + scratchpad permanently (user can return later)
-- [ ] **MEM-04**: Once subject confirmed, subsequent questions in session skip disambiguation
+- [x] **MEM-04**: Once subject confirmed, subsequent questions in session skip disambiguation
 
 ### Chat UI — Layout (Stitch design pixel-perfect)
 
-- [ ] **UI-01**: Fixed crimson sidebar (`w-20`, `bg-[#B31D1D]`) with icon-only navigation and `psychology` icon active/highlighted
+- [x] **UI-01**: Fixed crimson sidebar (`w-20`, `bg-[#B31D1D]`) with icon-only navigation and `psychology` icon active/highlighted
 - [ ] **UI-02**: Session history drawer (`w-72`, `left-20`) with "Lịch sử hỏi đáp" title and "Bắt đầu phiên mới" button
 - [ ] **UI-03**: Session history list with active item highlighted (left border + crimson bg)
 - [ ] **UI-04**: Main content area starts at `ml-[360px]` with sticky top app bar
@@ -72,7 +72,7 @@
 - [ ] **UI-18**: Fonts: Playfair Display (headlines), Inter (body/labels), Newsreader available
 - [ ] **UI-19**: Paper texture background on chat canvas (`bg-[#F7F3EA]` with pattern overlay)
 - [ ] **UI-20**: All animations: `animate-in fade-in slide-in-from-bottom-4` on messages
-- [ ] **UI-21**: Material Symbols Outlined icons throughout
+- [x] **UI-21**: Material Symbols Outlined icons throughout
 
 ## v2 Requirements
 
@@ -102,24 +102,24 @@
 | DB-02 | Phase 1 | Pending |
 | DB-03 | Phase 1 | Pending |
 | DB-04 | Phase 1 | Pending |
-| AGT-01 | Phase 2 | Pending |
-| AGT-02 | Phase 2 | Pending |
-| AGT-03 | Phase 2 | Pending |
-| AGT-04 | Phase 2 | Pending |
-| AGT-05 | Phase 2 | Pending |
-| AGT-06 | Phase 3 | Pending |
-| AGT-07 | Phase 2 | Pending |
-| API-01 | Phase 2 | Pending |
-| API-02 | Phase 4 | Pending |
-| API-03 | Phase 4 | Pending |
-| API-04 | Phase 4 | Pending |
-| API-05 | Phase 3 | Pending |
-| API-06 | Phase 2 | Pending |
-| MEM-01 | Phase 2 | Pending |
-| MEM-02 | Phase 3 | Pending |
+| AGT-01 | Phase 2 | Complete |
+| AGT-02 | Phase 2 | Complete |
+| AGT-03 | Phase 2 | Complete |
+| AGT-04 | Phase 2 | Complete |
+| AGT-05 | Phase 2 | Complete |
+| AGT-06 | Phase 3 | Complete |
+| AGT-07 | Phase 2 | Complete |
+| API-01 | Phase 2 | Complete |
+| API-02 | Phase 4 | Complete |
+| API-03 | Phase 4 | Complete |
+| API-04 | Phase 4 | Complete |
+| API-05 | Phase 3 | Complete |
+| API-06 | Phase 2 | Complete |
+| MEM-01 | Phase 2 | Complete |
+| MEM-02 | Phase 3 | Complete |
 | MEM-03 | Phase 1 | Pending |
-| MEM-04 | Phase 3 | Pending |
-| UI-01 | Phase 5 | Pending |
+| MEM-04 | Phase 3 | Complete |
+| UI-01 | Phase 5 | Complete |
 | UI-02 | Phase 5 | Pending |
 | UI-03 | Phase 5 | Pending |
 | UI-04 | Phase 5 | Pending |
@@ -139,7 +139,7 @@
 | UI-18 | Phase 5 | Pending |
 | UI-19 | Phase 5 | Pending |
 | UI-20 | Phase 5 | Pending |
-| UI-21 | Phase 5 | Pending |
+| UI-21 | Phase 5 | Complete |
 
 **Coverage:**
 - v1 requirements: 39 total
