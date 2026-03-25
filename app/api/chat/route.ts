@@ -95,6 +95,34 @@ export async function POST(request: NextRequest) {
 
         const intent = await parseIntent(message, previousMessages);
 
+        // ── Off-topic short-circuit (greetings, chit-chat) ──────
+        if (intent.query_type === "off_topic") {
+          const reply =
+            intent.language === "vi"
+              ? "Xin chào! Tôi là Trợ lý AI Gia Phả — tôi chuyên trả lời câu hỏi về thành viên, lịch sử và sự kiện trong dòng họ. Bạn muốn hỏi về ai trong gia tộc không? 🏮"
+              : "Hello! I'm the Family Tree AI Advisor — I specialize in answering questions about your family members, history, and lineage. Who in the family would you like to ask about? 🏮";
+          fullResponseText = reply;
+          controller.enqueue(encodeChunk({ type: "text", delta: reply }));
+          // Skip all other agents — save and close below
+          const userMsg: ChatMessage = { role: "user", content: message, timestamp: new Date().toISOString() };
+          const aiMsg: ChatMessage = { role: "assistant", content: reply, timestamp: new Date().toISOString() };
+          const updatedMsgs = [...previousMessages, userMsg, aiMsg];
+          const { data: saved } = await supabase
+            .from("chat_sessions")
+            .upsert({
+              ...(sessionId ? { id: sessionId } : {}),
+              user_id: user.id,
+              messages: updatedMsgs,
+              scratchpad: updatedScratchpad,
+              ...(previousMessages.length === 0 ? { title: message.slice(0, 80) } : {}),
+            })
+            .select("id")
+            .single();
+          controller.enqueue(encodeChunk({ type: "done", sessionId: saved?.id ?? sessionId ?? "unknown" }));
+          controller.close();
+          return;
+        }
+
         // ── Detect pronoun reference (use confirmed subject) ──
         const isPronounRef =
           !intent.subject.trim() ||

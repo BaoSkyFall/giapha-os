@@ -20,10 +20,24 @@ Rules:
 - If no specific person mentioned, set subject to "" and query_type to "unknown"
 - Output ONLY the JSON object, no other text`;
 
+// Detect greetings and clearly off-topic messages before calling LLM
+const GREETING_PATTERN =
+  /^(hi|hello|hey|howdy|xin chào|chào|chào bạn|alo|ok|okay|cảm ơn|camon|thanks|thank you|cảm ơn bạn|bye|tạm biệt|good morning|good afternoon|good evening|chào buổi sáng|haha|😊|👋|🙏|lol)\s*[!?.]*$/i;
+
 export async function parseIntent(
   userMessage: string,
   previousMessages: ChatMessage[]
 ): Promise<AgentIntent> {
+  // Fast-path: detect greetings/off-topic without LLM call
+  if (GREETING_PATTERN.test(userMessage.trim())) {
+    return {
+      subject: "",
+      query_type: "off_topic",
+      language: /[àáảãạăắặẵẳâầẩẫậèéẻẽẹêềếểễệìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵđ]/i.test(userMessage) ? "vi" : "en",
+      raw_question: userMessage,
+    };
+  }
+
   if (!PROXY_BASE_URL) {
     throw new Error("PROXY_BASE_URL environment variable is not set");
   }

@@ -39,7 +39,7 @@ export interface PersonSummary {
 // Agent 1 output: parsed intent from user message
 export interface AgentIntent {
   subject: string; // extracted person name/reference
-  query_type: "profile" | "relationship" | "fact" | "count" | "unknown";
+  query_type: "profile" | "relationship" | "fact" | "count" | "unknown" | "off_topic";
   language: "vi" | "en";
   raw_question: string; // original user message
 }
