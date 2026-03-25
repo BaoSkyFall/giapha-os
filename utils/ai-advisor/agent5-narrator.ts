@@ -48,7 +48,8 @@ function buildPersonContext(subject: PersonSearchResult): string {
 export async function* narrateResponse(
   intent: AgentIntent,
   subject: PersonSearchResult | null,
-  previousMessages: ChatMessage[]
+  previousMessages: ChatMessage[],
+  kinshipContext?: string
 ): AsyncGenerator<StreamChunk> {
   if (!PROXY_BASE_URL) {
     yield {
@@ -90,6 +91,9 @@ export async function* narrateResponse(
           role: "system",
           content: `${lang === "vi" ? "Toàn bộ dữ liệu gia phả" : "Full family dataset"}:\n${familyContext}`,
         },
+        ...(kinshipContext
+          ? [{ role: "system" as const, content: kinshipContext }]
+          : []),
         { role: "system", content: `${lang === "vi" ? "Kết quả tìm kiếm" : "Search result"}:\n${subjectContext}` },
         ...contextMessages,
         { role: "user", content: intent.raw_question },

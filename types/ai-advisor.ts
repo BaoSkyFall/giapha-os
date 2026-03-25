@@ -38,7 +38,8 @@ export interface PersonSummary {
 
 // Agent 1 output: parsed intent from user message
 export interface AgentIntent {
-  subject: string; // extracted person name/reference
+  subject: string; // primary person being asked about
+  related_to?: string; // second person in relationship queries (e.g., "Is A the son of B?" → B)
   query_type: "profile" | "relationship" | "fact" | "count" | "unknown" | "off_topic";
   language: "vi" | "en";
   raw_question: string; // original user message

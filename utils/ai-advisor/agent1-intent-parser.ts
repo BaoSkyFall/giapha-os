@@ -8,14 +8,16 @@ Extract the person being asked about and the type of question.
 
 Respond ONLY with valid JSON in this exact format:
 {
-  "subject": "<person name or reference extracted from the question>",
+  "subject": "<primary person name>",
+  "related_to": "<second person name for relationship questions, or empty string>",
   "query_type": "<profile|relationship|fact|count|unknown>",
   "language": "<vi|en>"
 }
 
 Rules:
-- subject: the person's name as mentioned (keep Vietnamese diacritics)
-- query_type: profile=personal info, relationship=family links, fact=specific detail, count=numbers, unknown=unclear
+- subject: the primary person being asked about (keep Vietnamese diacritics)
+- related_to: ONLY for relationship questions — the second person (e.g., "Is A the son of B?" → subject=A, related_to=B). Leave empty otherwise.
+- query_type: profile=personal info, relationship=family links/kinship, fact=specific detail, count=numbers, unknown=unclear
 - language: detect from the question language
 - If no specific person mentioned, set subject to "" and query_type to "unknown"
 - Output ONLY the JSON object, no other text`;
@@ -79,6 +81,7 @@ export async function parseIntent(
     const parsed = JSON.parse(rawJson.trim());
     return {
       subject: parsed.subject ?? "",
+      related_to: parsed.related_to || undefined,
       query_type: parsed.query_type ?? "unknown",
       language: parsed.language ?? "vi",
       raw_question: userMessage,

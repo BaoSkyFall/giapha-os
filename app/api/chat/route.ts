@@ -4,6 +4,7 @@ import { searchPersons } from "@/utils/ai-advisor/agent2-db-search";
 import { verifyCandidates } from "@/utils/ai-advisor/agent3-verifier";
 import { generateClarification } from "@/utils/ai-advisor/agent4-clarifier";
 import { narrateResponse } from "@/utils/ai-advisor/agent5-narrator";
+import { computeKinship } from "@/utils/ai-advisor/kinship-resolver";
 import type {
   ChatRequestBody,
   StreamChunk,
@@ -340,6 +341,26 @@ export async function POST(request: NextRequest) {
               clarification_round: 0,
             };
 
+            // ── Kinship computation for relationship queries ──────
+            let kinshipContext: string | undefined;
+            if (intent.query_type === "relationship" && intent.related_to) {
+              const relatedCandidates = await searchPersons(intent.related_to);
+              const relatedVerification = verifyCandidates(relatedCandidates);
+              if (relatedVerification.status === "FOUND_ONE") {
+                const relatedPerson = relatedVerification.subject;
+                const kinship = await computeKinship(
+                  verification.subject.id,
+                  relatedPerson.id
+                );
+                const lang = intent.language;
+                if (kinship) {
+                  kinshipContext = lang === "vi"
+                    ? `Quan hệ đã tính toán: ${verification.subject.full_name} là ${kinship.relationship_vi} của ${relatedPerson.full_name}. Đường dẫn: ${kinship.path || "trực tiếp"}.`
+                    : `Computed relationship: ${verification.subject.full_name} is the ${kinship.relationship_en} of ${relatedPerson.full_name}. Path: ${kinship.path || "direct"}.`;
+                }
+              }
+            }
+
             controller.enqueue(
               encodeChunk({
                 type: "agent_step",
@@ -351,7 +372,8 @@ export async function POST(request: NextRequest) {
             for await (const chunk of narrateResponse(
               intent,
               verification.subject,
-              previousMessages
+              previousMessages,
+              kinshipContext
             )) {
               controller.enqueue(encodeChunk(chunk));
               if (chunk.type === "text") fullResponseText += chunk.delta;
