@@ -60,13 +60,16 @@ export async function* narrateResponse(
   }
 
   const systemPrompt = buildSystemPrompt(intent.language);
+  const lang = intent.language;
 
   // Inject full family dataset for context-aware answers
   const familyContext = await getMembersContext();
 
   const subjectContext = subject
-    ? `Thông tin chi tiết về ${subject.full_name}:\n${buildPersonContext(subject)}`
-    : `Không tìm thấy thông tin về "${intent.subject}" trong gia phả.`;
+    ? `${lang === "vi" ? "Thông tin chi tiết về" : "Detailed information about"} ${subject.full_name}:\n${buildPersonContext(subject)}`
+    : lang === "vi"
+    ? `Không tìm thấy thông tin về "${intent.subject}" trong gia phả.`
+    : `No information found for "${intent.subject}" in the family records.`;
 
   const contextMessages = previousMessages.slice(-6).map((m) => ({
     role: m.role,
@@ -85,9 +88,9 @@ export async function* narrateResponse(
         { role: "system", content: systemPrompt },
         {
           role: "system",
-          content: `Toàn bộ dữ liệu gia phả:\n${familyContext}`,
+          content: `${lang === "vi" ? "Toàn bộ dữ liệu gia phả" : "Full family dataset"}:\n${familyContext}`,
         },
-        { role: "system", content: `Kết quả tìm kiếm:\n${subjectContext}` },
+        { role: "system", content: `${lang === "vi" ? "Kết quả tìm kiếm" : "Search result"}:\n${subjectContext}` },
         ...contextMessages,
         { role: "user", content: intent.raw_question },
       ],
