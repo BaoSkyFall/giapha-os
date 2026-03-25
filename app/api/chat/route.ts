@@ -348,16 +348,41 @@ export async function POST(request: NextRequest) {
               const relatedVerification = verifyCandidates(relatedCandidates, intent.related_to);
               if (relatedVerification.status === "FOUND_ONE") {
                 const relatedPerson = relatedVerification.subject;
+                const lang = intent.language;
+
+                // Try full traversal first
                 const kinship = await computeKinship(
                   verification.subject.id,
                   relatedPerson.id
                 );
-                const lang = intent.language;
-                if (kinship) {
+
+                const relatedInfo = lang === "vi"
+                  ? `Thông tin về ${relatedPerson.full_name}: đời ${relatedPerson.generation ?? "?"}${relatedPerson.birth_year ? `, sinh ${relatedPerson.birth_year}` : ""}.`
+                  : `About ${relatedPerson.full_name}: generation ${relatedPerson.generation ?? "?"}${relatedPerson.birth_year ? `, born ${relatedPerson.birth_year}` : ""}.`;
+
+                if (kinship?.found) {
+                  // Use the traversal result
+                  const rel = lang === "vi" ? kinship.relationship_vi : kinship.relationship_en;
+                  const pathNote = kinship.path ? ` Đường dẫn: ${kinship.path}.` : "";
                   kinshipContext = lang === "vi"
-                    ? `Quan hệ đã tính toán: ${verification.subject.full_name} là ${kinship.relationship_vi} của ${relatedPerson.full_name}. Đường dẫn: ${kinship.path || "trực tiếp"}.`
-                    : `Computed relationship: ${verification.subject.full_name} is the ${kinship.relationship_en} of ${relatedPerson.full_name}. Path: ${kinship.path || "direct"}.`;
+                    ? `${relatedInfo}\nQuan hệ đã tính toán: ${verification.subject.full_name} là ${rel} của ${relatedPerson.full_name}.${pathNote}`
+                    : `${relatedInfo}\nComputed relationship: ${verification.subject.full_name} is the ${rel} of ${relatedPerson.full_name}.${kinship.path ? ` Path: ${kinship.path}.` : ""}`;
+                } else {
+                  // Fallback: use generation difference
+                  const genDiff = (verification.subject.generation ?? 0) - (relatedPerson.generation ?? 0);
+                  const genNote = genDiff > 0
+                    ? lang === "vi"
+                      ? `${verification.subject.full_name} (đời ${verification.subject.generation}) sinh sau ${relatedPerson.full_name} (đời ${relatedPerson.generation}) ${genDiff} thế hệ. Sử dụng dữ liệu cha/mẹ ID trong gia phả để truy vết mối quan hệ thực tế.`
+                      : `${verification.subject.full_name} (gen ${verification.subject.generation}) is ${genDiff} generation(s) after ${relatedPerson.full_name} (gen ${relatedPerson.generation}). Use the parent ID data in the family records to trace the actual relationship.`
+                    : lang === "vi"
+                      ? `Hai người cùng đời hoặc ${relatedPerson.full_name} sinh sau.`
+                      : `They are in the same generation or ${relatedPerson.full_name} is younger.`;
+                  kinshipContext = lang === "vi"
+                    ? `${relatedInfo}\n${genNote}`
+                    : `${relatedInfo}\n${genNote}`;
                 }
+
+                console.info({ subjectId: verification.subject.id, relatedId: relatedPerson.id, kinshipFound: kinship?.found }, "Kinship computation result");
               }
             }
 
