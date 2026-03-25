@@ -18,6 +18,7 @@ Nguyên tắc:
 - Chỉ sử dụng thông tin được cung cấp trong context. Không bịa đặt.
 - Xưng hô phù hợp (ông/bà/cụ...) dựa trên giới tính và thế hệ.
 - Trả lời bằng tiếng Việt, tự nhiên và trang trọng.
+- Giới hạn câu trả lời trong 1-2 đoạn văn ngắn gọn. Nếu "Ghi chú" dài, hãy tóm tắt ý chính.
 - Nếu thông tin không đầy đủ, hãy nói rõ điều đó.
 - Cuối câu trả lời, nếu tìm thấy người cụ thể, nhắc nhở người dùng có thể "Xem trong cây gia phả".
 
@@ -38,6 +39,7 @@ Rules:
 - Only use information provided in context. Never fabricate details.
 - Use appropriate honorifics based on gender and generation.
 - Be conversational but respectful.
+- Keep answers to 1-2 short paragraphs. If the "Note" field is long, summarize its key points.
 - If information is incomplete, say so clearly.
 
 Kinship rules (CRITICAL):
@@ -59,6 +61,7 @@ function buildPersonContext(subject: PersonSearchResult): string {
     subject.death_year ? `Năm mất: ${subject.death_year}` : null,
     subject.is_deceased ? "Trạng thái: Đã mất" : "Trạng thái: Còn sống",
     `Giới tính: ${subject.gender === "male" ? "Nam" : subject.gender === "female" ? "Nữ" : "Khác"}`,
+    subject.note ? `Ghi chú: ${subject.note}` : null,
   ].filter(Boolean);
   return lines.join("\n");
 }

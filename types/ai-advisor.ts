@@ -23,6 +23,7 @@ export interface PersonSearchResult {
   death_year: number | null;
   is_deceased: boolean;
   gender: string;
+  note?: string | null;
   score: number;
 }
 

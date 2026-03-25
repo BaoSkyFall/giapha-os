@@ -326,6 +326,16 @@ export async function POST(request: NextRequest) {
               if (chunk.type === "error") break;
             }
           } else if (verification.status === "FOUND_ONE") {
+            // Fetch note separately (not returned by fuzzy RPC)
+            const { data: noteData } = await supabase
+              .from("persons")
+              .select("note")
+              .eq("id", verification.subject.id)
+              .single();
+            if (noteData?.note) {
+              (verification.subject as PersonSearchResult).note = (noteData as { note: string }).note;
+            }
+
             // Exact match — save and narrate
             resolvedSubject = {
               id: verification.subject.id,
