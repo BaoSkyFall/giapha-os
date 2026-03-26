@@ -10,16 +10,23 @@ Respond ONLY with valid JSON in this exact format:
 {
   "subject": "<primary person name>",
   "related_to": "<second person name for relationship questions, or empty string>",
-  "query_type": "<profile|relationship|fact|count|unknown>",
+  "query_type": "<profile|relationship|fact|count|site_info|unknown>",
   "language": "<vi|en>"
 }
 
 Rules:
 - subject: the primary person being asked about (keep Vietnamese diacritics)
 - related_to: ONLY for relationship questions — the second person (e.g., "Is A the son of B?" → subject=A, related_to=B). Leave empty otherwise.
-- query_type: profile=personal info, relationship=family links/kinship, fact=specific detail, count=numbers, unknown=unclear
+- query_type:
+    profile = personal info about a family member
+    relationship = family links/kinship between people
+    fact = specific detail about a member
+    count = numbers/statistics about members
+    site_info = questions about the website itself (mission, purpose, privacy, terms of use, how to use, data storage, contact, pricing, account, password reset, admin contact — anything NOT about a specific family member)
+    unknown = unclear intent
 - language: detect from the question language
-- If no specific person mentioned, set subject to "" and query_type to "unknown"
+- If no specific person mentioned and the question is about the website/platform, set subject to "" and query_type to "site_info"
+- If no specific person mentioned for other questions, set subject to "" and query_type to "unknown"
 - Output ONLY the JSON object, no other text`;
 
 // Detect greetings and clearly off-topic messages before calling LLM

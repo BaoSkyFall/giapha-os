@@ -175,6 +175,14 @@
             "y": 13500,
             "width": 2560,
             "height": 2390
+        },
+        "ai-advisor": {
+            "id": "faa5b0a760184753b422d27df57bfa93",
+            "sourceScreen": "projects/7998967920457136760/screens/faa5b0a760184753b422d27df57bfa93",
+            "x": 10800,
+            "y": 13500,
+            "width": 2560,
+            "height": 2176
         }
     },
     "metadata": {

@@ -5,6 +5,7 @@ import { verifyCandidates } from "@/utils/ai-advisor/agent3-verifier";
 import { generateClarification } from "@/utils/ai-advisor/agent4-clarifier";
 import { narrateResponse } from "@/utils/ai-advisor/agent5-narrator";
 import { computeKinship } from "@/utils/ai-advisor/kinship-resolver";
+import { FAQ_CHIPS } from "@/app/ai-advisor/data";
 import type {
   ChatRequestBody,
   StreamChunk,
@@ -14,6 +15,12 @@ import type {
   PersonSearchResult,
 } from "@/types/ai-advisor";
 import { NextRequest } from "next/server";
+
+// Build static FAQ knowledge string injected into the narrator for site_info queries
+const SITE_KNOWLEDGE_CONTEXT = [
+  "Thông tin về trang web Tộc Phạm Phú (dùng để trả lời câu hỏi về website, sứ mệnh, quyền riêng tư, điều khoản, cách sử dụng):",
+  ...FAQ_CHIPS.map((faq) => `Q: ${faq.question}\nA: ${faq.answer}`),
+].join("\n\n");
 
 const MAX_CLARIFICATION_ROUNDS = 2;
 
@@ -26,14 +33,9 @@ function encodeChunk(chunk: StreamChunk): Uint8Array {
 }
 
 export async function POST(request: NextRequest) {
-  // ── Auth Guard ──────────────────────────────────────────────
+  // ── Auth (anonymous allowed) ─────────────────────────────────
   const user = await getUser();
-  if (!user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), {
-      status: 401,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
+  const isAnonymous = !user;
 
   // ── Parse Request ───────────────────────────────────────────
   let body: ChatRequestBody;
@@ -54,18 +56,18 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  // ── Load Existing Session ───────────────────────────────────
+  // ── Load Existing Session (authenticated users only) ─────────
   const supabase = await getSupabase();
   let sessionId: string | undefined = session_id;
   let previousMessages: ChatMessage[] = [];
   let scratchpad: ChatScratchpad = {};
 
-  if (sessionId) {
+  if (!isAnonymous && sessionId) {
     const { data: session } = await supabase
       .from("chat_sessions")
       .select("messages, scratchpad")
       .eq("id", sessionId)
-      .eq("user_id", user.id)
+      .eq("user_id", user!.id)
       .single();
 
     if (session) {
@@ -76,6 +78,7 @@ export async function POST(request: NextRequest) {
       sessionId = undefined;
     }
   }
+
 
   // ── Create Streaming Response ───────────────────────────────
   const stream = new ReadableStream({
@@ -100,7 +103,7 @@ export async function POST(request: NextRequest) {
         if (intent.query_type === "off_topic") {
           const reply =
             intent.language === "vi"
-              ? "Xin chào! Tôi là Trợ lý AI Gia Phả — tôi chuyên trả lời câu hỏi về thành viên, lịch sử và sự kiện trong dòng họ. Bạn muốn hỏi về ai trong gia tộc không? 🏮"
+              ? "Xin chào! Tôi là Trợ lý AI Tộc Phạm Phú — tôi chuyên trả lời câu hỏi về thành viên, lịch sử và sự kiện trong dòng họ. Bạn muốn hỏi về ai trong gia tộc không? 🏮"
               : "Hello! I'm the Family Tree AI Advisor — I specialize in answering questions about your family members, history, and lineage. Who in the family would you like to ask about? 🏮";
           fullResponseText = reply;
           controller.enqueue(encodeChunk({ type: "text", delta: reply }));
@@ -108,18 +111,58 @@ export async function POST(request: NextRequest) {
           const userMsg: ChatMessage = { role: "user", content: message, timestamp: new Date().toISOString() };
           const aiMsg: ChatMessage = { role: "assistant", content: reply, timestamp: new Date().toISOString() };
           const updatedMsgs = [...previousMessages, userMsg, aiMsg];
-          const { data: saved } = await supabase
-            .from("chat_sessions")
-            .upsert({
-              ...(sessionId ? { id: sessionId } : {}),
-              user_id: user.id,
-              messages: updatedMsgs,
-              scratchpad: updatedScratchpad,
-              ...(previousMessages.length === 0 ? { title: message.slice(0, 80) } : {}),
-            })
-            .select("id")
-            .single();
-          controller.enqueue(encodeChunk({ type: "done", sessionId: saved?.id ?? sessionId ?? "unknown" }));
+          let savedId = sessionId;
+          if (!isAnonymous) {
+            const { data: saved } = await supabase
+              .from("chat_sessions")
+              .upsert({
+                ...(sessionId ? { id: sessionId } : {}),
+                user_id: user!.id,
+                messages: updatedMsgs,
+                scratchpad: updatedScratchpad,
+                ...(previousMessages.length === 0 ? { title: message.slice(0, 80) } : {}),
+              })
+              .select("id")
+              .single();
+            savedId = saved?.id ?? sessionId;
+          }
+          controller.enqueue(encodeChunk({ type: "done", sessionId: savedId ?? "unknown" }));
+          controller.close();
+          return;
+        }
+
+        // ── Site info short-circuit: answer website/policy/FAQ questions ──
+        if (intent.query_type === "site_info") {
+          controller.enqueue(encodeChunk({ type: "agent_step", step: "narrating", label: "Tra cứu thông tin trang web..." }));
+          for await (const chunk of narrateResponse(
+            intent,
+            null,
+            previousMessages,
+            undefined,
+            SITE_KNOWLEDGE_CONTEXT
+          )) {
+            controller.enqueue(encodeChunk(chunk));
+            if (chunk.type === "text") fullResponseText += chunk.delta;
+            if (chunk.type === "error") break;
+          }
+          const siteUserMsg: ChatMessage = { role: "user", content: message, timestamp: new Date().toISOString() };
+          const siteAiMsg: ChatMessage = { role: "assistant", content: fullResponseText, timestamp: new Date().toISOString() };
+          let siteSavedId = sessionId;
+          if (!isAnonymous) {
+            const { data: siteSaved } = await supabase
+              .from("chat_sessions")
+              .upsert({
+                ...(sessionId ? { id: sessionId } : {}),
+                user_id: user!.id,
+                messages: [...previousMessages, siteUserMsg, siteAiMsg],
+                scratchpad: updatedScratchpad,
+                ...(previousMessages.length === 0 ? { title: message.slice(0, 80) } : {}),
+              })
+              .select("id")
+              .single();
+            siteSavedId = siteSaved?.id ?? sessionId;
+          }
+          controller.enqueue(encodeChunk({ type: "done", sessionId: siteSavedId ?? "unknown" }));
           controller.close();
           return;
         }
@@ -456,19 +499,21 @@ export async function POST(request: NextRequest) {
         const title =
           previousMessages.length === 0 ? message.slice(0, 80) : undefined;
 
-        const { data: savedSession } = await supabase
-          .from("chat_sessions")
-          .upsert({
-            ...(sessionId ? { id: sessionId } : {}),
-            user_id: user.id,
-            messages: updatedMessages,
-            scratchpad: updatedScratchpad,
-            ...(title ? { title } : {}),
-          })
-          .select("id")
-          .single();
-
-        const finalSessionId = savedSession?.id ?? sessionId ?? "unknown";
+        let finalSessionId = sessionId ?? "unknown";
+        if (!isAnonymous) {
+          const { data: savedSession } = await supabase
+            .from("chat_sessions")
+            .upsert({
+              ...(sessionId ? { id: sessionId } : {}),
+              user_id: user!.id,
+              messages: updatedMessages,
+              scratchpad: updatedScratchpad,
+              ...(title ? { title } : {}),
+            })
+            .select("id")
+            .single();
+          finalSessionId = savedSession?.id ?? sessionId ?? "unknown";
+        }
 
         controller.enqueue(
           encodeChunk({

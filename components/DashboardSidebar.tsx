@@ -57,7 +57,7 @@ export default function DashboardSidebar() {
     const pathname = usePathname();
 
     const isActive = (href: string) => pathname.startsWith(href);
-    const aiActive = isActive("/dashboard/ai-advisor");
+    const aiActive = isActive("/ai-advisor");
 
     return (
         <aside className="hidden md:flex w-60 bg-heritage-red flex-col shrink-0">
@@ -68,7 +68,7 @@ export default function DashboardSidebar() {
                         Công cụ
                     </p>
                     <Link
-                        href="/dashboard/ai-advisor"
+                        href="/ai-advisor"
                         className={`flex items-center gap-3 px-6 py-3 transition-all text-sm font-medium ${
                             aiActive
                                 ? "text-white border-l-4 border-heritage-gold bg-white/10"

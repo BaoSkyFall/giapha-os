@@ -41,7 +41,7 @@ export interface PersonSummary {
 export interface AgentIntent {
   subject: string; // primary person being asked about
   related_to?: string; // second person in relationship queries (e.g., "Is A the son of B?" → B)
-  query_type: "profile" | "relationship" | "fact" | "count" | "unknown" | "off_topic";
+  query_type: "profile" | "relationship" | "fact" | "count" | "unknown" | "off_topic" | "site_info";
   language: "vi" | "en";
   raw_question: string; // original user message
 }

@@ -677,7 +677,7 @@ export default function MemberForm({
 
           <div className="md:col-span-2">
             <label className="block text-sm font-semibold text-stone-700 mb-1.5">
-              Ghi chú
+              Thông tin
             </label>
             <RichTextEditor
               content={note}

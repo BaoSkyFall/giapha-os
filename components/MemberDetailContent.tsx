@@ -92,11 +92,11 @@ export default function MemberDetailContent({
              ${isFamous
                 ? "border-[6px] border-red-500 shadow-[0_0_30px_rgba(220,38,38,0.4)] bg-gradient-to-br from-red-600 to-red-900"
                 : `border-4 sm:border-[6px] border-white ${person.gender === "male"
-                    ? "bg-linear-to-br from-sky-400 to-sky-700"
-                    : person.gender === "female"
-                      ? "bg-linear-to-br from-rose-400 to-rose-700"
-                      : "bg-linear-to-br from-stone-400 to-stone-600"
-                  }`
+                  ? "bg-linear-to-br from-sky-400 to-sky-700"
+                  : person.gender === "female"
+                    ? "bg-linear-to-br from-rose-400 to-rose-700"
+                    : "bg-linear-to-br from-stone-400 to-stone-600"
+                }`
               }`}
           >
             {person.avatar_url ? (
@@ -350,7 +350,7 @@ export default function MemberDetailContent({
             <motion.section variants={itemVariants}>
               <h2 className="text-base sm:text-lg font-bold text-stone-800 mb-4 flex items-center gap-2">
                 <Info className="size-5 text-amber-600" />
-                Ghi chú
+                Thông tin
               </h2>
               <div className="bg-white/80 backdrop-blur-sm p-5 sm:p-6 rounded-2xl border border-stone-200/60 shadow-sm relative overflow-hidden">
                 {note ? (

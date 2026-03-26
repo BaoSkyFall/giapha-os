@@ -11,7 +11,7 @@ const PROXY_API_KEY = process.env.PROXY_API_KEY;
 
 function buildSystemPrompt(language: "vi" | "en"): string {
   if (language === "vi") {
-    return `Bạn là trợ lý AI Gia Phả, chuyên gia về phả hệ người Việt.
+    return `Bạn là Trợ lý AI Tộc Phạm Phú, chuyên gia về phả hệ người Việt.
 Nhiệm vụ của bạn là trả lời câu hỏi về thành viên gia tộc dựa trên thông tin được cung cấp.
 
 Nguyên tắc:
@@ -71,7 +71,8 @@ export async function* narrateResponse(
   intent: AgentIntent,
   subject: PersonSearchResult | null,
   previousMessages: ChatMessage[],
-  kinshipContext?: string
+  kinshipContext?: string,
+  siteKnowledge?: string
 ): AsyncGenerator<StreamChunk> {
   if (!PROXY_BASE_URL) {
     yield {
@@ -91,8 +92,8 @@ export async function* narrateResponse(
   const subjectContext = subject
     ? `${lang === "vi" ? "Thông tin chi tiết về" : "Detailed information about"} ${subject.full_name}:\n${buildPersonContext(subject)}`
     : lang === "vi"
-    ? `Không tìm thấy thông tin về "${intent.subject}" trong gia phả.`
-    : `No information found for "${intent.subject}" in the family records.`;
+      ? `Không tìm thấy thông tin về "${intent.subject}" trong gia phả.`
+      : `No information found for "${intent.subject}" in the family records.`;
 
   const contextMessages = previousMessages.slice(-6).map((m) => ({
     role: m.role,
@@ -113,6 +114,9 @@ export async function* narrateResponse(
           role: "system",
           content: `${lang === "vi" ? "Toàn bộ dữ liệu gia phả" : "Full family dataset"}:\n${familyContext}`,
         },
+        ...(siteKnowledge
+          ? [{ role: "system" as const, content: siteKnowledge }]
+          : []),
         ...(kinshipContext
           ? [{ role: "system" as const, content: kinshipContext }]
           : []),

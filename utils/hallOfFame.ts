@@ -9,6 +9,7 @@ export const HALL_OF_FAME_IDS: string[] = [
   "c8ff761c-4a1d-47ac-9df8-43e27c3c7d0d", // Phạm Phú Thứ
   "ca91c50e-cb44-47a5-adda-9be76dc7ff9f", // Phạm Phú Tiết
   "935408e0-42e6-4a1b-a0f6-7025529e93b5", // Phạm Phú Bằng
+  "1442c6b5-ca05-409f-b532-3585fbb2110f", // Phạm Phú Quốc
 ];
 
 export function isHallOfFame(id: string): boolean {

@@ -44,7 +44,7 @@
 - [ ] **UI-02**: Session history drawer (`w-72`, `left-20`) with "Lịch sử hỏi đáp" title and "Bắt đầu phiên mới" button
 - [ ] **UI-03**: Session history list with active item highlighted (left border + crimson bg)
 - [ ] **UI-04**: Main content area starts at `ml-[360px]` with sticky top app bar
-- [ ] **UI-05**: Top app bar shows "Trợ lý AI Gia Phả" (Playfair Display italic), green "Đang hoạt động" pulse indicator, search input, and action icons
+- [ ] **UI-05**: Top app bar shows "Trợ lý AI Tộc Phạm Phú" (Playfair Display italic), green "Đang hoạt động" pulse indicator, search input, and action icons
 - [ ] **UI-06**: Chat canvas with lotus SVG watermark (opacity-5, bottom-right)
 
 ### Chat UI — Messages

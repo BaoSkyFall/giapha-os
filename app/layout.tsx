@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import { AuthProvider } from "@/components/AuthProvider";
 import NavigationProgress from "@/components/NavigationProgress";
+import AiChatWidget from "@/components/AiChatWidget";
 import { getUser, getProfile } from "@/utils/supabase/queries";
 import config from "./config";
 import "./globals.css";
@@ -55,12 +56,19 @@ export default async function RootLayout({
 
   return (
     <html lang="vi">
+      <head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+          rel="stylesheet"
+        />
+      </head>
       <body
         className={`${inter.variable} ${playfair.variable} font-sans antialiased relative`}
       >
         <AuthProvider user={user} profile={profile}>
           <NavigationProgress />
           {children}
+          <AiChatWidget />
         </AuthProvider>
       </body>
     </html>
