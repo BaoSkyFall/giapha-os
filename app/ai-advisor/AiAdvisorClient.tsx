@@ -417,16 +417,19 @@ export default function AiAdvisorClient({ initialSessions }: Props) {
   return (
     <div className="flex flex-col flex-1 min-h-0 bg-[#F7F3EA]">
       {/* ── Sub-header bar ── */}
-      <div className="flex-shrink-0 border-b-2 border-[#E8B931]/20 bg-[#F7F3EA] shadow-sm">
+      <div className="flex-shrink-0 border-b-2 border-[#E8B931]/20 bg-[#F7F3EA] shadow-sm mt-4">
         <div className="max-w-[1200px] mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
 
             <div>
               <h1
-                className="text-[#B31D1D] italic text-lg font-bold leading-tight"
+                className="text-[#B31D1D] italic text-base font-bold leading-tight flex items-center gap-2"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 Trợ lý AI Tộc Phạm Phú
+                <span className="text-[9px] font-bold uppercase tracking-widest bg-[#E8B931]/20 text-[#9a6800] border border-[#E8B931]/40 px-1.5 py-0.5 rounded-full leading-none not-italic">
+                  Beta
+                </span>
               </h1>
               <div className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -441,14 +444,15 @@ export default function AiAdvisorClient({ initialSessions }: Props) {
           <div className="flex items-center gap-3">
             <button
               onClick={handleNewSession}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#B31D1D] text-white text-sm font-medium hover:bg-[#93000C] transition-all shadow-md"
+              className="flex items-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg bg-[#B31D1D] text-white text-sm font-medium hover:bg-[#93000C] transition-all shadow-md"
+              aria-label="Phiên mới"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
-              Phiên mới
+              <span className="hidden sm:inline">Phiên mới</span>
             </button>
             {sessions.length > 0 && (
               <div className="relative group">
-                <button className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-[#E8B931]/30 bg-white text-sm text-slate-600 hover:border-[#B31D1D] hover:text-[#B31D1D] transition-all shadow-sm">
+                <button className="flex items-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg border border-[#E8B931]/30 bg-white text-sm text-slate-600 hover:border-[#B31D1D] hover:text-[#B31D1D] transition-all shadow-sm" aria-label="Lịch sử">
                   <span className="material-symbols-outlined text-[18px]">history</span>
                   <span className="hidden sm:inline">
                     {activeSessionId
@@ -489,6 +493,13 @@ export default function AiAdvisorClient({ initialSessions }: Props) {
             )}
           </div>
         </div>
+      </div>
+
+      {/* ── Beta notice banner ── */}
+      <div className="flex-shrink-0 bg-amber-50 border-b border-amber-200/60 px-4 py-2">
+        <p className="max-w-[1200px] mx-auto text-amber-700 text-sm text-center leading-relaxed">
+          ⚗️ <strong>Phiên bản thử nghiệm (Beta)</strong> — AI có thể mắc lỗi. Bạn có thể xác minh thông tin với quản trị viên.
+        </p>
       </div>
 
       {/* ── Chat Canvas ── */}

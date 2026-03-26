@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 /**
  * Sticky AI Chat Widget — visible on every page for all users (including anonymous).
@@ -12,6 +13,8 @@ import { useEffect, useState } from "react";
 export default function AiChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasAutoOpened, setHasAutoOpened] = useState(false);
+
+  const pathname = usePathname();
 
   // Auto-open the bubble after 3s on first visit (once per browser session)
   useEffect(() => {
@@ -29,6 +32,9 @@ export default function AiChatWidget() {
 
   // Suppress unused-var warning — hasAutoOpened is intentionally tracked for future use
   void hasAutoOpened;
+
+  // Don't render on the AI Advisor page itself
+  if (pathname.startsWith("/ai-advisor")) return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
@@ -57,10 +63,13 @@ export default function AiChatWidget() {
                   </div>
                   <div>
                     <p
-                      className="text-[#B31D1D] font-bold text-sm leading-tight"
+                      className="text-[#B31D1D] font-bold text-sm leading-tight flex items-center gap-1.5"
                       style={{ fontFamily: "'Playfair Display', serif" }}
                     >
                       Trợ lý AI Tộc Phạm Phú
+                      <span className="text-[9px] font-bold uppercase tracking-widest bg-[#E8B931]/20 text-[#9a6800] border border-[#E8B931]/40 px-1.5 py-0.5 rounded-full leading-none">
+                        Beta
+                      </span>
                     </p>
                     <div className="flex items-center gap-1 mt-0.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
