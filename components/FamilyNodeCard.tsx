@@ -31,7 +31,7 @@ export default function FamilyNodeCard({
   const { showAvatar, setMemberModalId } = useDashboard();
 
   const isDeceased = person.is_deceased;
-  const isFamous = isHallOfFame(person.full_name);
+  const isFamous = isHallOfFame(person.id);
 
   const content = (
     <div

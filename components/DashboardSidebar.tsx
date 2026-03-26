@@ -3,6 +3,7 @@
 import { useUser } from "@/components/UserProvider";
 import {
     BarChart3,
+    Brain,
     Database,
     FileText,
     Import,
@@ -55,13 +56,35 @@ export default function DashboardSidebar() {
     const { isAdmin } = useUser();
     const pathname = usePathname();
 
-    if (!isAdmin) return null;
-
     const isActive = (href: string) => pathname.startsWith(href);
+    const aiActive = isActive("/dashboard/ai-advisor");
 
     return (
         <aside className="hidden md:flex w-60 bg-heritage-red flex-col shrink-0">
             <div className="flex-1 py-4">
+                {/* AI Advisor — visible to all users */}
+                <div className="px-3 mb-4">
+                    <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest px-3 mb-1">
+                        Công cụ
+                    </p>
+                    <Link
+                        href="/dashboard/ai-advisor"
+                        className={`flex items-center gap-3 px-6 py-3 transition-all text-sm font-medium ${
+                            aiActive
+                                ? "text-white border-l-4 border-heritage-gold bg-white/10"
+                                : "text-white/70 hover:bg-white/10 hover:text-white border-l-4 border-transparent"
+                        }`}
+                    >
+                        <span className={aiActive ? "text-heritage-gold" : ""}>
+                            <Brain className="size-5" />
+                        </span>
+                        <span>Trợ lý AI</span>
+                    </Link>
+                </div>
+
+                {/* Admin-only section */}
+                {isAdmin && (
+                <>
                 <div className="px-3 mb-2">
                     <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest px-3">
                         Quản trị
@@ -87,6 +110,8 @@ export default function DashboardSidebar() {
                         );
                     })}
                 </nav>
+                </>
+                )}
             </div>
             <div className="p-4 bg-black/10">
                 <div className="rounded-lg bg-white/10 p-3 text-center">

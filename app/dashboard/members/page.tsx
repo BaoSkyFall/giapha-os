@@ -19,7 +19,7 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
   // Paginate to bypass PostgREST max-rows cap (default 1000)
   const PAGE_SIZE = 1000;
 
-  const persons: Person[] = [];
+  const personsRaw: Person[] = [];
   let pFrom = 0;
   while (true) {
     const { data } = await supabase
@@ -28,10 +28,17 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
       .order("birth_year", { ascending: true, nullsFirst: false })
       .range(pFrom, pFrom + PAGE_SIZE - 1);
     if (!data || data.length === 0) break;
-    persons.push(...(data as Person[]));
+    personsRaw.push(...(data as Person[]));
     if (data.length < PAGE_SIZE) break;
     pFrom += PAGE_SIZE;
   }
+  // Deduplicate by id — guards against any paginated overlap
+  const seenIds = new Set<string>();
+  const persons: Person[] = personsRaw.filter((p) => {
+    if (seenIds.has(p.id)) return false;
+    seenIds.add(p.id);
+    return true;
+  });
 
   const relationships: Relationship[] = [];
   let rFrom = 0;

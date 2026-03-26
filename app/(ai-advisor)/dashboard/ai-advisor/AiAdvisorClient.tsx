@@ -28,7 +28,7 @@ const NAV_ICONS = [
 
 const SUGGESTION_CHIPS = [
   "Tổ tiên đời đầu tiên là ai?",
-  "Ông Phạm Phú Ba có mấy người con?",
+  "Ông Phạm Phú Thứ có mấy người con?",
   "Lịch giỗ họ tháng này",
 ];
 
@@ -161,9 +161,8 @@ function ThinkingState({ steps }: { steps: string[] }) {
                       <span className="w-3 h-3 border-2 border-[#B31D1D] border-t-transparent rounded-full animate-spin" />
                     )}
                     <span
-                      className={`text-[10px] uppercase tracking-widest font-bold ${
-                        done ? "text-slate-400" : "text-[#B31D1D]"
-                      }`}
+                      className={`text-[10px] uppercase tracking-widest font-bold ${done ? "text-slate-400" : "text-[#B31D1D]"
+                        }`}
                     >
                       {STEP_LABELS[step] ?? step}
                     </span>
@@ -496,11 +495,10 @@ export default function AiAdvisorClient({ initialSessions }: Props) {
               <div
                 key={session.id}
                 onClick={() => handleSelectSession(session.id)}
-                className={`group p-3 flex items-center gap-3 rounded-r-md cursor-pointer transition-all duration-150 ${
-                  isActive
-                    ? "bg-[#F7F3EA] text-[#B31D1D] font-semibold border-l-4 border-[#B31D1D] translate-x-1"
-                    : "text-slate-600 hover:bg-[#F7F3EA]/50 border-l-4 border-transparent"
-                }`}
+                className={`group p-3 flex items-center gap-3 rounded-r-md cursor-pointer transition-all duration-150 ${isActive
+                  ? "bg-[#F7F3EA] text-[#B31D1D] font-semibold border-l-4 border-[#B31D1D] translate-x-1"
+                  : "text-slate-600 hover:bg-[#F7F3EA]/50 border-l-4 border-transparent"
+                  }`}
               >
                 <span className="material-symbols-outlined text-[18px] shrink-0">
                   history
@@ -617,7 +615,7 @@ export default function AiAdvisorClient({ initialSessions }: Props) {
                 Xin chào! Tôi là Trợ lý AI Gia Phả
               </h2>
               <p className="text-slate-500 text-sm max-w-md leading-relaxed">
-                Tôi có thể giúp bạn tìm kiếm thông tin về thành viên, lịch sử và sự kiện trong dòng họ. Hãy đặt câu hỏi bằng tiếng Việt hoặc tiếng Anh.
+                Tôi có thể giúp bạn tìm kiếm thông tin về thành viên, lịch sử và sự kiện trong dòng họ. Hãy đặt câu hỏi bất kỳ nhé
               </p>
             </div>
           )}

@@ -43,7 +43,7 @@ export default function MemberDetailContent({
   const note = (fullPerson.note as string) || "";
   const notePlainText = note.replace(/<[^>]*>/g, "");
   const isNoteLong = notePlainText.length > 300;
-  const isFamous = isHallOfFame(person.full_name);
+  const isFamous = isHallOfFame(person.id);
 
   const isDeceased =
     !!person.death_year || !!person.death_month || !!person.death_day;
