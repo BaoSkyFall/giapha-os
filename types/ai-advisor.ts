@@ -10,22 +10,7 @@ export type StreamChunk =
   | { type: "agent_step"; step: AgentStep; label: string }
   | { type: "text"; delta: string }
   | { type: "done"; sessionId: string; subject?: PersonSummary }
-  | { type: "clarify"; question: string; candidates: PersonSearchResult[] }
   | { type: "error"; message: string; code?: string };
-
-// Person data returned by search_persons_fuzzy RPC
-export interface PersonSearchResult {
-  id: string;
-  full_name: string;
-  other_names: string | null;
-  generation: number | null;
-  birth_year: number | null;
-  death_year: number | null;
-  is_deceased: boolean;
-  gender: string;
-  note?: string | null;
-  score: number;
-}
 
 // Minimal person shape included in 'done' stream chunk
 export interface PersonSummary {
@@ -37,41 +22,13 @@ export interface PersonSummary {
   is_deceased: boolean;
 }
 
-// Agent 1 output: parsed intent from user message
-export interface AgentIntent {
-  subject: string; // primary person being asked about
-  related_to?: string; // second person in relationship queries (e.g., "Is A the son of B?" → B)
-  query_type: "profile" | "relationship" | "fact" | "count" | "unknown" | "off_topic" | "site_info";
-  language: "vi" | "en";
-  raw_question: string; // original user message
-}
-
-// Agent 3 output: verification category
-export type VerificationResult =
-  | { status: "FOUND_ONE"; subject: PersonSearchResult }
-  | { status: "FOUND_MANY"; candidates: PersonSearchResult[] }
-  | { status: "FOUND_NONE" };
-
-// Shared pipeline context passed between agents
-export interface PipelineContext {
-  userMessage: string;
-  intent: AgentIntent;
-  candidates: PersonSearchResult[];
-  verificationResult: VerificationResult;
-  confirmedSubject?: PersonSummary;
-  sessionId: string;
-  userId: string;
-  previousMessages: ChatMessage[];
-}
-
 // Stored message format in chat_sessions.messages jsonb column
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: string; // ISO 8601
-  subject_id?: string; // person ID if resolved in this turn
+  subject_id?: string;
   metadata?: {
-    agent_steps?: AgentStep[];
     query_type?: string;
   };
 }
@@ -90,13 +47,13 @@ export interface ChatSession {
 // Scratchpad stored in chat_sessions.scratchpad
 export interface ChatScratchpad {
   confirmed_subject_id?: string;
-  candidates?: PersonSearchResult[];      // saved candidates for follow-up re-search
-  pending_clarification?: boolean;        // true = last turn ended with clarify chunk
-  clarification_round?: number;           // 0-indexed, max MAX_CLARIFICATION_ROUNDS (2)
+  pending_clarification?: boolean;
 }
 
 // POST /api/chat request body
 export interface ChatRequestBody {
   message: string;
-  session_id?: string; // omit to start new session
+  session_id?: string;
+  messages?: Array<{ role: "user" | "assistant"; content: string }>; // conversation history
+  session_source?: "local" | "supabase"; // determines persistence strategy
 }

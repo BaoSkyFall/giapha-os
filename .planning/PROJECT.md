@@ -1,5 +1,16 @@
 # GiaPha AI Advisor
 
+## Current Milestone: v1.1 External AI Backend
+
+**Goal:** Replace internal 5-agent LLM pipeline with proxy to external Python AI backend.
+
+**Target features:**
+- Call `BACK_END_AI_URL/chat` endpoint instead of internal agents
+- Preserve simulated loading animation (ThinkingState)
+- Keep session persistence and UI unchanged
+
+---
+
 ## What This Is
 
 An AI-powered conversational assistant embedded inside the existing Gia Phả OS Next.js genealogy platform. Family members can ask natural-language questions (in Vietnamese or English) about ~2,000 members across 13 generations and receive accurate, streaming answers from a 5-agent pipeline — handling fuzzy search, duplicate names, and multi-turn disambiguation.
