@@ -49,9 +49,81 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
   role public.user_role_enum DEFAULT 'member' NOT NULL,
   is_active BOOLEAN NOT NULL DEFAULT false,
+  phone_number TEXT UNIQUE,
+  phone_auth_expires_at TIMESTAMPTZ,
+  full_name TEXT,
+  birth_year INT,
+  birth_month INT,
+  birth_day INT,
+  branch TEXT,
+  generation INT,
+  address TEXT,
+  profile_completed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Ensure forward compatibility for existing installations
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS phone_number TEXT;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS phone_auth_expires_at TIMESTAMPTZ;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS full_name TEXT;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS birth_year INT;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS birth_month INT;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS birth_day INT;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS branch TEXT;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS generation INT;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS address TEXT;
+
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS profile_completed_at TIMESTAMPTZ;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conname = 'profiles_phone_number_key'
+  ) THEN
+    ALTER TABLE public.profiles
+      ADD CONSTRAINT profiles_phone_number_key UNIQUE (phone_number);
+  END IF;
+END $$;
+
+-- PHONE_OTP_REQUESTS (temporary OTP challenge store)
+CREATE TABLE IF NOT EXISTS public.phone_otp_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  phone_number TEXT NOT NULL,
+  provider_request_id TEXT NOT NULL,
+  otp_hash TEXT NOT NULL,
+  sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL,
+  resend_available_at TIMESTAMPTZ NOT NULL,
+  attempts INT NOT NULL DEFAULT 0,
+  max_attempts INT NOT NULL DEFAULT 5,
+  verified_at TIMESTAMPTZ,
+  invalidated_at TIMESTAMPTZ,
+  failure_reason TEXT
+);
+
+ALTER TABLE public.phone_otp_requests
+  ADD COLUMN IF NOT EXISTS provider_request_id TEXT;
 
 -- PERSONS (Core entity for family tree)
 CREATE TABLE IF NOT EXISTS public.persons (
@@ -140,6 +212,12 @@ CREATE INDEX IF NOT EXISTS idx_persons_birth_year ON public.persons(birth_year);
 -- Profile lookups
 CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);
 CREATE INDEX IF NOT EXISTS idx_profiles_is_active ON public.profiles(is_active);
+CREATE INDEX IF NOT EXISTS idx_profiles_phone_number ON public.profiles(phone_number);
+
+-- OTP lookups
+CREATE INDEX IF NOT EXISTS idx_phone_otp_requests_phone ON public.phone_otp_requests(phone_number);
+CREATE INDEX IF NOT EXISTS idx_phone_otp_requests_sent_at ON public.phone_otp_requests(sent_at DESC);
+CREATE INDEX IF NOT EXISTS idx_phone_otp_requests_provider_request_id ON public.phone_otp_requests(provider_request_id);
 
 -- Custom events lookups
 CREATE INDEX IF NOT EXISTS idx_custom_events_date ON public.custom_events(event_date);
@@ -153,6 +231,7 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.persons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.person_details_private ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.relationships ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.phone_otp_requests ENABLE ROW LEVEL SECURITY;
 
 -- Helper function to check if user is admin
 CREATE OR REPLACE FUNCTION public.is_admin()

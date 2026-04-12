@@ -9,6 +9,16 @@ export interface Profile {
   id: string;
   role: UserRole;
   is_active: boolean;
+  phone_number?: string | null;
+  phone_auth_expires_at?: string | null;
+  full_name?: string | null;
+  birth_year?: number | null;
+  birth_month?: number | null;
+  birth_day?: number | null;
+  branch?: string | null;
+  generation?: number | null;
+  address?: string | null;
+  profile_completed_at?: string | null;
   created_at: string;
   updated_at: string;
 }

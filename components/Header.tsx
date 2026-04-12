@@ -34,6 +34,12 @@ export default function Header({ siteName = "Tộc Phạm Phú" }: HeaderProps) 
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { user, profile } = useAuth();
     const pathname = usePathname();
+    const displayName =
+        profile?.full_name?.trim() ||
+        (typeof user?.user_metadata?.full_name === "string"
+            ? user.user_metadata.full_name.trim()
+            : "") ||
+        "Người dùng";
 
     const isLoggedIn = !!user;
 
@@ -78,7 +84,7 @@ export default function Header({ siteName = "Tộc Phạm Phú" }: HeaderProps) 
                 <div className="flex items-center gap-3">
                     {isLoggedIn ? (
                         <UserProvider user={user} profile={profile}>
-                            <HeaderMenu />
+                            <HeaderMenu displayName={displayName} />
                         </UserProvider>
                     ) : (
                         <Link

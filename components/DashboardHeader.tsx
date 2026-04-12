@@ -2,6 +2,7 @@
 
 import config from "@/app/config";
 import HeaderMenu from "@/components/HeaderMenu";
+import { useUser } from "@/components/UserProvider";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,6 +23,13 @@ const navLinks = [
 export default function DashboardHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, profile } = useUser();
+  const displayName =
+    profile?.full_name?.trim() ||
+    (typeof user?.user_metadata?.full_name === "string"
+      ? user.user_metadata.full_name.trim()
+      : "") ||
+    "Người dùng";
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -56,7 +64,7 @@ export default function DashboardHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-3">
-          <HeaderMenu />
+          <HeaderMenu displayName={displayName} />
           <button
             className="lg:hidden text-white p-1"
             onClick={() => setMobileOpen((prev) => !prev)}

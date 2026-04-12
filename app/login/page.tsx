@@ -5,358 +5,432 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { createClient } from "@/utils/supabase/client";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  KeyRound,
-  Mail,
-  Shield,
-  ShieldCheck,
-  TreePine,
-  UserPlus,
-  Zap,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { ArrowLeft, ShieldCheck, Smartphone, TreePine, Zap } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+type SendOtpResponse = {
+  error?: string;
+  message?: string;
+  maskedPhoneNumber?: string;
+  resendAvailableIn?: number;
+  traceId?: string;
+};
+
+type VerifyOtpResponse = {
+  error?: string;
+  remainingAttempts?: number;
+  traceId?: string;
+  session?: {
+    accessToken: string;
+    refreshToken: string;
+    expiresAt: number | null;
+  };
+};
+
+const OTP_LENGTH = 6;
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [otpDigits, setOtpDigits] = useState<string[]>(
+    Array(OTP_LENGTH).fill(""),
+  );
+  const [step, setStep] = useState<"phone" | "otp">("phone");
+  const [maskedPhoneNumber, setMaskedPhoneNumber] = useState("");
+  const [loadingSend, setLoadingSend] = useState(false);
+  const [loadingVerify, setLoadingVerify] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isDemo, setIsDemo] = useState(false);
+  const [info, setInfo] = useState<string | null>(null);
+  const [resendAvailableAt, setResendAvailableAt] = useState<number | null>(
+    null,
+  );
+  const [countdown, setCountdown] = useState(0);
 
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const hostname = window.location.hostname;
-      if (hostname === config.demoDomain) {
-        setIsDemo(true);
-        setEmail("giaphaos@homielab.com");
-        setPassword("giaphaos");
-      }
-    }
-  }, []);
-
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
-  const [isLogin, setIsLogin] = useState(true);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [confirmPassword, setConfirmPassword] = useState("");
+  useEffect(() => {
+    if (searchParams.get("expired") === "1") {
+      setInfo("Phiên đăng nhập OTP đã hết hạn sau 30 ngày. Vui lòng đăng nhập lại.");
+    } else if (searchParams.get("otp_required") === "1") {
+      setInfo("Tài khoản thành viên cần đăng nhập bằng OTP số điện thoại.");
+    }
+  }, [searchParams]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  useEffect(() => {
+    if (!resendAvailableAt) {
+      setCountdown(0);
+      return;
+    }
+
+    const tick = () => {
+      const remaining = Math.max(
+        0,
+        Math.ceil((resendAvailableAt - Date.now()) / 1000),
+      );
+      setCountdown(remaining);
+      if (remaining === 0) {
+        setResendAvailableAt(null);
+      }
+    };
+
+    tick();
+    const intervalId = window.setInterval(tick, 1000);
+    return () => window.clearInterval(intervalId);
+  }, [resendAvailableAt]);
+
+  const sendOtp = async (isResend = false) => {
+    setLoadingSend(true);
     setError(null);
-    setSuccessMessage(null);
+    setInfo(null);
 
     try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
+      const response = await fetch("/api/auth/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber }),
+      });
 
-        if (error) {
-          setError(error.message);
-        } else {
-          router.push("/dashboard");
-          router.refresh();
+      const data = (await response.json()) as SendOtpResponse;
+      if (!response.ok) {
+        const traceSuffix = data.traceId ? ` [trace: ${data.traceId}]` : "";
+        setError((data.error || "Không thể gửi OTP.") + traceSuffix);
+        if (typeof data.resendAvailableIn === "number") {
+          setResendAvailableAt(Date.now() + data.resendAvailableIn * 1000);
         }
-      } else {
-        if (password !== confirmPassword) {
-          setError("Mật khẩu xác nhận không khớp.");
-          setLoading(false);
-          return;
-        }
-
-        // 1. Try to sign up
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-
-        if (error) {
-          // Check if error is related to missing database schema/tables
-          if (
-            error.message.includes("relation") &&
-            error.message.includes("does not exist")
-          ) {
-            router.push("/setup");
-            return;
-          }
-
-          setError(error.message);
-        } else if (data.user?.identities && data.user.identities.length === 0) {
-          setError(
-            "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác.",
-          );
-        } else {
-          if (data.session) {
-            router.push("/dashboard");
-            router.refresh();
-          } else {
-            // Attempt to sign in immediately (catches auto-confirmed first admin)
-            const { data: signInData, error: signInError } =
-              await supabase.auth.signInWithPassword({
-                email,
-                password,
-              });
-
-            if (!signInError && signInData.session) {
-              router.push("/dashboard");
-              router.refresh();
-            } else {
-              setSuccessMessage(
-                "Đăng ký thành công! Vui lòng chờ admin kích hoạt tài khoản để xem nội dung.",
-              );
-              setIsLogin(true); // Switch back to login view
-              setConfirmPassword(""); // clear confirm password
-              setPassword(""); // clear password
-            }
-          }
-        }
+        return;
       }
+
+      setStep("otp");
+      setOtpDigits(Array(OTP_LENGTH).fill(""));
+      setMaskedPhoneNumber(data.maskedPhoneNumber || phoneNumber);
+      setResendAvailableAt(
+        Date.now() + (data.resendAvailableIn || 30) * 1000,
+      );
+      setInfo(
+        isResend ? "Đã gửi lại OTP." : data.message || "OTP đã được gửi thành công.",
+      );
     } catch (err) {
-      setError("An unexpected error occurred");
-      console.error(err);
+      setError(err instanceof Error ? err.message : "Không thể gửi OTP.");
     } finally {
-      setLoading(false);
+      setLoadingSend(false);
     }
   };
 
+  const verifyOtp = async () => {
+    const otpCode = otpDigits.join("");
+    if (otpCode.length !== OTP_LENGTH) {
+      setError("Vui lòng nhập đủ 6 chữ số OTP.");
+      return;
+    }
+
+    setLoadingVerify(true);
+    setError(null);
+    setInfo(null);
+
+    try {
+      const response = await fetch("/api/auth/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber, code: otpCode }),
+      });
+
+      const data = (await response.json()) as VerifyOtpResponse;
+      if (!response.ok || !data.session) {
+        const traceSuffix = data.traceId ? ` [trace: ${data.traceId}]` : "";
+        const attemptsText =
+          typeof data.remainingAttempts === "number"
+            ? ` Còn lại ${data.remainingAttempts} lượt thử.`
+            : "";
+        setError(
+          (data.error || "Xác minh OTP thất bại.") + attemptsText + traceSuffix,
+        );
+        return;
+      }
+
+      const { accessToken, refreshToken } = data.session;
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+
+      if (sessionError) {
+        setError(sessionError.message);
+        return;
+      }
+
+      setInfo("Xác thực thành công. Đang đăng nhập...");
+      router.push("/dashboard");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Xác minh OTP thất bại.");
+    } finally {
+      setLoadingVerify(false);
+    }
+  };
+
+  const handleOtpChange = (index: number, rawValue: string) => {
+    const onlyDigits = rawValue.replace(/\D/g, "");
+    const nextDigits = [...otpDigits];
+
+    if (!onlyDigits) {
+      nextDigits[index] = "";
+      setOtpDigits(nextDigits);
+      return;
+    }
+
+    if (onlyDigits.length > 1) {
+      const values = onlyDigits.slice(0, OTP_LENGTH).split("");
+      const merged = Array(OTP_LENGTH)
+        .fill("")
+        .map((_, idx) => values[idx] || otpDigits[idx] || "");
+      setOtpDigits(merged);
+
+      const focusIndex = Math.min(values.length, OTP_LENGTH - 1);
+      inputRefs.current[focusIndex]?.focus();
+      return;
+    }
+
+    nextDigits[index] = onlyDigits;
+    setOtpDigits(nextDigits);
+
+    if (index < OTP_LENGTH - 1) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (
+    index: number,
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key === "Backspace" && !otpDigits[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const resetToPhoneStep = () => {
+    setStep("phone");
+    setOtpDigits(Array(OTP_LENGTH).fill(""));
+    setError(null);
+    setInfo(null);
+    setCountdown(0);
+    setResendAvailableAt(null);
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-rice-paper select-none selection:bg-heritage-gold/30 selection:text-heritage-red relative overflow-hidden">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-rice-paper selection:bg-heritage-gold/30 selection:text-heritage-red">
       <Header siteName={config.siteName} />
 
-      {/* Hero heading */}
-      <div className="text-center pt-12 pb-6 relative z-10">
-        <h2 className="text-4xl md:text-5xl font-serif font-black text-heritage-red leading-tight">
+      <div className="relative z-10 pt-12 pb-6 text-center">
+        <h2 className="font-serif text-4xl font-black leading-tight text-heritage-red md:text-5xl">
           Kết Nối Cội Nguồn
         </h2>
-        <p className="mt-3 text-altar-wood/60 italic text-lg">
+        <p className="mt-3 text-lg italic text-altar-wood/60">
           &ldquo;Cây có cội, nước có nguồn. Chim có tổ, người có tông.&rdquo;
         </p>
       </div>
 
-      <div className="flex-1 flex items-start justify-center px-4 pb-16 relative z-10 w-full">
+      <div className="relative z-10 flex flex-1 items-start justify-center px-4 pb-16">
         <motion.div
-          className="max-w-md w-full rounded-2xl shadow-xl overflow-hidden relative"
+          className="relative w-full max-w-md overflow-hidden rounded-2xl shadow-xl"
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          {/* Card gradient header */}
-          <div className="bg-gradient-to-br from-heritage-red via-heritage-red-dark to-heritage-red p-8 pb-6 relative">
-            <div className="absolute inset-0 bg-gradient-to-b from-heritage-gold/10 to-transparent pointer-events-none" />
-            <div className="absolute top-0 left-0 right-0 h-1 bg-heritage-gold" />
-
-            <div className="relative z-10 flex items-center gap-3 mb-2">
-              <Shield className="size-6 text-heritage-gold" />
-              <h3 className="text-heritage-gold font-bold text-lg tracking-wide uppercase">
-                {isLogin ? "Đăng nhập / Đăng ký" : "Tạo tài khoản"}
+          <div className="relative bg-gradient-to-br from-heritage-red via-heritage-red-dark to-heritage-red p-8 pb-6">
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-heritage-gold/10 to-transparent" />
+            <div className="absolute top-0 right-0 left-0 h-1 bg-heritage-gold" />
+            <div className="relative z-10 flex items-center gap-3">
+              <Smartphone className="size-6 text-heritage-gold" />
+              <h3 className="text-lg font-bold tracking-wide text-heritage-gold uppercase">
+                Đăng nhập OTP
               </h3>
             </div>
           </div>
 
-          {/* Card body */}
-          <div className="bg-white p-8 border border-heritage-gold/10">
-            {isDemo && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-5 p-3 bg-heritage-gold/10 border border-heritage-gold/30 rounded-lg"
+          <div className="border border-heritage-gold/10 bg-white p-8">
+            {step === "phone" ? (
+              <form
+                className="space-y-5"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void sendOtp(false);
+                }}
               >
-                <p className="text-[13px] font-semibold text-heritage-red">
-                  Website Demo. Dữ liệu đều không có thật.
-                </p>
-              </motion.div>
-            )}
-
-            <form className="space-y-5" onSubmit={handleSubmit}>
-              <div className="space-y-4">
-                <div className="relative">
+                <div>
                   <label
-                    htmlFor="email-address"
-                    className="block text-[13px] font-semibold text-heritage-red mb-1.5 ml-1"
+                    htmlFor="phone-number"
+                    className="mb-1.5 ml-1 block text-[13px] font-semibold text-heritage-red"
                   >
-                    Email
+                    Số điện thoại
                   </label>
-                  <div className="relative flex items-center group">
-                    <Mail className="absolute left-3.5 size-5 text-altar-wood/30 group-focus-within:text-heritage-red transition-colors" />
+                  <div className="group relative flex items-center">
+                    <span className="absolute left-3.5 border-r border-heritage-gold/30 pr-2 text-sm font-semibold text-altar-wood/50">
+                      (+84)
+                    </span>
                     <input
-                      id="email-address"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
+                      id="phone-number"
+                      type="tel"
+                      autoComplete="tel"
                       required
-                      className="bg-rice-paper/50 text-altar-wood placeholder-altar-wood/30 block w-full rounded-lg border border-heritage-gold/20 shadow-sm focus:border-heritage-gold focus:ring-heritage-gold focus:bg-white pl-11 pr-4 py-3.5 transition-all duration-200 outline-none"
-                      placeholder="name@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <label
-                    htmlFor="password"
-                    className="block text-[13px] font-semibold text-heritage-red mb-1.5 ml-1"
-                  >
-                    Mật khẩu
-                  </label>
-                  <div className="relative flex items-center group">
-                    <KeyRound className="absolute left-3.5 size-5 text-altar-wood/30 group-focus-within:text-heritage-red transition-colors" />
-                    <input
-                      id="password"
-                      name="password"
-                      type="password"
-                      autoComplete={isLogin ? "current-password" : "new-password"}
-                      required
-                      className="bg-rice-paper/50 text-altar-wood placeholder-altar-wood/30 block w-full rounded-lg border border-heritage-gold/20 shadow-sm focus:border-heritage-gold focus:ring-heritage-gold focus:bg-white pl-11 pr-4 py-3.5 transition-all duration-200 outline-none"
-                      placeholder="Nhập mật khẩu"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      className="block w-full rounded-lg border border-heritage-gold/20 bg-rice-paper/50 py-3.5 pr-4 pl-20 text-altar-wood placeholder-altar-wood/30 shadow-sm transition-all duration-200 outline-none focus:border-heritage-gold focus:bg-white focus:ring-heritage-gold"
+                      placeholder="Nhập số điện thoại"
+                      value={phoneNumber}
+                      onChange={(event) => setPhoneNumber(event.target.value)}
                     />
                   </div>
                 </div>
 
                 <AnimatePresence>
-                  {!isLogin && (
+                  {error && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                      animate={{ opacity: 1, height: "auto", marginTop: 16 }}
-                      exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="relative overflow-hidden"
+                      initial={{ opacity: 0, y: -10, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: "auto" }}
+                      exit={{ opacity: 0, y: -10, height: 0 }}
+                      className="rounded-lg border border-heritage-red/10 bg-heritage-red/5 p-3 text-center text-[13px] font-medium text-heritage-red"
                     >
-                      <label
-                        htmlFor="confirmPassword"
-                        className="block text-[13px] font-semibold text-heritage-red mb-1.5 ml-1"
-                      >
-                        Xác nhận mật khẩu
-                      </label>
-                      <div className="relative flex items-center group">
-                        <KeyRound className="absolute left-3.5 size-5 text-altar-wood/30 group-focus-within:text-heritage-red transition-colors" />
-                        <input
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          type="password"
-                          autoComplete="new-password"
-                          required={!isLogin}
-                          className="bg-rice-paper/50 text-altar-wood placeholder-altar-wood/30 block w-full rounded-lg border border-heritage-gold/20 shadow-sm focus:border-heritage-gold focus:ring-heritage-gold focus:bg-white pl-11 pr-4 py-3.5 transition-all duration-200 outline-none"
-                          placeholder="Nhập lại mật khẩu"
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                        />
-                      </div>
+                      {error}
+                    </motion.div>
+                  )}
+
+                  {info && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: "auto" }}
+                      exit={{ opacity: 0, y: -10, height: 0 }}
+                      className="rounded-lg border border-jade-green/10 bg-jade-green/5 p-3 text-center text-[13px] font-medium text-jade-green"
+                    >
+                      {info}
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </div>
 
-              <AnimatePresence>
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, height: 0 }}
-                    animate={{ opacity: 1, y: 0, height: "auto" }}
-                    exit={{ opacity: 0, y: -10, height: 0 }}
-                    className="text-heritage-red text-[13px] text-center bg-heritage-red/5 p-3 rounded-lg border border-heritage-red/10 font-medium"
-                  >
-                    {error}
-                  </motion.div>
-                )}
-
-                {successMessage && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, height: 0 }}
-                    animate={{ opacity: 1, y: 0, height: "auto" }}
-                    exit={{ opacity: 0, y: -10, height: 0 }}
-                    className="text-jade-green text-[13px] text-center bg-jade-green/5 p-3 rounded-lg border border-jade-green/10 font-medium"
-                  >
-                    {successMessage}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              <div className="flex flex-col gap-4 pt-2">
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="group relative w-full flex justify-center items-center gap-2 py-4 px-4 text-[15px] font-bold rounded-lg text-white bg-heritage-red hover:bg-heritage-red-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-heritage-red disabled:opacity-70 disabled:cursor-wait transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                  disabled={loadingSend}
+                  className="group flex w-full items-center justify-center gap-2 rounded-lg bg-heritage-red px-4 py-4 text-[15px] font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-heritage-red-dark hover:shadow-xl disabled:cursor-wait disabled:opacity-70"
                 >
-                  {loading ? (
-                    <span className="flex items-center gap-2.5">
-                      <svg
-                        className="animate-spin -ml-1 h-4 w-4 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
-                      Đang xử lý...
-                    </span>
-                  ) : (
-                    <>
-                      {isLogin ? "Đăng nhập" : "Tạo tài khoản"}
-                      {!isLogin && <UserPlus className="size-4 ml-1" />}
-                    </>
-                  )}
+                  {loadingSend ? "Đang gửi OTP..." : "Gửi mã OTP"}
                 </button>
+              </form>
+            ) : (
+              <div className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold tracking-wide text-heritage-red uppercase">
+                    Xác thực OTP
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={resetToPhoneStep}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-heritage-red/80 underline underline-offset-4 transition-colors hover:text-heritage-red"
+                  >
+                    <ArrowLeft className="size-3.5" />
+                    Đổi số điện thoại
+                  </button>
+                </div>
 
-                <div className="relative flex items-center py-2 opacity-60">
-                  <div className="grow border-t border-heritage-gold/30"></div>
-                  <span className="shrink-0 mx-4 text-altar-wood/40 text-[11px] uppercase tracking-wider font-bold">
-                    Hoặc
-                  </span>
-                  <div className="grow border-t border-heritage-gold/30"></div>
+                <p className="text-center text-sm text-altar-wood/70">
+                  Mã OTP đã gửi tới <strong>{maskedPhoneNumber}</strong>
+                </p>
+
+                <div className="flex justify-between gap-2">
+                  {otpDigits.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(element) => {
+                        inputRefs.current[index] = element;
+                      }}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={1}
+                      value={digit}
+                      className="h-12 w-11 rounded-lg border-2 border-heritage-gold/30 bg-white text-center text-lg font-bold text-altar-wood outline-none transition-colors focus:border-heritage-red"
+                      onChange={(event) =>
+                        handleOtpChange(index, event.target.value)
+                      }
+                      onKeyDown={(event) => handleOtpKeyDown(index, event)}
+                    />
+                  ))}
                 </div>
 
                 <button
                   type="button"
-                  onClick={() => {
-                    if (isLogin && isDemo) {
-                      setError(
-                        "Đây là trang demo, bạn không cần phải tạo tài khoản. Hãy sử dụng tài khoản demo để truy cập với toàn bộ quyền.",
-                      );
-                      return;
-                    }
-                    setIsLogin(!isLogin);
-                    setError(null);
-                    setSuccessMessage(null);
-                  }}
-                  className="w-full text-sm font-semibold text-heritage-red hover:text-heritage-red-dark bg-white hover:bg-rice-paper border border-heritage-gold/20 py-3.5 rounded-lg shadow-sm focus:outline-none transition-all duration-200"
+                  onClick={() => void verifyOtp()}
+                  disabled={loadingVerify}
+                  className="w-full rounded-lg bg-heritage-red px-4 py-4 text-[15px] font-bold text-white shadow-lg transition-all duration-300 hover:bg-heritage-red-dark disabled:cursor-wait disabled:opacity-70"
                 >
-                  {isLogin
-                    ? "Chưa có tài khoản? Đăng ký ngay"
-                    : "Đã có tài khoản? Đăng nhập"}
+                  {loadingVerify ? "Đang xác thực..." : "Xác nhận"}
                 </button>
+
+                <button
+                  type="button"
+                  disabled={loadingSend || countdown > 0}
+                  onClick={() => void sendOtp(true)}
+                  className="w-full rounded-lg border border-heritage-gold/30 bg-white px-4 py-3 text-sm font-semibold text-heritage-red transition-colors hover:bg-rice-paper disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {countdown > 0
+                    ? `Gửi lại OTP sau ${countdown}s`
+                    : loadingSend
+                      ? "Đang gửi lại..."
+                      : "Gửi lại OTP"}
+                </button>
+
+                <AnimatePresence>
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: "auto" }}
+                      exit={{ opacity: 0, y: -10, height: 0 }}
+                      className="rounded-lg border border-heritage-red/10 bg-heritage-red/5 p-3 text-center text-[13px] font-medium text-heritage-red"
+                    >
+                      {error}
+                    </motion.div>
+                  )}
+
+                  {info && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, height: 0 }}
+                      animate={{ opacity: 1, y: 0, height: "auto" }}
+                      exit={{ opacity: 0, y: -10, height: 0 }}
+                      className="rounded-lg border border-jade-green/10 bg-jade-green/5 p-3 text-center text-[13px] font-medium text-jade-green"
+                    >
+                      {info}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
-            </form>
+            )}
+
+            <div className="relative my-6 flex items-center py-2 opacity-60">
+              <div className="grow border-t border-heritage-gold/30" />
+              <span className="mx-4 shrink-0 text-[11px] font-bold tracking-wider text-altar-wood/40 uppercase">
+                Quản trị
+              </span>
+              <div className="grow border-t border-heritage-gold/30" />
+            </div>
+
+            <Link
+              href="/admin-login"
+              className="block w-full rounded-lg border border-heritage-gold/20 bg-white py-3.5 text-center text-sm font-semibold text-heritage-red shadow-sm transition-all duration-200 hover:bg-rice-paper hover:text-heritage-red-dark"
+            >
+              Đăng nhập quản trị bằng email
+            </Link>
           </div>
         </motion.div>
       </div>
 
-      {/* Trust badges */}
-      <div className="flex justify-center gap-8 pb-10 relative z-10 px-6">
+      <div className="relative z-10 flex justify-center gap-8 px-6 pb-10">
         {[
           { icon: <ShieldCheck className="size-5" />, text: "Bảo mật thông tin" },
           { icon: <TreePine className="size-5" />, text: "Dành riêng cho\nPhạm Phú" },
           { icon: <Zap className="size-5" />, text: "Đăng nhập nhanh" },
-        ].map((badge, idx) => (
+        ].map((badge, index) => (
           <div
-            key={idx}
-            className="flex items-center gap-2 text-altar-wood/50 text-sm"
+            key={index}
+            className="flex items-center gap-2 text-sm text-altar-wood/50"
           >
             <span className="text-heritage-red/60">{badge.icon}</span>
             <span className="whitespace-pre-line">{badge.text}</span>
