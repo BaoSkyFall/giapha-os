@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import config from "@/app/config";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import SixDigitPasswordInput from "@/components/SixDigitPasswordInput";
 import { createClient } from "@/utils/supabase/client";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useAnimationControls } from "framer-motion";
 import { ArrowLeft, ShieldCheck, Smartphone, TreePine, Zap } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -43,18 +43,6 @@ const modeLabels: Record<AuthMode, string> = {
   forgot_password: "Quên mật khẩu",
 };
 
-const modeTitles: Record<AuthMode, string> = {
-  login: "Đăng nhập tài khoản",
-  register: "Đăng ký tài khoản mới",
-  forgot_password: "Đặt lại mật khẩu",
-};
-
-const modeDescriptions: Record<AuthMode, string> = {
-  login: "Nhập số điện thoại trước, sau đó nhập mật khẩu 6 số.",
-  register: "Nhập số điện thoại, đặt mật khẩu 6 số và xác thực OTP.",
-  forgot_password: "Nhập số điện thoại, đặt mật khẩu mới 6 số và xác thực OTP.",
-};
-
 const passwordPlaceholder: Record<AuthMode, string> = {
   login: "Nhập mật khẩu 6 số",
   register: "Tạo mật khẩu 6 số",
@@ -84,8 +72,7 @@ export default function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [otpDigits, setOtpDigits] = useState<string[]>(Array(OTP_LENGTH).fill(""));
+  const [otpCode, setOtpCode] = useState("");
   const [maskedPhoneNumber, setMaskedPhoneNumber] = useState("");
   const [resendAvailableAt, setResendAvailableAt] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(0);
@@ -94,8 +81,11 @@ export default function LoginPage() {
   const [loadingSecondary, setLoadingSecondary] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [passwordFieldError, setPasswordFieldError] = useState(false);
 
-  const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const passwordLastAutoSubmittedRef = useRef("");
+  const otpLastAutoSubmittedRef = useRef("");
+  const passwordShakeControls = useAnimationControls();
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
@@ -147,18 +137,28 @@ export default function LoginPage() {
   const resetOtpState = (nextCredentialStep: CredentialStep = "password") => {
     setStep("credentials");
     setCredentialStep(nextCredentialStep);
-    setOtpDigits(Array(OTP_LENGTH).fill(""));
+    setOtpCode("");
     setMaskedPhoneNumber("");
     setCountdown(0);
     setResendAvailableAt(null);
+    otpLastAutoSubmittedRef.current = "";
   };
 
   const switchMode = (nextMode: AuthMode) => {
     setMode(nextMode);
     setPassword("");
     setConfirmPassword("");
+    setPasswordFieldError(false);
+    passwordLastAutoSubmittedRef.current = "";
     resetOtpState("phone");
     clearNotices();
+  };
+
+  const setPasswordAndClearError = (value: string) => {
+    setPassword(value);
+    if (passwordFieldError) {
+      setPasswordFieldError(false);
+    }
   };
 
   const setSessionAndRedirect = async (data: AuthResponse) => {
@@ -208,8 +208,7 @@ export default function LoginPage() {
 
       const data = (await response.json()) as SendOtpResponse;
       if (!response.ok) {
-        const traceSuffix = data.traceId ? ` [trace: ${data.traceId}]` : "";
-        setError((data.error || "Không thể gửi OTP.") + traceSuffix);
+        setError((data.error || "Không thể gửi OTP."));
         if (typeof data.resendAvailableIn === "number") {
           setResendAvailableAt(Date.now() + data.resendAvailableIn * 1000);
         }
@@ -217,7 +216,7 @@ export default function LoginPage() {
       }
 
       setStep("otp");
-      setOtpDigits(Array(OTP_LENGTH).fill(""));
+      setOtpCode("");
       setMaskedPhoneNumber(data.maskedPhoneNumber || phoneNumber);
       setResendAvailableAt(Date.now() + (data.resendAvailableIn || 30) * 1000);
       setInfo(isResend ? "Đã gửi lại OTP." : data.message || "Đã gửi OTP.");
@@ -232,21 +231,29 @@ export default function LoginPage() {
     }
   };
 
-  const submitLogin = async () => {
+  const submitLogin = async (explicitPassword?: string) => {
+    const finalPassword = explicitPassword ?? password;
     setLoadingPrimary(true);
+    setPasswordFieldError(false);
     clearNotices();
 
     try {
       const response = await fetch("/api/auth/phone/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber, password }),
+        body: JSON.stringify({ phoneNumber, password: finalPassword }),
       });
 
       const data = (await response.json()) as AuthResponse;
       if (!response.ok) {
-        const traceSuffix = data.traceId ? ` [trace: ${data.traceId}]` : "";
-        setError((data.error || "Đăng nhập thất bại.") + traceSuffix);
+        if (response.status === 401) {
+          setPasswordFieldError(true);
+          void passwordShakeControls.start({
+            x: [0, -8, 8, -6, 6, 0],
+            transition: { duration: 0.35, ease: "easeOut" },
+          });
+        }
+        setError((data.error || "Đăng nhập thất bại."));
         return;
       }
 
@@ -262,9 +269,9 @@ export default function LoginPage() {
     }
   };
 
-  const submitOtpFlow = async () => {
-    const otpCode = otpDigits.join("");
-    if (otpCode.length !== OTP_LENGTH) {
+  const submitOtpFlow = async (explicitOtpCode?: string) => {
+    const finalOtpCode = explicitOtpCode ?? otpCode;
+    if (finalOtpCode.length !== OTP_LENGTH) {
       setError(`Vui lòng nhập đủ ${OTP_LENGTH} chữ số OTP.`);
       return;
     }
@@ -278,7 +285,7 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           phoneNumber,
-          code: otpCode,
+          code: finalOtpCode,
           purpose: mode,
           password,
         }),
@@ -286,12 +293,11 @@ export default function LoginPage() {
 
       const data = (await response.json()) as AuthResponse;
       if (!response.ok) {
-        const traceSuffix = data.traceId ? ` [trace: ${data.traceId}]` : "";
         const attemptsText =
           typeof data.remainingAttempts === "number"
             ? ` Còn lại ${data.remainingAttempts} lượt thử.`
             : "";
-        setError((data.error || "Xác minh OTP thất bại.") + attemptsText + traceSuffix);
+        setError((data.error || "Xác minh OTP thất bại.") + attemptsText);
         return;
       }
 
@@ -333,41 +339,46 @@ export default function LoginPage() {
     await sendOtp(false);
   };
 
-  const handleOtpChange = (index: number, rawValue: string) => {
-    const onlyDigits = rawValue.replace(/\D/g, "");
-    const nextDigits = [...otpDigits];
+  const tryAutoSubmitPasswordStep = (overrides?: {
+    nextPassword?: string;
+    nextConfirmPassword?: string;
+  }) => {
+    if (step !== "credentials" || credentialStep !== "password") return;
+    if (loadingPrimary || loadingSecondary) return;
 
-    if (!onlyDigits) {
-      nextDigits[index] = "";
-      setOtpDigits(nextDigits);
+    const effectivePassword = overrides?.nextPassword ?? password;
+    const effectiveConfirmPassword =
+      overrides?.nextConfirmPassword ?? confirmPassword;
+
+    if (mode === "login") {
+      if (effectivePassword.length !== PASSWORD_LENGTH) return;
+
+      const submissionKey = `${mode}:${phoneNumber}:${effectivePassword}`;
+      if (passwordLastAutoSubmittedRef.current === submissionKey) return;
+      passwordLastAutoSubmittedRef.current = submissionKey;
+      void submitLogin(effectivePassword);
       return;
     }
 
-    if (onlyDigits.length > 1) {
-      const values = onlyDigits.slice(0, OTP_LENGTH).split("");
-      const merged = Array(OTP_LENGTH)
-        .fill("")
-        .map((_, idx) => values[idx] || otpDigits[idx] || "");
-      setOtpDigits(merged);
-      const focusIndex = Math.min(values.length, OTP_LENGTH - 1);
-      otpRefs.current[focusIndex]?.focus();
-      return;
-    }
+    if (effectivePassword.length !== PASSWORD_LENGTH) return;
+    if (effectiveConfirmPassword.length !== PASSWORD_LENGTH) return;
+    if (effectivePassword !== effectiveConfirmPassword) return;
 
-    nextDigits[index] = onlyDigits;
-    setOtpDigits(nextDigits);
-    if (index < OTP_LENGTH - 1) {
-      otpRefs.current[index + 1]?.focus();
-    }
+    const submissionKey = `${mode}:${phoneNumber}:${effectivePassword}:${effectiveConfirmPassword}`;
+    if (passwordLastAutoSubmittedRef.current === submissionKey) return;
+    passwordLastAutoSubmittedRef.current = submissionKey;
+    void sendOtp(false);
   };
 
-  const handleOtpKeyDown = (
-    index: number,
-    event: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
-    if (event.key === "Backspace" && !otpDigits[index] && index > 0) {
-      otpRefs.current[index - 1]?.focus();
-    }
+  const tryAutoSubmitOtp = (completedOtpCode: string) => {
+    if (step !== "otp") return;
+    if (loadingPrimary || loadingSecondary) return;
+    if (completedOtpCode.length !== OTP_LENGTH) return;
+
+    const submissionKey = `${mode}:${phoneNumber}:${completedOtpCode}`;
+    if (otpLastAutoSubmittedRef.current === submissionKey) return;
+    otpLastAutoSubmittedRef.current = submissionKey;
+    void submitOtpFlow(completedOtpCode);
   };
 
   return (
@@ -378,7 +389,7 @@ export default function LoginPage() {
         <h2 className="font-serif text-4xl font-black leading-tight text-heritage-red md:text-5xl">
           Kết Nối Cội Nguồn
         </h2>
-        <p className="mt-3 text-lg italic text-altar-wood/60">
+        <p className="mt-3 px-2 text-lg italic text-altar-wood/60">
           Cây có cội, nước có nguồn. Chim có tổ, người có tông.
         </p>
       </div>
@@ -390,7 +401,7 @@ export default function LoginPage() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <div className="relative bg-gradient-to-br from-heritage-red via-heritage-red-dark to-heritage-red p-8 pb-6">
+          <div className="relative bg-gradient-to-br from-heritage-red via-heritage-red-dark to-heritage-red p-5 pb-4 sm:p-8 sm:pb-6">
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-heritage-gold/10 to-transparent" />
             <div className="absolute top-0 right-0 left-0 h-1 bg-heritage-gold" />
             <div className="relative z-10 flex items-center gap-3">
@@ -401,7 +412,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div className="border border-heritage-gold/10 bg-white p-8">
+          <div className="border border-heritage-gold/10 bg-white p-5 sm:p-8">
             {/* <div className="mb-5 rounded-lg bg-rice-paper p-3.5">
               <h4 className="text-sm font-bold tracking-wide text-heritage-red uppercase">
                 {modeTitles[mode]}
@@ -490,6 +501,7 @@ export default function LoginPage() {
                           type="button"
                           onClick={() => {
                             clearNotices();
+                            setPasswordFieldError(false);
                             setCredentialStep("phone");
                           }}
                           className="inline-flex items-center gap-1 text-xs font-semibold text-heritage-red/80 underline underline-offset-4 transition-colors hover:text-heritage-red"
@@ -515,16 +527,30 @@ export default function LoginPage() {
                             </Link>
                           ) : null}
                         </div>
-                        <div className="rounded-xl border border-heritage-gold/20 bg-rice-paper/40 p-3.5">
+                        <motion.div
+                          animate={passwordShakeControls}
+                          initial={{ x: 0 }}
+                          className={`rounded-xl border bg-rice-paper/40 p-2.5 sm:p-3.5 ${
+                            passwordFieldError
+                              ? "border-heritage-red/50"
+                              : "border-heritage-gold/20"
+                          }`}
+                        >
                           <SixDigitPasswordInput
                             idPrefix="password"
                             value={password}
-                            onChange={setPassword}
+                            onChange={setPasswordAndClearError}
+                            onComplete={(value) => {
+                              void tryAutoSubmitPasswordStep({
+                                nextPassword: value,
+                              });
+                            }}
+                            hasError={passwordFieldError}
                             disabled={loadingPrimary || loadingSecondary}
                             autoComplete={mode === "login" ? "current-password" : "new-password"}
                             autoFocus
                           />
-                        </div>
+                        </motion.div>
                           <p className="mt-2 ml-1 text-xs text-altar-wood/60">{passwordPlaceholder[mode]}</p>
                       </div>
 
@@ -533,11 +559,16 @@ export default function LoginPage() {
                           <label className="mb-1.5 ml-1 block text-[13px] font-semibold text-heritage-red">
                             Xác nhận mật khẩu
                           </label>
-                          <div className="rounded-xl border border-heritage-gold/20 bg-rice-paper/40 p-3.5">
+                          <div className="rounded-xl border border-heritage-gold/20 bg-rice-paper/40 p-2.5 sm:p-3.5">
                             <SixDigitPasswordInput
                               idPrefix="confirm-password"
                               value={confirmPassword}
                               onChange={setConfirmPassword}
+                              onComplete={(value) => {
+                                void tryAutoSubmitPasswordStep({
+                                  nextConfirmPassword: value,
+                                });
+                              }}
                               disabled={loadingPrimary || loadingSecondary}
                               autoComplete="new-password"
                             />
@@ -627,22 +658,20 @@ export default function LoginPage() {
                   Mã OTP đã gửi tới <strong>{maskedPhoneNumber}</strong>
                 </p>
 
-                <div className="flex justify-between gap-2">
-                  {otpDigits.map((digit, index) => (
-                    <input
-                      key={index}
-                      ref={(element) => {
-                        otpRefs.current[index] = element;
-                      }}
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={1}
-                      value={digit}
-                      className="h-12 w-11 rounded-lg border-2 border-heritage-gold/30 bg-white text-center text-lg font-bold text-altar-wood outline-none transition-colors focus:border-heritage-red"
-                      onChange={(event) => handleOtpChange(index, event.target.value)}
-                      onKeyDown={(event) => handleOtpKeyDown(index, event)}
-                    />
-                  ))}
+                <div className="rounded-xl border border-heritage-gold/20 bg-rice-paper/40 p-2.5 sm:p-3.5">
+                  <SixDigitPasswordInput
+                    idPrefix="otp"
+                    value={otpCode}
+                    onChange={setOtpCode}
+                    onComplete={(value) => {
+                      void tryAutoSubmitOtp(value);
+                    }}
+                    disabled={loadingPrimary || loadingSecondary}
+                    autoComplete="one-time-code"
+                    masked={false}
+                    ariaLabelPrefix="OTP số"
+                    autoFocus
+                  />
                 </div>
 
                 <button
@@ -716,4 +745,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

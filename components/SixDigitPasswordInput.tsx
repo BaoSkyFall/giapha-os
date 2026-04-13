@@ -5,11 +5,15 @@ import { useMemo, useRef } from "react";
 type SixDigitPasswordInputProps = {
   value: string;
   onChange: (nextValue: string) => void;
+  onComplete?: (completedValue: string) => void;
+  hasError?: boolean;
   length?: number;
   disabled?: boolean;
   idPrefix?: string;
   autoFocus?: boolean;
   autoComplete?: string;
+  masked?: boolean;
+  ariaLabelPrefix?: string;
 };
 
 const toDigits = (input: string, length: number) =>
@@ -18,11 +22,15 @@ const toDigits = (input: string, length: number) =>
 export default function SixDigitPasswordInput({
   value,
   onChange,
+  onComplete,
+  hasError = false,
   length = 6,
   disabled = false,
   idPrefix = "pin",
   autoFocus = false,
   autoComplete = "off",
+  masked = true,
+  ariaLabelPrefix = "Mat khau so",
 }: SixDigitPasswordInputProps) {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const digits = useMemo(() => {
@@ -31,7 +39,11 @@ export default function SixDigitPasswordInput({
   }, [length, value]);
 
   const updateDigits = (nextDigits: string[]) => {
-    onChange(nextDigits.join(""));
+    const normalized = toDigits(nextDigits.join(""), length);
+    onChange(normalized);
+    if (normalized.length === length) {
+      onComplete?.(normalized);
+    }
   };
 
   const handleChange = (index: number, rawValue: string) => {
@@ -90,7 +102,7 @@ export default function SixDigitPasswordInput({
   };
 
   return (
-    <div className="flex justify-between gap-2.5 sm:gap-3">
+    <div className="grid grid-cols-6 gap-1.5 sm:gap-3">
       {digits.map((digit, index) => (
         <input
           key={`${idPrefix}-${index}`}
@@ -98,7 +110,7 @@ export default function SixDigitPasswordInput({
           ref={(element) => {
             inputRefs.current[index] = element;
           }}
-          type="password"
+          type={masked ? "password" : "text"}
           inputMode="numeric"
           autoComplete={autoComplete}
           maxLength={1}
@@ -108,8 +120,12 @@ export default function SixDigitPasswordInput({
           onChange={(event) => handleChange(index, event.target.value)}
           onKeyDown={(event) => handleKeyDown(index, event)}
           onPaste={(event) => handlePaste(index, event)}
-          className="h-12 w-11 rounded-xl border-2 border-heritage-gold/30 bg-white text-center text-lg font-semibold text-altar-wood outline-none transition-colors focus:border-heritage-red disabled:cursor-not-allowed disabled:opacity-60 sm:h-13 sm:w-12"
-          aria-label={`Mat khau so ${index + 1}`}
+          className={`aspect-square w-full min-w-0 rounded-lg border-2 text-center text-sm font-semibold text-altar-wood outline-none transition-colors disabled:cursor-not-allowed disabled:opacity-60 sm:rounded-xl sm:text-lg ${
+            hasError
+              ? "border-heritage-red bg-heritage-red/5 focus:border-heritage-red"
+              : "border-heritage-gold/30 bg-white focus:border-heritage-red"
+          }`}
+          aria-label={`${ariaLabelPrefix} ${index + 1}`}
         />
       ))}
     </div>
