@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Info, Network, UserCircle } from "lucide-react";
+import { ChevronDown, Info, KeyRound, Network, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import LogoutButton from "./LogoutButton";
@@ -108,6 +108,15 @@ export default function HeaderMenu({ displayName }: HeaderMenuProps) {
               >
                 <Network className="size-4" />
                 Bảng điều khiển
+              </Link>
+
+              <Link
+                href="/dashboard/account"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-stone-700 transition-colors hover:bg-indigo-50 hover:text-indigo-700"
+              >
+                <KeyRound className="size-4" />
+                Đổi mật khẩu
               </Link>
 
               <Link

@@ -20,6 +20,7 @@ export default async function DashboardLayout({
   }
 
   const profile = await getProfile(user.id);
+  const shouldShowSidebar = profile?.role !== "user";
 
   if (!profile?.is_active) {
     return (
@@ -76,7 +77,7 @@ export default async function DashboardLayout({
       <div className="h-screen flex flex-col overflow-hidden bg-rice-paper text-altar-wood font-sans">
         <DashboardHeader />
         <div className="flex flex-1 overflow-hidden">
-          <DashboardSidebar />
+          {shouldShowSidebar ? <DashboardSidebar /> : null}
           <main className="flex-1 flex flex-col overflow-auto">
             {children}
           </main>

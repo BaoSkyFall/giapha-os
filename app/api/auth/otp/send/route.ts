@@ -8,6 +8,8 @@
 } from "@/utils/auth/otp";
 import { otpLog } from "@/utils/auth/log";
 import { maskPhoneNumber, normalizeVietnamPhone } from "@/utils/auth/phone";
+import { getRequestIp } from "@/utils/auth/request";
+import { consumeRateLimit } from "@/utils/auth/rate-limit";
 import { sendOtpSms } from "@/utils/auth/sms";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { randomUUID } from "crypto";
@@ -24,8 +26,21 @@ export async function POST(request: NextRequest) {
 
   try {
     otpLog("info", "otp_send.request_start", { traceId });
+    const ip = getRequestIp(request);
     const payload = await request.json();
     const rawPhoneNumber = payload?.phoneNumber;
+    const purpose = payload?.purpose;
+
+    if (purpose !== "register" && purpose !== "forgot_password") {
+      otpLog("warn", "otp_send.invalid_purpose", { traceId, purpose });
+      return NextResponse.json(
+        {
+          error: "OTP chi duoc su dung cho dang ky va quen mat khau.",
+          traceId,
+        },
+        { status: 400 },
+      );
+    }
 
     if (typeof rawPhoneNumber !== "string") {
       otpLog("warn", "otp_send.invalid_phone_payload", { traceId });
@@ -37,98 +52,79 @@ export async function POST(request: NextRequest) {
 
     const phoneNumber = normalizeVietnamPhone(rawPhoneNumber);
     const maskedPhone = maskPhoneNumber(phoneNumber);
-    otpLog("info", "otp_send.phone_normalized", { traceId, maskedPhone });
-
     const supabase = createAdminClient();
-
-    const nowMs = Date.now();
-    const nowIso = new Date(nowMs).toISOString();
-    const hourAgo = new Date(nowMs - 60 * 60 * 1000).toISOString();
-    const dayAgo = new Date(nowMs - 24 * 60 * 60 * 1000).toISOString();
-
-    const [hourWindow, dayWindow] = await Promise.all([
-      supabase
-        .from("phone_otp_requests")
-        .select("id", { count: "exact", head: true })
-        .eq("phone_number", phoneNumber)
-        .gte("sent_at", hourAgo),
-      supabase
-        .from("phone_otp_requests")
-        .select("id", { count: "exact", head: true })
-        .eq("phone_number", phoneNumber)
-        .gte("sent_at", dayAgo),
-    ]);
-
-    const hourCount = hourWindow.count || 0;
-    const dayCount = dayWindow.count || 0;
-    const hourError = hourWindow.error;
-    const dayError = dayWindow.error;
-
-    if (hourError || dayError) {
-      const schemaError = hourError || dayError;
-      otpLog("error", "otp_send.limit_query_failed", {
-        traceId,
-        maskedPhone,
-        hourError,
-        dayError,
-      });
-
-      if (schemaError && isSchemaMissingError(schemaError)) {
-        return NextResponse.json(
-          {
-            error: "Thieu bang OTP. Vui long cap nhat schema SQL truoc khi dung dang nhap OTP.",
-            traceId,
-          },
-          { status: 500 },
-        );
-      }
-
+    const ipLimiter = await consumeRateLimit(
+      supabase,
+      `otp_send:ip:${ip}`,
+      20,
+      10 * 60,
+    );
+    if (!ipLimiter.allowed) {
       return NextResponse.json(
-        { error: "Khong the kiem tra gioi han gui OTP.", traceId },
-        { status: 500 },
+        {
+          error: "Ban da yeu cau OTP qua nhieu lan. Vui long thu lai sau.",
+          resendAvailableIn: ipLimiter.retryAfterSeconds,
+          traceId,
+        },
+        { status: 429 },
       );
     }
-
-    otpLog("info", "otp_send.limit_counts", {
-      traceId,
-      maskedPhone,
-      hourCount,
-      dayCount,
-    });
-
-    if (hourCount >= OTP_SEND_LIMIT_HOUR) {
-      otpLog("warn", "otp_send.hour_limit_reached", {
-        traceId,
-        maskedPhone,
-        hourCount,
-        limit: OTP_SEND_LIMIT_HOUR,
-      });
-
+    const ipPhoneLimiter = await consumeRateLimit(
+      supabase,
+      `otp_send:ip_phone:${ip}:${phoneNumber}`,
+      8,
+      10 * 60,
+    );
+    const hourLimiter = await consumeRateLimit(
+      supabase,
+      `otp_send:phone_hour:${phoneNumber}`,
+      OTP_SEND_LIMIT_HOUR,
+      60 * 60,
+    );
+    const dayLimiter = await consumeRateLimit(
+      supabase,
+      `otp_send:phone_day:${phoneNumber}`,
+      OTP_SEND_LIMIT_DAY,
+      24 * 60 * 60,
+    );
+    if (!ipPhoneLimiter.allowed) {
+      return NextResponse.json(
+        {
+          error: "Ban da yeu cau OTP qua nhieu lan. Vui long thu lai sau.",
+          resendAvailableIn: ipPhoneLimiter.retryAfterSeconds,
+          traceId,
+        },
+        { status: 429 },
+      );
+    }
+    if (!hourLimiter.allowed) {
       return NextResponse.json(
         {
           error: `Ban da vuot qua ${OTP_SEND_LIMIT_HOUR} lan gui OTP trong 1 gio.`,
+          resendAvailableIn: hourLimiter.retryAfterSeconds,
           traceId,
         },
         { status: 429 },
       );
     }
-
-    if (dayCount >= OTP_SEND_LIMIT_DAY) {
-      otpLog("warn", "otp_send.day_limit_reached", {
-        traceId,
-        maskedPhone,
-        dayCount,
-        limit: OTP_SEND_LIMIT_DAY,
-      });
-
+    if (!dayLimiter.allowed) {
       return NextResponse.json(
         {
           error: `Ban da vuot qua ${OTP_SEND_LIMIT_DAY} lan gui OTP trong 1 ngay.`,
+          resendAvailableIn: dayLimiter.retryAfterSeconds,
           traceId,
         },
         { status: 429 },
       );
     }
+    otpLog("info", "otp_send.phone_normalized", {
+      traceId,
+      maskedPhone,
+      purpose,
+    });
+
+    const nowMs = Date.now();
+    const nowIso = new Date(nowMs).toISOString();
 
     const { data: latestRequest, error: latestError } = await supabase
       .from("phone_otp_requests")

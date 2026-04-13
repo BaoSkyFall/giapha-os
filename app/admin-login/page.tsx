@@ -57,9 +57,7 @@ export default function AdminLoginPage() {
 
       if (profile.role !== "admin") {
         await supabase.auth.signOut();
-        setError(
-          "Tài khoản này không có quyền quản trị. Vui lòng đăng nhập bằng OTP số điện thoại.",
-        );
+        setError("Tài khoản này không có quyền quản trị.");
         return;
       }
 
@@ -87,6 +85,12 @@ export default function AdminLoginPage() {
           </div>
 
           <div className="border border-heritage-gold/10 bg-white p-8">
+            <p className="mb-5 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+              Khuyến nghị: quản trị viên nên đăng nhập bằng số điện thoại tại
+              /login. Trang này là phương án dự phòng tạm thời để tránh bị khóa
+              tài khoản.
+            </p>
+
             <form className="space-y-5" onSubmit={handleSubmit}>
               <div>
                 <label
@@ -143,14 +147,14 @@ export default function AdminLoginPage() {
                 disabled={loading}
                 className="w-full rounded-lg bg-heritage-red px-4 py-4 text-[15px] font-bold text-white shadow-lg transition-all duration-300 hover:bg-heritage-red-dark disabled:cursor-wait disabled:opacity-70"
               >
-                {loading ? "Đang đăng nhập..." : "Đăng nhập quản trị"}
+                {loading ? "Đang đăng nhập..." : "Đăng nhập quản trị (dự phòng)"}
               </button>
             </form>
 
             <div className="relative my-6 flex items-center py-2 opacity-60">
               <div className="grow border-t border-heritage-gold/30" />
               <span className="mx-4 shrink-0 text-[11px] font-bold tracking-wider text-altar-wood/40 uppercase">
-                Thành viên
+                Đăng nhập chính
               </span>
               <div className="grow border-t border-heritage-gold/30" />
             </div>
@@ -159,7 +163,7 @@ export default function AdminLoginPage() {
               href="/login"
               className="block w-full rounded-lg border border-heritage-gold/20 bg-white py-3.5 text-center text-sm font-semibold text-heritage-red shadow-sm transition-all duration-200 hover:bg-rice-paper hover:text-heritage-red-dark"
             >
-              Quay lại đăng nhập OTP
+              Sang trang đăng nhập số điện thoại + mật khẩu
             </Link>
           </div>
         </div>

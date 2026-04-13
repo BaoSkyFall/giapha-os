@@ -1,22 +1,21 @@
-﻿import {
-  OTP_MAX_ATTEMPTS,
-  OTP_SESSION_MAX_AGE_MS,
-  buildOtpAliasEmail,
-  deriveOtpPassword,
-} from "@/utils/auth/otp";
+import { buildOtpAliasEmail, OTP_MAX_ATTEMPTS, OTP_LENGTH } from "@/utils/auth/otp";
+import { isValidPhonePassword, PHONE_PASSWORD_LENGTH } from "@/utils/auth/password";
 import { otpLog } from "@/utils/auth/log";
 import { maskPhoneNumber, normalizeVietnamPhone } from "@/utils/auth/phone";
+import { getRequestIp } from "@/utils/auth/request";
+import { consumeOtpAttempt, consumeRateLimit } from "@/utils/auth/rate-limit";
 import { verifyOtpWithProvider } from "@/utils/auth/sms";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 
+type OtpPurpose = "register" | "forgot_password";
+
 const isSchemaMissingError = (error: { code?: string; message?: string }) =>
   error.code === "42P01" ||
   error.code === "PGRST205" ||
   error.message?.includes("phone_otp_requests") ||
-  error.message?.includes("phone_auth_expires_at") ||
   error.message?.includes("phone_number") ||
   error.message?.includes("provider_request_id");
 
@@ -38,16 +37,32 @@ const getAnonClient = () => {
   });
 };
 
+const signInWithEmailPassword = async (email: string, password: string) => {
+  const anonSupabase = getAnonClient();
+  return anonSupabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+};
+
 export async function POST(request: NextRequest) {
   const traceId = randomUUID();
 
   try {
+    const ip = getRequestIp(request);
     otpLog("info", "otp_verify.request_start", { traceId });
     const payload = await request.json();
     const rawPhoneNumber = payload?.phoneNumber;
     const code = payload?.code;
+    const purpose = payload?.purpose as OtpPurpose | undefined;
+    const password = payload?.password;
 
-    if (typeof rawPhoneNumber !== "string" || typeof code !== "string") {
+    if (
+      typeof rawPhoneNumber !== "string" ||
+      typeof code !== "string" ||
+      typeof password !== "string" ||
+      (purpose !== "register" && purpose !== "forgot_password")
+    ) {
       otpLog("warn", "otp_verify.invalid_payload", { traceId });
       return NextResponse.json(
         { error: "Thong tin xac thuc khong hop le.", traceId },
@@ -55,10 +70,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!/^\d{6}$/.test(code)) {
+    if (!new RegExp(`^\\d{${OTP_LENGTH}}$`).test(code)) {
       otpLog("warn", "otp_verify.invalid_code_format", { traceId });
       return NextResponse.json(
-        { error: "Ma OTP phai gom dung 6 chu so.", traceId },
+        { error: `Ma OTP phai gom dung ${OTP_LENGTH} chu so.`, traceId },
+        { status: 400 },
+      );
+    }
+
+    if (!isValidPhonePassword(password)) {
+      otpLog("warn", "otp_verify.invalid_password_format", { traceId });
+      return NextResponse.json(
+        {
+          error: `Mat khau phai gom dung ${PHONE_PASSWORD_LENGTH} chu so.`,
+          traceId,
+        },
         { status: 400 },
       );
     }
@@ -66,8 +92,44 @@ export async function POST(request: NextRequest) {
     const phoneNumber = normalizeVietnamPhone(rawPhoneNumber);
     const maskedPhone = maskPhoneNumber(phoneNumber);
     const adminSupabase = createAdminClient();
+    const limiter = await consumeRateLimit(
+      adminSupabase,
+      `otp_verify:phone:${phoneNumber}`,
+      15,
+      10 * 60,
+    );
+    const ipLimiter = await consumeRateLimit(
+      adminSupabase,
+      `otp_verify:ip_phone:${ip}:${phoneNumber}`,
+      30,
+      10 * 60,
+    );
+    if (!limiter.allowed) {
+      return NextResponse.json(
+        {
+          error: "Ban da thu xac minh OTP qua nhieu lan. Vui long thu lai sau.",
+          retryAfterSeconds: limiter.retryAfterSeconds,
+          traceId,
+        },
+        { status: 429 },
+      );
+    }
+    if (!ipLimiter.allowed) {
+      return NextResponse.json(
+        {
+          error: "Ban da thu xac minh OTP qua nhieu lan. Vui long thu lai sau.",
+          retryAfterSeconds: ipLimiter.retryAfterSeconds,
+          traceId,
+        },
+        { status: 429 },
+      );
+    }
 
-    otpLog("info", "otp_verify.phone_normalized", { traceId, maskedPhone });
+    otpLog("info", "otp_verify.phone_normalized", {
+      traceId,
+      maskedPhone,
+      purpose,
+    });
 
     const { data: challenge, error: challengeError } = await adminSupabase
       .from("phone_otp_requests")
@@ -91,7 +153,7 @@ export async function POST(request: NextRequest) {
       if (isSchemaMissingError(challengeError)) {
         return NextResponse.json(
           {
-            error: "Thieu bang OTP. Vui long cap nhat schema SQL truoc khi dung dang nhap OTP.",
+            error: "Thieu bang OTP. Vui long cap nhat schema SQL truoc khi dung OTP.",
             traceId,
           },
           { status: 500 },
@@ -218,28 +280,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (!providerVerify.ok && providerVerify.code === "invalid_otp") {
-      const nextAttempts = (challenge.attempts || 0) + 1;
-      const shouldInvalidate = nextAttempts >= maxAttempts;
-
-      await adminSupabase
-        .from("phone_otp_requests")
-        .update({
-          attempts: nextAttempts,
-          invalidated_at: shouldInvalidate ? new Date().toISOString() : null,
-          failure_reason: shouldInvalidate ? "attempt_limit_reached" : null,
-        })
-        .eq("id", challenge.id);
-
-      otpLog("warn", "otp_verify.code_invalid", {
-        traceId,
-        maskedPhone,
-        otpRequestId: challenge.id,
-        providerRequestId: challenge.provider_request_id,
-        nextAttempts,
+      const consumeResult = await consumeOtpAttempt(
+        adminSupabase,
+        challenge.id,
         maxAttempts,
-        providerStatus: providerVerify.httpStatus,
-        providerMessage: providerVerify.message,
-      });
+      );
+      const shouldInvalidate = consumeResult.locked;
 
       return NextResponse.json(
         {
@@ -248,7 +294,7 @@ export async function POST(request: NextRequest) {
             : "Ma OTP khong dung.",
           remainingAttempts: shouldInvalidate
             ? 0
-            : Math.max(0, maxAttempts - nextAttempts),
+            : consumeResult.remainingAttempts,
           traceId,
         },
         { status: 400 },
@@ -264,15 +310,6 @@ export async function POST(request: NextRequest) {
         })
         .eq("id", challenge.id);
 
-      otpLog("warn", "otp_verify.provider_request_not_found", {
-        traceId,
-        maskedPhone,
-        otpRequestId: challenge.id,
-        providerRequestId: challenge.provider_request_id,
-        providerStatus: providerVerify.httpStatus,
-        providerMessage: providerVerify.message,
-      });
-
       return NextResponse.json(
         {
           error: "Yeu cau OTP khong con hop le. Vui long gui lai ma moi.",
@@ -283,15 +320,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (!providerVerify.ok) {
-      otpLog("error", "otp_verify.provider_error", {
-        traceId,
-        maskedPhone,
-        otpRequestId: challenge.id,
-        providerRequestId: challenge.provider_request_id,
-        providerStatus: providerVerify.httpStatus,
-        providerMessage: providerVerify.message,
-      });
-
       return NextResponse.json(
         {
           error: "Khong the xac minh OTP. Vui long thu lai sau.",
@@ -301,120 +329,40 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await adminSupabase
-      .from("phone_otp_requests")
-      .update({
-        verified_at: new Date().toISOString(),
-        failure_reason: null,
-      })
-      .eq("id", challenge.id);
+    if (purpose === "register") {
+      const { data: existingProfile, error: existingError } = await adminSupabase
+        .from("profiles")
+        .select("id")
+        .eq("phone_number", phoneNumber)
+        .maybeSingle();
 
-    const { data: existingProfile, error: profileError } = await adminSupabase
-      .from("profiles")
-      .select("id,role")
-      .eq("phone_number", phoneNumber)
-      .maybeSingle();
-
-    if (profileError && !isSchemaMissingError(profileError)) {
-      otpLog("error", "otp_verify.profile_query_failed", {
-        traceId,
-        maskedPhone,
-        profileError,
-      });
-      return NextResponse.json(
-        { error: "Khong the kiem tra tai khoan hien co.", traceId },
-        { status: 500 },
-      );
-    }
-
-    if (existingProfile?.role === "admin") {
-      otpLog("warn", "otp_verify.admin_blocked", {
-        traceId,
-        maskedPhone,
-        profileId: existingProfile.id,
-      });
-      return NextResponse.json(
-        {
-          error:
-            "Tai khoan quan tri vui long dang nhap qua trang quan tri bang email va mat khau.",
-          traceId,
-        },
-        { status: 403 },
-      );
-    }
-
-    const otpPassword = deriveOtpPassword(phoneNumber);
-    let userId = existingProfile?.id || null;
-    let loginEmail = "";
-
-    if (userId) {
-      const { data: userData, error: getUserError } =
-        await adminSupabase.auth.admin.getUserById(userId);
-
-      if (getUserError || !userData.user) {
-        otpLog("error", "otp_verify.get_user_failed", {
-          traceId,
-          maskedPhone,
-          userId,
-          getUserError,
-        });
+      if (existingError && !isSchemaMissingError(existingError)) {
         return NextResponse.json(
-          { error: "Khong the tai thong tin tai khoan.", traceId },
+          { error: "Khong the kiem tra tai khoan hien co.", traceId },
           { status: 500 },
         );
       }
 
-      loginEmail = userData.user.email || buildOtpAliasEmail(phoneNumber);
-
-      const metadata = {
-        ...(userData.user.user_metadata || {}),
-        phone_number: phoneNumber,
-        auth_method: "phone_otp",
-      };
-
-      const { error: updateUserError } =
-        await adminSupabase.auth.admin.updateUserById(userId, {
-          password: otpPassword,
-          email: loginEmail,
-          email_confirm: true,
-          user_metadata: metadata,
-        });
-
-      if (updateUserError) {
-        otpLog("error", "otp_verify.update_user_failed", {
-          traceId,
-          maskedPhone,
-          userId,
-          updateUserError,
-        });
+      if (existingProfile?.id) {
         return NextResponse.json(
-          {
-            error: "Khong the dong bo thong tin OTP cho tai khoan hien co.",
-            traceId,
-          },
-          { status: 500 },
+          { error: "So dien thoai da ton tai.", traceId },
+          { status: 409 },
         );
       }
-    } else {
-      loginEmail = buildOtpAliasEmail(phoneNumber);
 
+      const loginEmail = buildOtpAliasEmail(phoneNumber);
       const { data: createdUser, error: createUserError } =
         await adminSupabase.auth.admin.createUser({
           email: loginEmail,
-          password: otpPassword,
+          password,
           email_confirm: true,
           user_metadata: {
             phone_number: phoneNumber,
-            auth_method: "phone_otp",
+            auth_method: "phone_password",
           },
         });
 
       if (createUserError || !createdUser.user) {
-        otpLog("error", "otp_verify.create_user_failed", {
-          traceId,
-          maskedPhone,
-          createUserError,
-        });
         return NextResponse.json(
           {
             error:
@@ -426,92 +374,142 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      userId = createdUser.user.id;
-    }
-
-    const phoneAuthExpiresAt = new Date(
-      Date.now() + OTP_SESSION_MAX_AGE_MS,
-    ).toISOString();
-
-    const { data: updatedProfile, error: profileUpdateError } =
-      await adminSupabase
-        .from("profiles")
-        .update({
-          phone_number: phoneNumber,
-          phone_auth_expires_at: phoneAuthExpiresAt,
-        })
-        .eq("id", userId)
-        .select("id")
-        .maybeSingle();
-
-    if (profileUpdateError && !isSchemaMissingError(profileUpdateError)) {
-      otpLog("error", "otp_verify.profile_update_failed", {
-        traceId,
-        maskedPhone,
-        userId,
-        profileUpdateError,
-      });
-      return NextResponse.json(
-        { error: "Khong the cap nhat trang thai xac thuc OTP.", traceId },
-        { status: 500 },
-      );
-    }
-
-    if (!updatedProfile) {
-      const { error: profileInsertError } = await adminSupabase
+      const userId = createdUser.user.id;
+      const { error: upsertProfileError } = await adminSupabase
         .from("profiles")
         .upsert({
           id: userId,
           is_active: true,
           phone_number: phoneNumber,
-          phone_auth_expires_at: phoneAuthExpiresAt,
+          phone_auth_expires_at: null,
         });
 
-      if (profileInsertError) {
-        otpLog("error", "otp_verify.profile_upsert_failed", {
-          traceId,
-          maskedPhone,
-          userId,
-          profileInsertError,
-        });
+      if (upsertProfileError) {
         return NextResponse.json(
-          { error: "Khong the khoi tao ho so nguoi dung OTP.", traceId },
+          { error: "Khong the khoi tao ho so nguoi dung.", traceId },
           { status: 500 },
         );
       }
+
+      await adminSupabase
+        .from("phone_otp_requests")
+        .update({
+          verified_at: new Date().toISOString(),
+          failure_reason: null,
+        })
+        .eq("id", challenge.id);
+
+      const { data: signInData, error: signInError } = await signInWithEmailPassword(
+        loginEmail,
+        password,
+      );
+
+      if (signInError || !signInData.session) {
+        return NextResponse.json(
+          {
+            error:
+              signInError?.message ||
+              "Dang ky thanh cong nhung khong tao duoc phien dang nhap.",
+            traceId,
+          },
+          { status: 500 },
+        );
+      }
+
+      return NextResponse.json({
+        ok: true,
+        session: {
+          accessToken: signInData.session.access_token,
+          refreshToken: signInData.session.refresh_token,
+          expiresAt: signInData.session.expires_at,
+        },
+        profile: {
+          id: userId,
+          phoneNumber,
+        },
+        traceId,
+      });
     }
 
-    const anonSupabase = getAnonClient();
-    const { data: signInData, error: signInError } =
-      await anonSupabase.auth.signInWithPassword({
+    const { data: existingProfile, error: profileError } = await adminSupabase
+      .from("profiles")
+      .select("id,is_active")
+      .eq("phone_number", phoneNumber)
+      .maybeSingle();
+
+    if (profileError) {
+      return NextResponse.json(
+        { error: "Khong the tai thong tin tai khoan.", traceId },
+        { status: 500 },
+      );
+    }
+
+    if (!existingProfile?.id || !existingProfile.is_active) {
+      return NextResponse.json(
+        { error: "Khong tim thay tai khoan voi so dien thoai nay.", traceId },
+        { status: 404 },
+      );
+    }
+
+    const { data: userData, error: getUserError } =
+      await adminSupabase.auth.admin.getUserById(existingProfile.id);
+
+    if (getUserError || !userData.user) {
+      return NextResponse.json(
+        { error: "Khong the tai thong tin tai khoan.", traceId },
+        { status: 500 },
+      );
+    }
+
+    const loginEmail = userData.user.email || buildOtpAliasEmail(phoneNumber);
+    const metadata = {
+      ...(userData.user.user_metadata || {}),
+      phone_number: phoneNumber,
+      auth_method: "phone_password",
+    };
+
+    const { error: updateUserError } =
+      await adminSupabase.auth.admin.updateUserById(existingProfile.id, {
+        password,
         email: loginEmail,
-        password: otpPassword,
+        email_confirm: true,
+        user_metadata: metadata,
       });
 
-    if (signInError || !signInData.session) {
-      otpLog("error", "otp_verify.signin_failed", {
-        traceId,
-        maskedPhone,
-        userId,
-        signInError,
-      });
-
+    if (updateUserError) {
       return NextResponse.json(
         {
-          error:
-            signInError?.message ||
-            "Xac thuc OTP thanh cong nhung khong tao duoc phien dang nhap.",
+          error: updateUserError.message || "Khong the cap nhat mat khau.",
           traceId,
         },
         { status: 500 },
       );
     }
 
-    otpLog("info", "otp_verify.success", {
-      traceId,
-      maskedPhone,
-      userId,
-    });
+    await adminSupabase
+      .from("phone_otp_requests")
+      .update({
+        verified_at: new Date().toISOString(),
+        failure_reason: null,
+      })
+      .eq("id", challenge.id);
+
+    const { data: signInData, error: signInError } = await signInWithEmailPassword(
+      loginEmail,
+      password,
+    );
+
+    if (signInError || !signInData.session) {
+      return NextResponse.json(
+        {
+          error:
+            signInError?.message ||
+            "Dat lai mat khau thanh cong nhung khong tao duoc phien dang nhap.",
+          traceId,
+        },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({
       ok: true,
@@ -521,9 +519,8 @@ export async function POST(request: NextRequest) {
         expiresAt: signInData.session.expires_at,
       },
       profile: {
-        id: userId,
+        id: existingProfile.id,
         phoneNumber,
-        phoneAuthExpiresAt,
       },
       traceId,
     });

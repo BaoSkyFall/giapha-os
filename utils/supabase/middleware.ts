@@ -92,24 +92,6 @@ export async function updateSession(request: NextRequest) {
       .maybeSingle();
 
     if (currentProfile && currentProfile.role !== "admin") {
-      const expiresAt = currentProfile.phone_auth_expires_at
-        ? new Date(currentProfile.phone_auth_expires_at).getTime()
-        : null;
-
-      const isOtpSessionExpired =
-        !expiresAt || Number.isNaN(expiresAt) || expiresAt <= Date.now();
-
-      if (isOtpSessionExpired) {
-        await supabase.auth.signOut();
-        const url = request.nextUrl.clone();
-        url.pathname = "/login";
-        url.searchParams.set(
-          currentProfile.phone_auth_expires_at ? "expired" : "otp_required",
-          "1",
-        );
-        return NextResponse.redirect(url);
-      }
-
       const missingProfileInfo = !isMemberProfileComplete(currentProfile);
 
       if (missingProfileInfo && isProtectedPath) {
