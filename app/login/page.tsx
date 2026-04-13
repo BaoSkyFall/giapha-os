@@ -34,6 +34,15 @@ type AuthResponse = {
   };
 };
 
+type PhoneCheckResponse = {
+  ok?: boolean;
+  exists?: boolean;
+  canLogin?: boolean;
+  error?: string;
+  traceId?: string;
+  retryAfterSeconds?: number;
+};
+
 const OTP_LENGTH = 6;
 const PASSWORD_LENGTH = 6;
 
@@ -41,6 +50,18 @@ const modeLabels: Record<AuthMode, string> = {
   login: "Đăng nhập",
   register: "Đăng ký",
   forgot_password: "Quên mật khẩu",
+};
+
+const modeHeaderTitles: Record<AuthMode, string> = {
+  login: "Đăng nhập bằng số điện thoại",
+  register: "Đăng ký bằng số điện thoại",
+  forgot_password: "Khôi phục bằng số điện thoại",
+};
+
+const modeDescriptions: Record<AuthMode, string> = {
+  login: "Nhập số điện thoại và mật khẩu 6 số để đăng nhập.",
+  register: "Nhập số điện thoại, tạo mật khẩu 6 số rồi xác thực OTP để đăng ký.",
+  forgot_password: "Nhập số điện thoại, tạo mật khẩu mới 6 số và xác thực OTP.",
 };
 
 const passwordPlaceholder: Record<AuthMode, string> = {
@@ -184,12 +205,48 @@ export default function LoginPage() {
   const isConfirmValid =
     mode === "login" || (confirmPassword.length > 0 && confirmPassword === password);
 
-  const handleContinueAfterPhone = () => {
+  const handleContinueAfterPhone = async () => {
     clearNotices();
 
     if (!isPhoneInputLikelyValid(phoneNumber)) {
       setError("Số điện thoại không hợp lệ.");
       return;
+    }
+
+    if (mode === "login") {
+      setLoadingPrimary(true);
+      try {
+        const response = await fetch("/api/auth/phone/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phoneNumber }),
+        });
+
+        const data = (await response.json()) as PhoneCheckResponse;
+        if (!response.ok) {
+          setError(data.error || "Không thể kiểm tra số điện thoại.");
+          return;
+        }
+
+        if (!data.exists) {
+          setError("Số điện thoại chưa được đăng ký.");
+          return;
+        }
+
+        if (!data.canLogin) {
+          setError("Tài khoản chưa được kích hoạt.");
+          return;
+        }
+      } catch (requestError) {
+        setError(
+          requestError instanceof Error
+            ? requestError.message
+            : "Không thể kiểm tra số điện thoại.",
+        );
+        return;
+      } finally {
+        setLoadingPrimary(false);
+      }
     }
 
     setCredentialStep("password");
@@ -317,7 +374,7 @@ export default function LoginPage() {
     event.preventDefault();
 
     if (credentialStep === "phone") {
-      handleContinueAfterPhone();
+      await handleContinueAfterPhone();
       return;
     }
 
@@ -407,18 +464,20 @@ export default function LoginPage() {
             <div className="relative z-10 flex items-center gap-3">
               <Smartphone className="size-6 text-heritage-gold" />
               <h3 className="text-md font-bold tracking-wide text-heritage-gold uppercase">
-                Đăng nhập bằng số điện thoại
+                {modeHeaderTitles[mode]}
               </h3>
             </div>
           </div>
 
-          <div className="border border-heritage-gold/10 bg-white p-5 sm:p-8">
-            {/* <div className="mb-5 rounded-lg bg-rice-paper p-3.5">
+         <div className="border border-heritage-gold/10 bg-white p-5 sm:p-8">
+             {mode == "register" && <div className="mb-5 rounded-lg border border-heritage-gold/20 bg-rice-paper p-3.5">
               <h4 className="text-sm font-bold tracking-wide text-heritage-red uppercase">
-                {modeTitles[mode]}
+                {modeLabels[mode]} 
               </h4>
-              <p className="mt-1 text-xs text-altar-wood/70">{modeDescriptions[mode]}</p>
-            </div> */}
+              <p className="mt-1 text-xs leading-relaxed text-altar-wood/70">
+                {modeDescriptions[mode]}
+              </p>
+            </div>}
 
             {step === "credentials" && (
               <form className="space-y-5" onSubmit={(event) => void handlePrimarySubmit(event)}>

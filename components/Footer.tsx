@@ -119,13 +119,13 @@ export default function Footer({
               <li className="flex items-start gap-3">
                 <MapPin className="size-5 text-heritage-gold shrink-0 mt-0.5" />
                 <a href="https://maps.app.goo.gl/cbSZAcQNNMurhrHP7" target="_blank" rel="noopener noreferrer" className="hover:text-heritage-gold transition-colors">
-                  Nhà thờ Tộc Phạm Phú, Điện Bàn, Quảng Nam
+                  Nhà thờ Tộc Phạm Phú, 118  đường ĐH10, Thôn Tân Bình 3, Xã Gò Nổi, TP. Đà Nẵng
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="size-5 text-heritage-gold shrink-0 mt-0.5" />
                 <a href="https://maps.app.goo.gl/8Ai11bi5bsHRvero9" target="_blank" rel="noopener noreferrer" className="hover:text-heritage-gold transition-colors">
-                  Nhà thờ Tộc Phạm Phú, Thủ Đức, TP. Hồ Chí Minh
+                  Nhà thờ Tộc Phạm Phú, Hẻm 389 Hiệp Bình Phước, Hiệp Bình, Thủ Đức, TP. Hồ Chí Minh
                 </a>
               </li>
               {/* <li className="flex items-center gap-3">

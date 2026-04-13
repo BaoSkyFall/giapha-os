@@ -21,7 +21,7 @@ const navLinks: NavLink[] = [
     { label: "Gia phả", href: "/dashboard/members" },
     { label: "Tin tức", href: "/blog" },
     { label: "Thư viện", href: "/gallery" },
-    { label: "Sự kiện", href: "/dashboard/events", authOnly: true },
+    { label: "Sự kiện", href: "/events" },
     { label: "Tra cứu", href: "/dashboard/kinship", authOnly: true },
     // { label: "Dòng dõi", href: "/dashboard/lineage", authOnly: true },
 ];
@@ -91,7 +91,7 @@ export default function Header({ siteName = "Tộc Phạm Phú" }: HeaderProps) 
                             href="/login"
                             className="hidden sm:inline-flex bg-heritage-gold text-heritage-red hover:bg-heritage-gold-light px-6 py-2 rounded-lg font-bold text-sm transition-all shadow-md"
                         >
-                            Khám phá cây gia phả
+                            Đăng Nhập
                         </Link>
                     )}
                     <button
@@ -131,7 +131,7 @@ export default function Header({ siteName = "Tộc Phạm Phú" }: HeaderProps) 
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="sm:hidden mt-2 bg-heritage-gold text-heritage-red hover:bg-heritage-gold-light px-4 py-2.5 rounded-lg font-bold text-sm text-center transition-all"
                             >
-                                Khám phá cây gia phả
+                                Đăng Nhập
                             </Link>
                         )}
                     </nav>

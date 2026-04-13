@@ -36,6 +36,7 @@ interface EventsListProps {
     is_deceased: boolean;
   }[];
   customEvents?: CustomEventRecord[];
+  allowCustomEventManagement?: boolean;
 }
 
 const DAY_LABELS: Record<number, string> = {
@@ -54,10 +55,12 @@ function EventCard({
   event,
   index,
   onEditCustomEvent,
+  canEditCustomEvent = true,
 }: {
   event: FamilyEvent;
   index: number;
   onEditCustomEvent: (e: FamilyEvent) => void;
+  canEditCustomEvent?: boolean;
 }) {
   const isBirthday = event.type === "birthday";
   const isCustom = event.type === "custom_event";
@@ -66,10 +69,14 @@ function EventCard({
 
   const { setMemberModalId } = useDashboard();
 
+  const canOpenMemberDetail = !isCustom && !!event.personId;
+  const canEditCustom = isCustom && canEditCustomEvent;
+  const canInteract = canOpenMemberDetail || canEditCustom;
+
   const handleClick = () => {
-    if (isCustom) {
+    if (canEditCustom) {
       onEditCustomEvent(event);
-    } else if (event.personId) {
+    } else if (canOpenMemberDetail) {
       setMemberModalId(event.personId);
     }
   };
@@ -79,8 +86,8 @@ function EventCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
-      onClick={handleClick}
-      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border transition-all cursor-pointer hover:shadow-md group ${isToday
+      onClick={canInteract ? handleClick : undefined}
+      className={`w-full text-left flex items-start gap-4 p-4 rounded-2xl border transition-all group ${canInteract ? "cursor-pointer hover:shadow-md" : "cursor-default"} ${isToday
         ? "bg-amber-50 border-amber-300 shadow-sm"
         : isBirthday
           ? "bg-white/80 border-stone-200/60 hover:border-blue-200"
@@ -175,6 +182,7 @@ function EventCard({
 export default function EventsList({
   persons,
   customEvents = [],
+  allowCustomEventManagement = true,
 }: EventsListProps) {
   const router = useRouter();
   const [filter, setFilter] = useState<
@@ -197,6 +205,7 @@ export default function EventsList({
   };
 
   const handleOpenCreateModal = () => {
+    if (!allowCustomEventManagement) return;
     setEditingCustomEvent(null);
     setIsModalOpen(true);
   };
@@ -305,6 +314,7 @@ export default function EventsList({
           </div>
         </div>
 
+        {allowCustomEventManagement ? (
         <button
           onClick={handleOpenCreateModal}
           className="relative z-10 w-full sm:w-auto px-5 py-3 rounded-xl bg-stone-800 text-white font-semibold hover:bg-stone-900 active:scale-95 transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
@@ -312,6 +322,7 @@ export default function EventsList({
           <Plus className="size-5 text-stone-300" />
           <span>Thêm sự kiện</span>
         </button>
+        ) : null}
       </motion.div>
 
       {/* Controls */}
@@ -372,6 +383,7 @@ export default function EventsList({
               event={event}
               index={i}
               onEditCustomEvent={handleOpenEditModal}
+              canEditCustomEvent={allowCustomEventManagement}
             />
           ))}
         </div>
@@ -387,12 +399,14 @@ export default function EventsList({
         </button>
       )}
 
-      <CustomEventModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={handleModalSuccess}
-        eventToEdit={editingCustomEvent}
-      />
+      {allowCustomEventManagement ? (
+        <CustomEventModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSuccess={handleModalSuccess}
+          eventToEdit={editingCustomEvent}
+        />
+      ) : null}
     </div>
   );
 }

@@ -2,13 +2,13 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import LandingHero from "@/components/LandingHero";
 import { computeEvents } from "@/utils/eventHelpers";
-import { getSupabase } from "@/utils/supabase/queries";
+import { createAdminClient } from "@/utils/supabase/admin";
 import config from "./config";
 
 const LANDING_EVENT_LIMIT = 5;
 
 export default async function HomePage() {
-  const supabase = await getSupabase();
+  const supabase = createAdminClient();
 
   const [personsRes, customEventsRes] = await Promise.all([
     supabase
@@ -24,6 +24,7 @@ export default async function HomePage() {
   const persons = personsRes.data ?? [];
   const customEvents = customEventsRes.data ?? [];
   const upcomingEvents = computeEvents(persons, customEvents)
+    .filter((event) => event.daysUntil >= 0)
     .slice(0, LANDING_EVENT_LIMIT)
     .map(({ nextOccurrence, ...rest }) => ({
       ...rest,
