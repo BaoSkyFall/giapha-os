@@ -1,11 +1,13 @@
 "use client";
 
 import { FamilyEvent } from "@/utils/eventHelpers";
-import { AnimatePresence, motion, Variants } from "framer-motion";
-import { useEffect, useState } from "react";
-import { ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Search, TreePine, UserRound } from "lucide-react";
+import { motion, Variants } from "framer-motion";
+import { ArrowRight, CalendarDays, Search, TreePine, UserRound } from "lucide-react";
+import MuxPlayer from "@mux/mux-player-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Instrument_Serif, Manrope } from "next/font/google";
+import type { ComponentProps, ElementType } from "react";
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -26,6 +28,26 @@ const staggerContainer: Variants = {
     },
   },
 };
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
+
+const HERO_PLAYBACK_ID = "02gzwandixH4J534bd00JsCvlFfw6ha101WQ00C9b3sGibM";
+
+const muxBackgroundStyle = {
+  "--controls": "none",
+  "--media-object-fit": "cover",
+  "--media-object-position": "center",
+} satisfies NonNullable<ComponentProps<typeof MuxPlayer>["style"]>;
 
 const features = [
   {
@@ -57,98 +79,6 @@ type SerializedEvent = Omit<FamilyEvent, "nextOccurrence"> & {
   nextOccurrence: string;
 };
 
-// ---------------------------------------------------------------------------
-// Hero image slider (auto-slide + drag, no arrows, no dots)
-// ---------------------------------------------------------------------------
-
-const SLIDES = [
-  { src: "/hero-temple.jpg", alt: "Nhà thờ tộc truyền thống Việt Nam" },
-  { src: "/hero-dinh.jpg",   alt: "Đình làng truyền thống" },
-  { src: "/hero-lotus.jpg",  alt: "Ao sen làng quê Việt Nam" },
-  { src: "/hero-altar.jpg",  alt: "Bàn thờ gia tiên" },
-];
-
-const SLIDE_DURATION = 4000; // ms between auto-advances
-const DRAG_THRESHOLD = 50;   // px to trigger slide on drag
-
-const slideVariants: Variants = {
-  enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
-  center: { x: 0, opacity: 1, transition: { duration: 0.55, ease: "easeOut" } },
-  exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0, transition: { duration: 0.45, ease: "easeIn" } }),
-};
-
-function HeroSlider() {
-  const [[index, dir], setSlide] = useState([0, 1]);
-
-  const paginate = (newDir: number) => {
-    setSlide(([prev]) => [(prev + newDir + SLIDES.length) % SLIDES.length, newDir]);
-  };
-
-  // Auto-advance
-  useEffect(() => {
-    const timer = setInterval(() => paginate(1), SLIDE_DURATION);
-    return () => clearInterval(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [index]);
-
-  return (
-    <motion.div className="flex-1 relative w-full" variants={fadeIn}>
-      {/* Gold corner accents */}
-      <div className="absolute -top-3 -left-3 w-16 h-16 border-l-4 border-t-4 border-heritage-gold/60 rounded-tl-xl pointer-events-none z-20" />
-      <div className="absolute -bottom-3 -right-3 w-16 h-16 border-r-4 border-b-4 border-heritage-gold/60 rounded-br-xl pointer-events-none z-20" />
-
-      <div className="group relative rounded-2xl overflow-hidden shadow-2xl h-[380px] md:h-[460px] cursor-grab active:cursor-grabbing select-none">
-        <AnimatePresence initial={false} custom={dir} mode="popLayout">
-          <motion.div
-            key={index}
-            custom={dir}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.12}
-            onDragEnd={(_, info) => {
-              if (info.offset.x < -DRAG_THRESHOLD) paginate(1);
-              else if (info.offset.x > DRAG_THRESHOLD) paginate(-1);
-            }}
-            className="absolute inset-0 w-full h-full"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={SLIDES[index].src}
-              alt={SLIDES[index].alt}
-              draggable={false}
-              className="w-full h-full object-cover pointer-events-none"
-            />
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Prev arrow */}
-        <button
-          onClick={() => paginate(-1)}
-          className="absolute left-3 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-9 h-9 rounded-full bg-white/60 text-heritage-red backdrop-blur-sm shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-heritage-red hover:text-white"
-          aria-label="Previous image"
-        >
-          <ChevronLeft className="size-5" />
-        </button>
-
-        {/* Next arrow */}
-        <button
-          onClick={() => paginate(1)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 z-30 flex items-center justify-center w-9 h-9 rounded-full bg-white/60 text-heritage-red backdrop-blur-sm shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-heritage-red hover:text-white"
-          aria-label="Next image"
-        >
-          <ChevronRight className="size-5" />
-        </button>
-      </div>
-    </motion.div>
-  );
-}
-
-
-
 interface LandingHeroProps {
   events: SerializedEvent[];
 }
@@ -158,66 +88,44 @@ export default function LandingHero({ events }: LandingHeroProps) {
     <>
       {/* Hero Section */}
       <motion.section
-        className="relative py-16 md:py-24 bg-rice-paper border-b border-heritage-gold/20 overflow-hidden"
+        className="relative h-screen overflow-hidden border-b border-black/10"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
       >
-        <div className="max-w-[1200px] mx-auto px-4 relative z-10">
-          <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
+        <MuxPlayer
+          playbackId={HERO_PLAYBACK_ID}
+          className="absolute inset-0 z-0 h-full w-full object-cover"
+          metadata={{
+            video_title: "Gia pha hero background",
+            viewer_user_id: "public-landing",
+          }}
+          streamType="on-demand"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          style={muxBackgroundStyle}
+        />
 
-            {/* Left: Text */}
-            <div className="flex-1 text-center md:text-left">
-              <motion.p
-                className="text-heritage-gold font-semibold uppercase tracking-widest text-sm mb-3"
-                variants={fadeIn}
-              >
-                Gia Phả Điện Tử · Tộc Phạm Phú
-              </motion.p>
-              <motion.h2
-                className="text-5xl md:text-6xl font-serif font-black text-heritage-red leading-tight mb-6"
-                variants={fadeIn}
-              >
-                Lưu giữ lịch sử –<br />
-                Kết nối hậu duệ
-              </motion.h2>
-              <motion.p
-                className="text-lg text-altar-wood/70 max-w-xl mb-10 leading-relaxed font-light"
-                variants={fadeIn}
-              >
-                Khám phá cội nguồn và kết nối các thế hệ trong dòng họ qua nền
-                tảng gia phả trực tuyến hiện đại nhưng đậm chất truyền thống.
-              </motion.p>
-              <motion.div
-                className="flex flex-wrap justify-center md:justify-start gap-4"
-                variants={fadeIn}
-              >
-                <Link
-                  href="/login"
-                  className="bg-heritage-red text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-heritage-red-dark transition-all shadow-xl flex items-center gap-2 hover:-translate-y-0.5"
-                >
-                  <TreePine className="size-5" />
-                  Xem cây gia phả
-                </Link>
-                <button className="border-2 border-heritage-red text-heritage-red px-8 py-4 rounded-lg font-bold text-lg hover:bg-heritage-red hover:text-white transition-all hover:-translate-y-0.5">
-                  Thêm thành viên
-                </button>
-              </motion.div>
-              <motion.p
-                className="mt-8 text-altar-wood/40 italic text-sm"
-                variants={fadeIn}
-              >
-                "Cây có cội, nước có nguồn. Chim có tổ, người có tông."
-              </motion.p>
-            </div>
+        <div className="absolute left-1/2 top-[calc(50%-136.5px)] z-10 w-full max-w-[984px] -translate-x-1/2 -translate-y-1/2 px-6">
+          <motion.div className="mx-auto w-full text-center" variants={fadeIn}>
+            <h1
+              className={`${instrumentSerif.className} mx-auto mt-5 max-w-[860px] text-[30px] leading-[1.25] text-[#212121] opacity-90 md:text-[38px] md:leading-[1.2] lg:text-[52px] lg:leading-[1.15]`}
+              style={{ fontFamily: `'SF Pro Display', ${instrumentSerif.style.fontFamily}` }}
+            >
+              Cây có gốc mới nở cành xanh ngọn <br/> Nước có nguồn mới bể rộng sông sâu.
+            </h1>
 
-            {/* Right: Temple Image */}
-            <HeroSlider />
-
-          </div>
+            <p
+              className={`${manrope.className} mx-auto mt-6 max-w-[510px] bg-linear-to-r from-[rgba(37,44,50,0.7)] to-[rgba(55,65,74,0.7)] bg-clip-text text-[18px] font-normal tracking-[-0.4px] text-transparent opacity-70 md:mt-8 md:text-[20px]`}
+            >
+              {"Gìn giữ cội nguồn, nối bước cha ông, phát huy giá trị di sản văn hóa dòng họ trong thời đại số."}
+            </p>
+          </motion.div>
         </div>
       </motion.section>
-
       {/* Features Section */}
       <motion.section
         className="py-20 bg-white"
@@ -276,7 +184,7 @@ export default function LandingHero({ events }: LandingHeroProps) {
           </motion.div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {ancestors.map((ancestor, idx) => {
-              const CardWrapper = ancestor.slug ? Link : "div";
+              const CardWrapper: ElementType = ancestor.slug ? Link : "div";
               const cardProps = ancestor.slug
                 ? { href: `/blog/${ancestor.slug}` }
                 : {};
@@ -288,7 +196,7 @@ export default function LandingHero({ events }: LandingHeroProps) {
                   className="group cursor-pointer"
                 >
                   <CardWrapper
-                    {...(cardProps as any)}
+                    {...cardProps}
                     className="block bg-white p-4 rounded-lg shadow-sm border border-heritage-gold/10 hover:shadow-md transition-all h-full"
                   >
                     <div className="aspect-[3/4] rounded-md mb-4 bg-gradient-to-br from-heritage-red/5 to-heritage-gold/10 overflow-hidden relative flex items-center justify-center">
@@ -388,3 +296,4 @@ export default function LandingHero({ events }: LandingHeroProps) {
     </>
   );
 }
+
