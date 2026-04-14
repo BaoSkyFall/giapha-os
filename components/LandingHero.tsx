@@ -6,7 +6,7 @@ import { ArrowRight, CalendarDays, Search, TreePine, UserRound } from "lucide-re
 import MuxPlayer from "@mux/mux-player-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Instrument_Serif, Manrope } from "next/font/google";
+import { Manrope, Playfair_Display } from "next/font/google";
 import type { ComponentProps, ElementType } from "react";
 
 const fadeIn: Variants = {
@@ -28,10 +28,9 @@ const staggerContainer: Variants = {
     },
   },
 };
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
+const playfairVietnamese = Playfair_Display({
+  subsets: ["latin", "vietnamese"],
   weight: ["400"],
-  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -112,8 +111,7 @@ export default function LandingHero({ events }: LandingHeroProps) {
         <div className="absolute left-1/2 top-[calc(50%-136.5px)] z-10 w-full max-w-[984px] -translate-x-1/2 -translate-y-1/2 px-6">
           <motion.div className="mx-auto w-full text-center" variants={fadeIn}>
             <h1
-              className={`${instrumentSerif.className} mx-auto mt-5 max-w-[860px] text-[30px] leading-[1.25] text-[#212121] opacity-90 md:text-[38px] md:leading-[1.2] lg:text-[52px] lg:leading-[1.15]`}
-              style={{ fontFamily: `'SF Pro Display', ${instrumentSerif.style.fontFamily}` }}
+              className={`${playfairVietnamese.className} mx-auto mt-5 max-w-[860px] text-[27px] leading-[1.25] text-[#212121] opacity-90 md:text-[34px] md:leading-[1.2] lg:text-[47px] lg:leading-[1.15]`}
             >
               Cây có gốc mới nở cành xanh ngọn <br/> Nước có nguồn mới bể rộng sông sâu.
             </h1>
