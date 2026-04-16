@@ -305,7 +305,7 @@ export default function AboutPage() {
                     Quyền của bạn:
                   </strong>{" "}
                   Bạn có quyền yêu cầu xem, chỉnh sửa hoặc xóa thông tin cá
-                  nhân của mình bằng cách liên hệ <a class="text-heritage-gold font-bold" href="https://www.facebook.com/pham.bao.173130/" target="_blank">Quản trị viên hệ thống</a>.
+                  nhân của mình bằng cách liên hệ <a className="text-heritage-gold font-bold" href="https://www.facebook.com/pham.bao.173130/" target="_blank">Quản trị viên hệ thống</a>.
                 </li>
               </ul>
             </div>

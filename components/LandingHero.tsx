@@ -78,11 +78,34 @@ type SerializedEvent = Omit<FamilyEvent, "nextOccurrence"> & {
   nextOccurrence: string;
 };
 
-interface LandingHeroProps {
-  events: SerializedEvent[];
+interface LandingHighlightedPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  coverImageUrl: string | null;
+  publishedAt: string | null;
+  isFeatured: boolean;
 }
 
-export default function LandingHero({ events }: LandingHeroProps) {
+interface LandingHeroProps {
+  events: SerializedEvent[];
+  highlightedPosts: LandingHighlightedPost[];
+}
+
+function formatPublishDate(value: string | null) {
+  if (!value) return "Chưa rõ ngày đăng";
+  return new Date(value).toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+export default function LandingHero({
+  events,
+  highlightedPosts,
+}: LandingHeroProps) {
   return (
     <>
       {/* Hero Section */}
@@ -225,6 +248,102 @@ export default function LandingHero({ events }: LandingHeroProps) {
               );
             })}
           </div>
+        </div>
+      </motion.section>
+
+      {/* Highlighted Blog Posts */}
+      <motion.section
+        className="py-20 bg-rice-paper"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={staggerContainer}
+      >
+        <div className="max-w-[1200px] mx-auto px-4">
+          <motion.div
+            className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+            variants={fadeIn}
+          >
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-heritage-red border-b-2 border-heritage-gold pb-2">
+              Bài Viết Nổi Bật
+            </h2>
+            <Link
+              className="self-start text-heritage-red font-semibold flex items-center gap-1 hover:underline sm:self-auto"
+              href="/blog"
+            >
+              Xem danh sách bài viết <ArrowRight className="size-4" />
+            </Link>
+          </motion.div>
+
+          {highlightedPosts.length === 0 ? (
+            <motion.div
+              variants={fadeIn}
+              className="rounded-2xl border border-heritage-gold/20 bg-white p-8 text-center"
+            >
+              <p className="text-altar-wood/60">
+                Chưa có bài viết đã xuất bản.
+              </p>
+              <Link
+                href="/blog"
+                className="mt-4 inline-flex items-center gap-1 text-heritage-red font-semibold hover:underline"
+              >
+                Xem trang tin tức <ArrowRight className="size-4" />
+              </Link>
+            </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {highlightedPosts.map((post, idx) => (
+                <motion.div
+                  key={post.id}
+                  variants={fadeIn}
+                  transition={{ delay: idx * 0.05 }}
+                  whileHover={{ y: -4, transition: { duration: 0.25 } }}
+                >
+                  <Link
+                    href={`/blog/${post.slug}`}
+                    className="block h-full rounded-xl bg-white border border-heritage-gold/15 shadow-sm hover:shadow-md transition-all overflow-hidden group"
+                  >
+                    <div className="relative aspect-[4/3] bg-gradient-to-br from-heritage-red/5 to-heritage-gold/10 overflow-hidden">
+                      {post.coverImageUrl ? (
+                        <Image
+                          src={post.coverImageUrl}
+                          alt={post.title}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          sizes="(max-width: 1024px) 50vw, 25vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <CalendarDays className="size-10 text-heritage-red/20" />
+                        </div>
+                      )}
+
+                      {post.isFeatured && (
+                        <span className="absolute top-3 left-3 px-2 py-1 rounded-md text-[11px] font-bold uppercase tracking-wide bg-heritage-red text-white">
+                          Nổi bật
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="p-4 flex flex-col min-h-[180px]">
+                      <p className="text-[11px] uppercase tracking-wider text-altar-wood/45 font-semibold">
+                        {formatPublishDate(post.publishedAt)}
+                      </p>
+                      <h3 className="mt-2 font-serif font-bold text-lg leading-tight text-altar-wood line-clamp-2 break-words">
+                        {post.title}
+                      </h3>
+                      <p className="mt-2 text-sm text-altar-wood/60 line-clamp-3 break-words">
+                        {post.excerpt || "Xem chi tiết bài viết để đọc đầy đủ nội dung."}
+                      </p>
+                      <span className="mt-auto pt-3 text-heritage-red text-sm font-semibold inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+                        Đọc bài viết <ArrowRight className="size-4" />
+                      </span>
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </motion.section>
 

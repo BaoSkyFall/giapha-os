@@ -68,6 +68,9 @@ export default function BlogEditorContent({
     const [status, setStatus] = useState<"draft" | "published">(
         (post?.status as "draft" | "published") || "draft"
     );
+    const [isFeatured, setIsFeatured] = useState<boolean>(
+        post?.is_featured ?? false
+    );
 
     const [isSaving, setIsSaving] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -156,6 +159,7 @@ export default function BlogEditorContent({
                     content,
                     excerpt,
                     cover_image_url: coverImageUrl || null,
+                    is_featured: isFeatured,
                     status: publishStatus,
                     author_id: authorId,
                 },
@@ -456,6 +460,17 @@ export default function BlogEditorContent({
                             <option value="draft">Bản nháp</option>
                             <option value="published">Đã xuất bản</option>
                         </select>
+                        <label className="mt-4 flex items-start gap-3 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={isFeatured}
+                                onChange={(e) => setIsFeatured(e.target.checked)}
+                                className="mt-0.5 rounded text-heritage-red focus:ring-heritage-red border-heritage-gold/30"
+                            />
+                            <span className="text-sm text-altar-wood/70">
+                                Đánh dấu là bài viết nổi bật
+                            </span>
+                        </label>
                     </div>
 
                     {/* Categories */}
