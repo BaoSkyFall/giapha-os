@@ -282,14 +282,14 @@ export default function AboutPage() {
                   <strong className="text-altar-wood">
                     lưu trữ an toàn trên hệ thống đám mây
                   </strong>{" "}
-                  với mã hóa tiêu chuẩn công nghiệp.
+                  với mã hóa tiêu chuẩn an toàn thông tin.
                 </li>
                 <li>
                   <strong className="text-altar-wood">
                     Quyền truy cập hạn chế:
                   </strong>{" "}
                   Chỉ những thành viên được Quản trị viên dòng họ phê duyệt mới
-                  có thể xem và chỉnh sửa thông tin gia phả. Người ngoài không
+                  có thể xem và yêu cầu chỉnh sửa thông tin gia phả. Người ngoài không
                   thể truy cập dữ liệu của dòng họ.
                 </li>
                 <li>
@@ -305,7 +305,7 @@ export default function AboutPage() {
                     Quyền của bạn:
                   </strong>{" "}
                   Bạn có quyền yêu cầu xem, chỉnh sửa hoặc xóa thông tin cá
-                  nhân của mình bằng cách liên hệ Quản trị viên hệ thống.
+                  nhân của mình bằng cách liên hệ <a class="text-heritage-gold font-bold" href="https://www.facebook.com/pham.bao.173130/" target="_blank">Quản trị viên hệ thống</a>.
                 </li>
               </ul>
             </div>
