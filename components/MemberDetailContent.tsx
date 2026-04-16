@@ -2,7 +2,7 @@
 
 import DefaultAvatar from "@/components/DefaultAvatar";
 import RelationshipManager from "@/components/RelationshipManager";
-import { Person } from "@/types";
+import { Person, Profile } from "@/types";
 import {
   calculateAge,
   formatDisplayDate,
@@ -30,6 +30,7 @@ interface MemberDetailContentProps {
   privateData: Record<string, unknown> | null;
   isAdmin: boolean;
   canEdit?: boolean;
+  currentUserRole?: Profile["role"] | null;
 }
 
 export default function MemberDetailContent({
@@ -37,6 +38,7 @@ export default function MemberDetailContent({
   privateData,
   isAdmin,
   canEdit = false,
+  currentUserRole = null,
 }: MemberDetailContentProps) {
   const [isNoteExpanded, setIsNoteExpanded] = useState(false);
   const fullPerson = { ...person, ...privateData };
@@ -44,6 +46,7 @@ export default function MemberDetailContent({
   const notePlainText = note.replace(/<[^>]*>/g, "");
   const isNoteLong = notePlainText.length > 300;
   const isFamous = isHallOfFame(person.id);
+  const shouldHideRightSidebar = currentUserRole === "user";
 
   const isDeceased =
     !!person.death_year || !!person.death_month || !!person.death_day;
@@ -423,6 +426,7 @@ export default function MemberDetailContent({
           </div>
 
           {/* Sidebar / Private Info */}
+          {!shouldHideRightSidebar && (
           <div className="space-y-6">
             <motion.div variants={itemVariants}>
               {isAdmin ? (
@@ -482,6 +486,7 @@ export default function MemberDetailContent({
               )}
             </motion.div>
           </div>
+          )}
         </div>
       </div>
     </motion.div>

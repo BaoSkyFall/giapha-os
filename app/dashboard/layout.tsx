@@ -20,7 +20,7 @@ export default async function DashboardLayout({
   }
 
   const profile = await getProfile(user.id);
-  const shouldShowSidebar = profile?.role !== "user";
+  const shouldShowSidebar = profile?.role === "admin";
 
   if (!profile?.is_active) {
     return (

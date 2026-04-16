@@ -102,6 +102,7 @@ export default function LoginPage() {
   const [loadingSecondary, setLoadingSecondary] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
+  const [showLoginRedirectScreen, setShowLoginRedirectScreen] = useState(false);
   const [passwordFieldError, setPasswordFieldError] = useState(false);
 
   const passwordLastAutoSubmittedRef = useRef("");
@@ -167,6 +168,7 @@ export default function LoginPage() {
 
   const switchMode = (nextMode: AuthMode) => {
     setMode(nextMode);
+    setShowLoginRedirectScreen(false);
     setPassword("");
     setConfirmPassword("");
     setPasswordFieldError(false);
@@ -196,8 +198,11 @@ export default function LoginPage() {
       throw new Error(sessionError.message);
     }
 
-    setInfo("Đăng nhập thành công. Đang chuyển hướng...");
-    router.push("/dashboard");
+    setShowLoginRedirectScreen(true);
+    setError(null);
+    setInfo(null);
+    await new Promise((resolve) => window.setTimeout(resolve, 700));
+    router.replace("/dashboard");
     router.refresh();
   };
 
@@ -479,6 +484,15 @@ export default function LoginPage() {
               </p>
             </div>}
 
+            {showLoginRedirectScreen ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+                <div className="size-10 border-4 border-heritage-red border-t-transparent rounded-full animate-spin" />
+                <p className="text-sm font-semibold tracking-wide text-heritage-red">
+                  Login sucessfull, Redirecting ...
+                </p>
+              </div>
+            ) : (
+              <>
             {step === "credentials" && (
               <form className="space-y-5" onSubmit={(event) => void handlePrimarySubmit(event)}>
                 <AnimatePresence initial={false} mode="wait">
@@ -780,6 +794,8 @@ export default function LoginPage() {
                 </motion.div>
               )}
             </AnimatePresence>
+              </>
+            )}
           </div>
         </motion.div>
       </div>

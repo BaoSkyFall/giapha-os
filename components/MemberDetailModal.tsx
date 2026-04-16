@@ -19,7 +19,7 @@ export default function MemberDetailModal() {
     showCreateMember,
     setShowCreateMember,
   } = useDashboard();
-  const { isAdmin, isEditor: canEdit, supabase } = useUser();
+  const { isAdmin, isEditor: canEdit, profile, supabase } = useUser();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -272,6 +272,7 @@ export default function MemberDetailModal() {
                   privateData={privateData}
                   isAdmin={isAdmin}
                   canEdit={canEdit}
+                  currentUserRole={profile?.role}
                 />
               </div>
             ) : null}

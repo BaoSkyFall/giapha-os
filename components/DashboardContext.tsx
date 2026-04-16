@@ -1,7 +1,7 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { createContext, useContext, useEffect, useState, useTransition } from "react";
 import { ViewMode } from "./ViewToggle";
 
 interface DashboardState {
@@ -13,6 +13,7 @@ interface DashboardState {
   setShowAvatar: (show: boolean) => void;
   view: ViewMode;
   setView: (view: ViewMode) => void;
+  isViewLoading: boolean;
   rootId: string | null;
   setRootId: (id: string | null) => void;
 }
@@ -23,14 +24,15 @@ export const DashboardContext = createContext<DashboardState | undefined>(
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const [memberModalId, setMemberModalId] = useState<string | null>(null);
   const [showCreateMember, setShowCreateMember] = useState(false);
   const [showAvatar, setShowAvatar] = useState<boolean>(true);
   const [view, setViewState] = useState<ViewMode>("list");
+  const [isViewLoading, startViewTransition] = useTransition();
   const [rootId, setRootIdState] = useState<string | null>(null);
 
-  // Initialize from URL once on mount (or when searchParams actually change from server init)
-  // We use a ref or just simple effect
   useEffect(() => {
     const avatarParam = searchParams.get("avatar");
     setShowAvatar(avatarParam !== "hide");
@@ -86,17 +88,22 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const setView = (v: ViewMode) => {
     setViewState(v);
     // Auto-set default rootId when switching to tree/mindmap if none is set
+    const nextRootId =
+      (v === "tree" || v === "mindmap") && !rootId ? DEFAULT_ROOT_ID : rootId;
     if ((v === "tree" || v === "mindmap") && !rootId) {
-      setRootId(DEFAULT_ROOT_ID);
+      setRootIdState(DEFAULT_ROOT_ID);
     }
-    if (typeof window !== "undefined") {
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set("view", v);
-      if ((v === "tree" || v === "mindmap") && !rootId) {
-        newUrl.searchParams.set("rootId", DEFAULT_ROOT_ID);
-      }
-      window.history.replaceState(null, "", newUrl.toString());
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("view", v);
+    if ((v === "tree" || v === "mindmap") && nextRootId) {
+      params.set("rootId", nextRootId);
     }
+
+    const query = params.toString();
+    startViewTransition(() => {
+      router.push(query ? `${pathname}?${query}` : pathname);
+    });
   };
 
   const setRootId = (id: string | null) => {
@@ -123,6 +130,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         setShowAvatar: updateAvatar,
         view,
         setView,
+        isViewLoading,
         rootId,
         setRootId,
       }}
@@ -146,6 +154,7 @@ export function useDashboard(): DashboardState {
       setShowAvatar: () => {},
       view: "list",
       setView: () => {},
+      isViewLoading: false,
       rootId: null,
       setRootId: () => {},
     };

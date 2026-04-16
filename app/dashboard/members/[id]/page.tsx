@@ -85,6 +85,7 @@ export default async function MemberDetailPage({ params }: PageProps) {
             privateData={privateData}
             isAdmin={isAdmin}
             canEdit={canEdit}
+            currentUserRole={profile?.role}
           />
         </div>
       </main>
