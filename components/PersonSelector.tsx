@@ -1,6 +1,7 @@
 "use client";
 
 import { Person } from "@/types";
+import { matchesSearchQuery } from "@/utils/textSearch";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDown, Database, Search } from "lucide-react";
 import Image from "next/image";
@@ -46,12 +47,9 @@ export default function PersonSelector({
 
   const currentPerson = persons.find((p) => p.id === selectedId);
 
-  const filteredPersons = persons
-    .filter((p) => {
-      const searchStr = `${p.full_name} ${p.birth_year || ""}`.toLowerCase();
-      return searchStr.includes(searchTerm.toLowerCase());
-    })
-    .slice(0, 20);
+  const filteredPersons = persons.filter((p) =>
+    matchesSearchQuery([p.full_name, p.birth_year, p.generation], searchTerm),
+  );
 
   const handleSelect = (personId: string | null) => {
     onSelect(personId);

@@ -223,7 +223,7 @@ VALUES
 
 -- ============================================================
 -- QUAN HỆ GIA ĐÌNH
--- biological_child: person_a = Bố/Mẹ, person_b = Con
+-- biological_child: person_a = Ba/Mẹ, person_b = Con
 -- marriage: person_a & person_b = Vợ chồng
 -- ============================================================
 

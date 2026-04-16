@@ -119,7 +119,7 @@ export default function LandingHero({ events }: LandingHeroProps) {
             <p
               className={`${manrope.className} mx-auto mt-6 max-w-[510px] bg-linear-to-r from-[rgba(37,44,50,0.7)] to-[rgba(55,65,74,0.7)] bg-clip-text text-[18px] font-normal tracking-[-0.4px] text-transparent opacity-70 md:mt-8 md:text-[20px]`}
             >
-              {"Gìn giữ cội nguồn, nối bước cha ông, phát huy giá trị di sản văn hóa dòng họ trong thời đại số."}
+              {"Gìn giữ cội nguồn, nối bước cha ông, phát huy giá trị di sản văn hóa dòng họ."}
             </p>
           </motion.div>
         </div>
@@ -294,4 +294,3 @@ export default function LandingHero({ events }: LandingHeroProps) {
     </>
   );
 }
-

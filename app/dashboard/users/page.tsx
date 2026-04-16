@@ -21,6 +21,28 @@ export default async function AdminUsersPage() {
   }
 
   const typedUsers = (users as AdminUserData[]) || [];
+  const userIds = typedUsers.map((user) => user.id);
+
+  const { data: userProfiles } =
+    userIds.length > 0
+      ? await supabase
+          .from("profiles")
+          .select("id, full_name, phone_number")
+          .in("id", userIds)
+      : { data: [] as Array<{ id: string; full_name: string | null; phone_number: string | null }> };
+
+  const profileMap = new Map(
+    (userProfiles ?? []).map((profile) => [profile.id, profile]),
+  );
+
+  const mergedUsers: AdminUserData[] = typedUsers.map((user) => {
+    const profileData = profileMap.get(user.id);
+    return {
+      ...user,
+      full_name: profileData?.full_name ?? null,
+      phone_number: profileData?.phone_number ?? null,
+    };
+  });
 
   return (
     <main className="flex-1 overflow-auto bg-stone-50/50 flex flex-col pt-8 relative w-full">
@@ -37,7 +59,7 @@ export default async function AdminUsersPage() {
             </p>
           </div>
         </div>
-        <AdminUserList initialUsers={typedUsers} currentUserId={profile.id} />
+        <AdminUserList initialUsers={mergedUsers} currentUserId={profile.id} />
       </div>
     </main>
   );

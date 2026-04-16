@@ -1,5 +1,9 @@
 import { createAdminClient } from "@/utils/supabase/admin";
 import { createClient } from "@/utils/supabase/server";
+import {
+  isAllowedBranch,
+  isAllowedGeneration,
+} from "@/utils/auth/profile";
 import { randomUUID } from "crypto";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -96,9 +100,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!Number.isInteger(generation) || (generation || 0) < 1 || (generation || 0) > 30) {
+    if (!isAllowedBranch(branch)) {
       return NextResponse.json(
-        { error: "Doi thu khong hop le (1-30).", traceId },
+        { error: "Nhanh khong hop le.", traceId },
+        { status: 400 },
+      );
+    }
+
+    if (!Number.isInteger(generation) || !isAllowedGeneration(generation || 0)) {
+      return NextResponse.json(
+        { error: "Doi thu khong hop le (1-15).", traceId },
         { status: 400 },
       );
     }

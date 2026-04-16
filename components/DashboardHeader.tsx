@@ -14,7 +14,6 @@ const navLinks = [
   { label: "Giới thiệu", href: "/about" },
   { label: "Gia phả", href: "/dashboard/members" },
   { label: "Tin tức", href: "/blog" },
-  { label: "Thư viện", href: "/gallery" },
   { label: "Sự kiện", href: "/dashboard/events" },
   { label: "Tra cứu", href: "/dashboard/kinship" },
   // { label: "Dòng dõi", href: "/dashboard/lineage" },

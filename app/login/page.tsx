@@ -477,7 +477,7 @@ export default function LoginPage() {
          <div className="border border-heritage-gold/10 bg-white p-5 sm:p-8">
              {mode == "register" && <div className="mb-5 rounded-lg border border-heritage-gold/20 bg-rice-paper p-3.5">
               <h4 className="text-sm font-bold tracking-wide text-heritage-red uppercase">
-                {modeLabels[mode]} 
+                {modeLabels[mode]}
               </h4>
               <p className="mt-1 text-xs leading-relaxed text-altar-wood/70">
                 {modeDescriptions[mode]}
@@ -488,7 +488,7 @@ export default function LoginPage() {
               <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
                 <div className="size-10 border-4 border-heritage-red border-t-transparent rounded-full animate-spin" />
                 <p className="text-sm font-semibold tracking-wide text-heritage-red">
-                  Login sucessfull, Redirecting ...
+                  Đăng nhập thành công, đang chuyển hướng ...
                 </p>
               </div>
             ) : (

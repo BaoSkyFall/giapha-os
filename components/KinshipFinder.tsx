@@ -1,6 +1,7 @@
 "use client";
 
 import { computeKinship } from "@/utils/kinshipHelpers";
+import { matchesSearchQuery } from "@/utils/textSearch";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeftRight,
@@ -69,17 +70,11 @@ function PersonSelector({
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
 
-  const filtered = useMemo(
-    () =>
-      persons
-        .filter(
-          (p) =>
-            p.id !== disabledId &&
-            p.full_name.toLowerCase().includes(search.toLowerCase()),
-        )
-        .slice(0, 20),
-    [persons, disabledId, search],
-  );
+  const filtered = useMemo(() => {
+    return persons.filter((p) =>
+      matchesSearchQuery([p.full_name, p.birth_year, p.generation], search),
+    );
+  }, [persons, search]);
 
   return (
     <div className="w-full flex-1 min-w-0 relative">
@@ -160,22 +155,31 @@ function PersonSelector({
                 />
               </div>
             </div>
-            <div className="max-h-52 overflow-y-auto">
+            <div className="max-h-72 overflow-y-auto">
               {filtered.length === 0 ? (
                 <p className="text-center py-6 text-sm text-stone-400">
                   Không tìm thấy
                 </p>
               ) : (
-                filtered.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => {
-                      onSelect(p);
-                      setOpen(false);
-                      setSearch("");
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-amber-50 transition-colors text-left"
-                  >
+                filtered.map((p) => {
+                  const isDisabled = p.id === disabledId;
+
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        if (isDisabled) return;
+                        onSelect(p);
+                        setOpen(false);
+                        setSearch("");
+                      }}
+                      disabled={isDisabled}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 transition-colors text-left ${
+                        isDisabled
+                          ? "opacity-55 cursor-not-allowed"
+                          : "hover:bg-amber-50"
+                      }`}
+                    >
                     <div className="relative shrink-0">
                       <div
                         className={`size-8 rounded-full flex items-center justify-center text-xs font-bold text-white overflow-hidden ring-1 ring-white shadow-xs
@@ -218,8 +222,14 @@ function PersonSelector({
                         Đ.{p.generation}
                       </span>
                     )}
-                  </button>
-                ))
+                      {isDisabled && (
+                        <span className="text-[11px] text-stone-400 bg-stone-100 px-1.5 py-0.5 rounded-md shrink-0">
+                          Đang chọn ở bên kia
+                        </span>
+                      )}
+                    </button>
+                  );
+                })
               )}
             </div>
           </motion.div>
@@ -232,9 +242,9 @@ function PersonSelector({
 // ── Kinship reference table data ──────────────────────────────────────────────
 const KINSHIP_TERMS = [
   {
-    relation: "Bố / Mẹ",
+    relation: "Ba / Mẹ",
     desc: "1 bậc trên (dòng trực hệ)",
-    example: "Bố, ba, má...",
+    example: "Ba, ba, má...",
   },
   {
     relation: "Ông / Bà",
@@ -515,7 +525,7 @@ export default function KinshipFinder({ persons, relationships }: Props) {
                   <ul className="space-y-1.5 text-sm text-amber-800">
                     <li className="flex gap-2">
                       <span className="text-amber-400 shrink-0">•</span>
-                      Nhập đầy đủ quan hệ <strong>Bố/Mẹ - Con</strong> và{" "}
+                      Nhập đầy đủ quan hệ <strong>Ba/Mẹ - Con</strong> và{" "}
                       <strong>Kết hôn</strong>.
                     </li>
                     <li className="flex gap-2">

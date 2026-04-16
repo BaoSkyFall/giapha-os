@@ -309,11 +309,40 @@ export default function MemberDetailContent({
 
               {/* Age Card */}
               {(() => {
+                const hasBirthYear = person.birth_year != null;
+                const hasBirthMonth = person.birth_month != null;
+                const hasBirthDay = person.birth_day != null;
+                const hasDeathYear = person.death_year != null;
+                const hasDeathMonth = person.death_month != null;
+                const hasDeathDay = person.death_day != null;
+                const hasOnlyBirthYear =
+                  hasBirthYear && !hasBirthMonth && !hasBirthDay;
+                const hasOnlyDeathYear =
+                  hasDeathYear && !hasDeathMonth && !hasDeathDay;
+                const isApproximateDeceasedAge =
+                  hasOnlyBirthYear && hasOnlyDeathYear;
+
+                if (
+                  hasOnlyBirthYear &&
+                  !hasDeathYear &&
+                  person.birth_year !== null &&
+                  person.birth_year < 1940
+                ) {
+                  return null;
+                }
+
                 const ageData = calculateAge(
                   person.birth_year,
                   person.death_year,
                 );
                 if (!ageData) return null;
+
+                const deceasedAgeLabel = isApproximateDeceasedAge
+                  ? "Hưởng dương"
+                  : ageData.age >= 60
+                    ? "Hưởng thọ"
+                    : "Hưởng dương";
+
                 return (
                   <motion.div
                     variants={itemVariants}
@@ -325,11 +354,7 @@ export default function MemberDetailContent({
                         className={`size-2 rounded-full ${ageData.isDeceased ? "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]" : "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]"}`}
                       ></span>
                       <p className="text-[11px] font-bold text-amber-800/60 uppercase tracking-widest">
-                        {ageData.isDeceased
-                          ? ageData.age >= 60
-                            ? "Hưởng thọ"
-                            : "Hưởng dương"
-                          : "Tuổi"}
+                        {ageData.isDeceased ? deceasedAgeLabel : "Tuổi"}
                       </p>
                     </div>
                     <div className="pl-4 relative z-10">

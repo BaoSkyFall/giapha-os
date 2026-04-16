@@ -54,18 +54,6 @@ function compareSeniority(
 
 // ── Vietnamese Terminology Constants ──────────────────────────────────────
 
-const ANCESTORS = [
-  "",
-  "Bố/Mẹ",
-  "Ông/Bà",
-  "Cụ",
-  "Kỵ",
-  "Sơ",
-  "Tiệm",
-  "Tiểu",
-  "Di",
-  "Diễn",
-];
 const DESCENDANTS = [
   "",
   "Con",
@@ -91,12 +79,12 @@ function getDirectAncestorTerm(
     const base = gender === "female" ? "Bà" : "Ông";
     return `${base} ${isPaternal ? "nội" : "ngoại"}`;
   }
-  const title = ANCESTORS[depth] || `Tổ đời ${depth}`;
   if (depth === 3) {
-    const base = gender === "female" ? "Cụ bà" : "Cụ ông";
+    const base = gender === "female" ? "Bà cố" : "Ông cố";
     return `${base} ${isPaternal ? "nội" : "ngoại"}`;
   }
-  return title;
+  const base = gender === "female" ? "Bà Tổ" : "Ông Tổ";
+  return `${base} ${isPaternal ? "nội" : "ngoại"}`;
 }
 
 /**
@@ -203,8 +191,7 @@ function resolveBloodTerms(
     // Nếu cách nhiều đời (ví dụ B là anh của ông nội)
     let prefix = "";
     if (depthA === 3) prefix = genderB === "female" ? "Bà " : "Ông ";
-    else if (depthA === 4) prefix = genderB === "female" ? "Cụ bà " : "Cụ ông ";
-    else if (depthA > 4) prefix = ANCESTORS[depthA - 1] + " ";
+    else if (depthA >= 4) prefix = genderB === "female" ? "Bà Tổ " : "Ông Tổ ";
 
     return [
       (prefix + termForB).trim(),

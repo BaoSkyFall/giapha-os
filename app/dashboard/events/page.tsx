@@ -1,13 +1,15 @@
 import { DashboardProvider } from "@/components/DashboardContext";
 import EventsList from "@/components/EventsList";
 import MemberDetailModal from "@/components/MemberDetailModal";
-import { getSupabase } from "@/utils/supabase/queries";
+import { getProfile, getSupabase } from "@/utils/supabase/queries";
 
 export const metadata = {
   title: "Sự kiện gia phả",
 };
 
 export default async function EventsPage() {
+  const profile = await getProfile();
+  const isAdmin = profile?.role === "admin";
   const supabase = await getSupabase();
 
   const [personsRes, customEventsRes] = await Promise.all([
@@ -30,7 +32,7 @@ export default async function EventsPage() {
         <div className="w-full relative z-20 py-6 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
           <h1 className="title">Sự kiện gia phả</h1>
           <p className="text-stone-500 mt-1 text-sm">
-            Ngày giỗ (âm lịch) và các sự kiện tuỳ chỉnh
+            Ngày giỗ (âm lịch) và các sự kiện tuỳ chỉnh.
           </p>
         </div>
 
@@ -38,11 +40,11 @@ export default async function EventsPage() {
           <EventsList
             persons={persons ?? []}
             customEvents={customEvents ?? []}
+            allowCustomEventManagement={isAdmin}
           />
         </main>
       </div>
 
-      {/* Modal for member details when clicking an event card */}
       <MemberDetailModal />
     </DashboardProvider>
   );

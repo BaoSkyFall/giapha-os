@@ -29,6 +29,8 @@ export interface AdminUserData {
   role: UserRole;
   is_active: boolean;
   created_at: string;
+  full_name?: string | null;
+  phone_number?: string | null;
 }
 
 export interface Person {
@@ -77,6 +79,56 @@ export interface PersonWithDetails extends Person {
   spouses?: Person[];
   children?: Person[];
   parents?: Person[];
+}
+
+export type AdditionalDataRequestStatus = "pending" | "approved" | "rejected";
+export type RelationshipProposalDirection = "parent" | "child" | "spouse";
+
+export interface RelationshipNewTargetProposal {
+  full_name: string;
+  gender: Gender;
+  birth_year: number | null;
+  birth_date_text: string | null;
+  note: string | null;
+  is_in_law: boolean;
+}
+
+export interface RelationshipAdditionProposal {
+  target_person_id: string | null;
+  target_person_name?: string;
+  target_is_new?: boolean;
+  target_new_person?: RelationshipNewTargetProposal | null;
+  direction: RelationshipProposalDirection;
+  relationship_type: RelationshipType;
+  person_a: string | null;
+  person_b: string | null;
+  note: string | null;
+}
+
+export interface AdditionalDataRequestPayload {
+  person_changes: Record<string, unknown>;
+  private_changes: Record<string, unknown>;
+  relationship_additions: RelationshipAdditionProposal[];
+  submitter_note: string | null;
+}
+
+export interface AdditionalDataRequestItem {
+  id: string;
+  person_id: string;
+  person_generation?: number | null;
+  person_branch?: string | null;
+  submitted_by: string;
+  status: AdditionalDataRequestStatus;
+  request_payload: AdditionalDataRequestPayload;
+  before_snapshot: Record<string, unknown>;
+  decision_note: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  person_name: string;
+  submitter_name: string;
+  reviewer_name?: string | null;
 }
 
 // Blog types

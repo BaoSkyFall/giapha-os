@@ -1,16 +1,11 @@
 import CompleteProfileClient from "@/app/complete-profile/CompleteProfileClient";
 import {
-  buildBranchOptions,
-  buildGenerationOptions,
+  FALLBACK_BRANCH_OPTIONS,
+  FALLBACK_GENERATION_OPTIONS,
 } from "@/utils/auth/profile";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-
-type PersonOption = {
-  branch: string | null;
-  generation: number | null;
-};
 
 export default async function CompleteProfilePage() {
   const cookieStore = await cookies();
@@ -36,16 +31,8 @@ export default async function CompleteProfilePage() {
     redirect("/dashboard");
   }
 
-  const { data: persons } = await supabase
-    .from("persons")
-    .select("branch,generation")
-    .limit(3000);
-
-  const options = (persons || []) as PersonOption[];
-  const branchOptions = buildBranchOptions(options.map((item) => item.branch));
-  const generationOptions = buildGenerationOptions(
-    options.map((item) => item.generation),
-  );
+  const branchOptions = FALLBACK_BRANCH_OPTIONS;
+  const generationOptions = FALLBACK_GENERATION_OPTIONS;
 
   return (
     <div className="min-h-screen bg-rice-paper px-4 py-12 md:px-6">

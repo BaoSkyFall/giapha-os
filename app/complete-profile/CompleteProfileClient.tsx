@@ -72,21 +72,10 @@ export default function CompleteProfileClient({
     [branchOptions],
   );
 
-  const normalizedGenerations = useMemo(() => {
-    const baseGenerations = Array.from(new Set(generationOptions)).sort(
-      (a, b) => a - b,
-    );
-    const maxGeneration = baseGenerations[baseGenerations.length - 1] ?? 0;
-
-    const extendedGenerations = [
-      ...baseGenerations,
-      maxGeneration + 1,
-      maxGeneration + 2,
-      maxGeneration + 3,
-    ];
-
-    return Array.from(new Set(extendedGenerations)).sort((a, b) => a - b);
-  }, [generationOptions]);
+  const normalizedGenerations = useMemo(
+    () => Array.from(new Set(generationOptions)).sort((a, b) => a - b),
+    [generationOptions],
+  );
 
   const fieldErrors = useMemo(() => {
     const errors: FieldErrors = {};
@@ -150,7 +139,7 @@ export default function CompleteProfileClient({
       typeof generation !== "number" ||
       !Number.isInteger(generation) ||
       generation < 1 ||
-      generation > 30
+      generation > 15
     ) {
       errors.generation = "Đời thứ phải trong khoảng 1-15.";
     }

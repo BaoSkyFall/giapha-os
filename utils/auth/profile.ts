@@ -6,15 +6,21 @@ type ProfileCompletionShape = {
 };
 
 export const FALLBACK_BRANCH_OPTIONS = [
-  "Chi 1",
-  "Chi 2",
-  "Chi 3",
-  "Chi 4",
-  "Chi 5",
+  "Phái Nhất - Chi Nhất",
+  "Phái Nhất - Chi Hai",
+  "Phái Nhất - Chi Ba",
+  "Phái Nhất - Chi Tư",
+  "Phái Nhất - Chi Năm",
+  "Phái Nhì - Chi Nhất",
+  "Phái Nhì - Chi Hai",
+  "Phái Nhì - Chi Ba",
+  "Phái Nhì - Chi Tư",
+  "Phái Nhì - Chi Năm",
+  "Phái Ba",
 ];
 
 export const FALLBACK_GENERATION_OPTIONS = Array.from(
-  { length: 12 },
+  { length: 15 },
   (_, index) => index + 1,
 );
 
@@ -39,28 +45,21 @@ export const isMemberProfileComplete = (
 };
 
 export const buildBranchOptions = (branches: Array<string | null | undefined>) => {
-  const normalized = branches
-    .map((item) => (typeof item === "string" ? item.trim() : ""))
-    .filter(Boolean);
-
-  const unique = Array.from(new Set(normalized)).sort((a, b) =>
-    a.localeCompare(b, "vi"),
-  );
-
-  if (unique.length > 0) return unique;
+  void branches;
   return FALLBACK_BRANCH_OPTIONS;
 };
 
 export const buildGenerationOptions = (
   generations: Array<number | null | undefined>,
 ) => {
-  const normalized = generations.filter(
-    (value): value is number =>
-      typeof value === "number" && Number.isInteger(value) && value > 0,
-  );
-
-  const unique = Array.from(new Set(normalized)).sort((a, b) => a - b);
-
-  if (unique.length > 0) return unique;
+  void generations;
   return FALLBACK_GENERATION_OPTIONS;
 };
+
+export const isAllowedBranch = (branch: string) =>
+  FALLBACK_BRANCH_OPTIONS.includes(branch);
+
+export const isAllowedGeneration = (generation: number) =>
+  Number.isInteger(generation) &&
+  generation >= 1 &&
+  generation <= FALLBACK_GENERATION_OPTIONS.length;

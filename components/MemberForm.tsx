@@ -1,6 +1,10 @@
 "use client";
 
 import { Gender, Person } from "@/types";
+import {
+  FALLBACK_BRANCH_OPTIONS,
+  FALLBACK_GENERATION_OPTIONS,
+} from "@/utils/auth/profile";
 import { createClient } from "@/utils/supabase/client";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import {
@@ -383,16 +387,20 @@ export default function MemberForm({
             <label className="block text-sm font-semibold text-stone-700 mb-1.5">
               Thuộc đời thứ
             </label>
-            <input
-              type="number"
-              min="1"
-              placeholder="Ví dụ: 1, 2, 3..."
+            <select
               value={generation}
               onChange={(e) =>
                 setGeneration(e.target.value ? Number(e.target.value) : "")
               }
               className={inputClasses}
-            />
+            >
+              <option value="">Chọn đời thứ</option>
+              {FALLBACK_GENERATION_OPTIONS.map((value) => (
+                <option key={value} value={value}>
+                  Đời {value}
+                </option>
+              ))}
+            </select>
             <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
               <span>💡</span> Để trống nếu không rõ
             </p>
@@ -402,13 +410,18 @@ export default function MemberForm({
             <label className="block text-sm font-semibold text-stone-700 mb-1.5">
               Nhánh
             </label>
-            <input
-              type="text"
-              placeholder="VD: Phái Nhất Chi Một, Phái Nhì Chi Bốn..."
+            <select
               value={branch}
               onChange={(e) => setBranch(e.target.value)}
               className={inputClasses}
-            />
+            >
+              <option value="">Chọn nhánh</option>
+              {FALLBACK_BRANCH_OPTIONS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
             <p className="mt-1.5 text-xs text-stone-400 flex items-center gap-1">
               <span>💡</span> Để trống nếu không rõ
             </p>

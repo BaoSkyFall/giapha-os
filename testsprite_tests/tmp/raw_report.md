@@ -114,7 +114,7 @@ ASSERTIONS:
 
 ASSERTIONS:
 - Relationship type 'Anh/Chị/Em' (Sibling) option not found in the 'Loại quan hệ' dropdown on the Add Relationship form.
-- The 'Loại quan hệ' dropdown only presents 'Người này là Con của...', 'Người này là Vợ/Chồng của...', and 'Người này là Bố/Mẹ của...', which map to child/spouse/parent and do not allow adding a sibling relationship.
+- The 'Loại quan hệ' dropdown only presents 'Người này là Con của...', 'Người này là Vợ/Chồng của...', and 'Người này là Ba/Mẹ của...', which map to child/spouse/parent and do not allow adding a sibling relationship.
 - The test cannot proceed to add or verify a sibling relationship because no UI control exists to select 'Anh/Chị/Em'.
 - **Test Visualization and Result:** https://www.testsprite.com/dashboard/mcp/tests/1d066afb-6280-46cd-b141-296972d6e426/8a00af96-d7fd-4915-ba22-e62ea5d04f73
 - **Status:** ❌ Failed

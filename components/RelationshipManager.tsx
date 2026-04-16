@@ -543,7 +543,7 @@ export default function RelationshipManager({
       {["parent", "spouse", "child", "child_in_law"].map((group) => {
         const items = groupByType(group);
         let title = "";
-        if (group === "parent") title = "Bố / Mẹ";
+        if (group === "parent") title = "Ba / Mẹ";
         if (group === "spouse") title = "Vợ / Chồng";
         if (group === "child") title = "Con cái";
         if (group === "child_in_law") title = "Con dâu / Con rể";
@@ -742,7 +742,7 @@ export default function RelationshipManager({
                 >
                   <option value="parent">Người này là Con của...</option>
                   <option value="spouse">Người này là Vợ/Chồng của...</option>
-                  <option value="child">Người này là Bố/Mẹ của...</option>
+                  <option value="child">Người này là Ba/Mẹ của...</option>
                 </select>
               </div>
             </div>

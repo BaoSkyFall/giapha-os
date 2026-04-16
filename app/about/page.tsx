@@ -68,7 +68,7 @@ const timeline = [
   },
   {
     year: "Hiện nay",
-    desc: "Phát triển mạnh mẽ với hơn 5000 thành viên",
+    desc: "Phát triển mạnh mẽ với hơn 4000 thành viên",
     align: "right" as const,
   },
 ];
@@ -199,24 +199,30 @@ export default function AboutPage() {
             className="text-3xl font-serif font-bold text-altar-wood mb-6"
             variants={fadeIn}
           >
-            Lịch sử Dòng họ Quảng Nam
+            Lịch sử Họ Phạm Phú tại Quảng Nam
           </motion.h2>
           <motion.div
             className="text-altar-wood/70 leading-relaxed space-y-4 mb-14"
             variants={fadeIn}
           >
             <p>
-              Khởi nguồn từ vùng đất địa linh nhân kiệt Quảng Nam, Tộc Phạm Phú
-              đã trải qua hàng trăm năm hình thành và phát triển. Từ những bậc
-              tiền nhân đầu tiên khai hoang lập ấp, dòng họ đã sản sinh ra nhiều
-              bậc hiền tài, đóng góp công lao to lớn cho sự nghiệp xây dựng và
-              bảo vệ tổ quốc.
+              Họ Phạm Phú (范富) khởi tiên nhận họ, đời thứ nhất dựng nghiệp tại
+              xã Đông Bàn, huyện Diên Phước, tỉnh Quảng Nam. Nhiều đời nối tiếp,
+              tộc họ trở thành một họ lớn của làng. Đến đời thứ ba, dòng họ bắt
+              đầu phân thành ba phái: Trưởng phái có nhiều người hiển đạt về văn
+              khoa, còn thứ phái có nhiều người nổi bật về võ bị.
             </p>
             <p>
-              Mỗi thế hệ đi qua đều để lại những dấu ấn sâu đậm, từ nếp gia
-              phong hiếu học đến tinh thần đoàn kết, tương thân tương ái. Trang
-              sử này không chỉ là những con số, mà là hơi thở của thời đại, là
-              niềm tự hào của mỗi người con mang dòng máu Phạm Phú.
+              Theo truyền ngôn của người đương thời, Thỉ tổ vốn là người làng Đốc
+              Kỉnh (Kính), huyện Lệ Dương, tỉnh Nghệ An; sau thiên cư đến bổn xã
+              để mở rộng môn tộc. Tổ bổn tính trung hậu, lòng dạ nhân hiền, thường
+              sẻ chia lợi ích và gánh vác khó khăn cùng mọi người, nên được bậc
+              cao niên kính nể, lớp hậu sinh yêu mến.
+            </p>
+            <p>
+              Thỉ tổ sinh hạ ba người con, gồm hai trai và một gái, đều được dạy
+              dỗ nghề nghiệp, nối đời cư trú tại xứ Bàn Sơn. Từ đó con cháu ngày
+              một đông đúc, được người đương thời khen là một thế gia vọng tộc.
             </p>
           </motion.div>
 

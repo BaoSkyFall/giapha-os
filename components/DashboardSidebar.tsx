@@ -1,7 +1,14 @@
 ﻿"use client";
 
 import { useUser } from "@/components/UserProvider";
-import { BarChart3, Database, FileText, Import, Settings } from "lucide-react";
+import {
+  BarChart3,
+  Database,
+  FileText,
+  Import,
+  MessageSquareMore,
+  Settings,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -24,6 +31,12 @@ const adminItems: NavItem[] = [
     href: "/dashboard/users",
     label: "Quản lý người dùng",
     icon: <Settings className="size-5" />,
+  },
+  {
+    key: "additional-data-requests",
+    href: "/dashboard/additional-data-requests",
+    label: "Yêu cầu bổ sung",
+    icon: <MessageSquareMore className="size-5" />,
   },
   {
     key: "stats",

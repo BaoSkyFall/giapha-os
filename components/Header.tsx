@@ -20,7 +20,6 @@ const navLinks: NavLink[] = [
     { label: "Giới thiệu", href: "/about" },
     { label: "Gia phả", href: "/dashboard/members" },
     { label: "Tin tức", href: "/blog" },
-    { label: "Thư viện", href: "/gallery" },
     { label: "Sự kiện", href: "/events" },
     { label: "Tra cứu", href: "/dashboard/kinship", authOnly: true },
     // { label: "Dòng dõi", href: "/dashboard/lineage", authOnly: true },
