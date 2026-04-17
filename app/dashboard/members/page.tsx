@@ -4,6 +4,7 @@ import MemberDetailModal from "@/components/MemberDetailModal";
 import ViewToggle from "@/components/ViewToggle";
 import { Person, Relationship } from "@/types";
 import { getProfile, getSupabase } from "@/utils/supabase/queries";
+import { matchesSearchQuery, normalizeForSearch } from "@/utils/textSearch";
 
 type ViewMode = "list" | "tree" | "mindmap";
 type ListFilterOption =
@@ -105,6 +106,7 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
   const listPage = parsePage(params.listPage);
   const listGeneration = parseGeneration(params.listGeneration);
   const listBranch = params.listBranch?.trim() ?? "";
+  const hasListSearch = normalizeForSearch(listSearch).length > 0;
 
   const profile = await getProfile();
   const canEdit = profile?.role === "admin" || profile?.role === "editor";
@@ -116,11 +118,17 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
   let listTotal = 0;
 
   if (currentView === "list") {
-    let query = supabase.from("persons").select("*", { count: "exact" });
+    type SearchCandidate = Pick<
+      Person,
+      "id" | "full_name" | "birth_year" | "generation"
+    >;
 
-    if (listSearch.length > 0) {
-      query = query.ilike("full_name", `%${listSearch}%`);
-    }
+    let query = hasListSearch
+      ? supabase
+          .from("persons")
+          .select("id, full_name, birth_year, generation")
+      : supabase.from("persons").select("*", { count: "exact" });
+
     if (listGeneration !== null) {
       query = query.eq("generation", listGeneration);
     }
@@ -183,13 +191,66 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
         query = query.order("updated_at", { ascending: false });
         break;
     }
+    query = query.order("id", { ascending: true });
 
     const rangeFrom = (listPage - 1) * MEMBER_LIST_PAGE_SIZE;
     const rangeTo = rangeFrom + MEMBER_LIST_PAGE_SIZE - 1;
-    const { data, count } = await query.range(rangeFrom, rangeTo);
 
-    listPersons = (data as Person[]) ?? [];
-    listTotal = count ?? 0;
+    if (hasListSearch) {
+      const SEARCH_PAGE_SIZE = 1000;
+      const searchCandidates: SearchCandidate[] = [];
+      let searchFrom = 0;
+
+      while (true) {
+        const { data } = await query.range(
+          searchFrom,
+          searchFrom + SEARCH_PAGE_SIZE - 1,
+        );
+        if (!data || data.length === 0) break;
+        searchCandidates.push(...(data as SearchCandidate[]));
+        if (data.length < SEARCH_PAGE_SIZE) break;
+        searchFrom += SEARCH_PAGE_SIZE;
+      }
+
+      const seenIds = new Set<string>();
+      const searchedIds: string[] = [];
+      for (const person of searchCandidates) {
+        if (seenIds.has(person.id)) continue;
+        seenIds.add(person.id);
+
+        if (
+          matchesSearchQuery(
+            [person.full_name, person.birth_year, person.generation],
+            listSearch,
+          )
+        ) {
+          searchedIds.push(person.id);
+        }
+      }
+
+      listTotal = searchedIds.length;
+      const pageIds = searchedIds.slice(rangeFrom, rangeTo + 1);
+
+      if (pageIds.length === 0) {
+        listPersons = [];
+      } else {
+        const { data: pageData } = await supabase
+          .from("persons")
+          .select("*")
+          .in("id", pageIds);
+
+        const pageMap = new Map(
+          ((pageData as Person[]) ?? []).map((person) => [person.id, person]),
+        );
+        listPersons = pageIds
+          .map((id) => pageMap.get(id))
+          .filter((person): person is Person => person !== undefined);
+      }
+    } else {
+      const { data, count } = await query.range(rangeFrom, rangeTo);
+      listPersons = (data as Person[]) ?? [];
+      listTotal = count ?? 0;
+    }
   } else {
     // Paginate to bypass PostgREST max-rows cap (default 1000)
     const PAGE_SIZE = 1000;

@@ -27,9 +27,17 @@ export default async function AdminUsersPage() {
     userIds.length > 0
       ? await supabase
           .from("profiles")
-          .select("id, full_name, phone_number")
+          .select("id, full_name, phone_number, branch, generation")
           .in("id", userIds)
-      : { data: [] as Array<{ id: string; full_name: string | null; phone_number: string | null }> };
+      : {
+          data: [] as Array<{
+            id: string;
+            full_name: string | null;
+            phone_number: string | null;
+            branch: string | null;
+            generation: number | null;
+          }>,
+        };
 
   const profileMap = new Map(
     (userProfiles ?? []).map((profile) => [profile.id, profile]),
@@ -41,6 +49,8 @@ export default async function AdminUsersPage() {
       ...user,
       full_name: profileData?.full_name ?? null,
       phone_number: profileData?.phone_number ?? null,
+      branch: profileData?.branch ?? null,
+      generation: profileData?.generation ?? null,
     };
   });
 

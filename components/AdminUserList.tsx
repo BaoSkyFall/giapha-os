@@ -66,10 +66,14 @@ export default function AdminUserList({
       const fullName = normalizeForSearch(user.full_name ?? "");
       const phone = user.phone_number ?? "";
       const email = normalizeForSearch(user.email ?? "");
+      const branch = normalizeForSearch(user.branch ?? "");
+      const generation = user.generation != null ? String(user.generation) : "";
       const phoneDigits = phone.replace(/\D/g, "");
 
       if (fullName.includes(normalizedQuery)) return true;
       if (email.includes(normalizedQuery)) return true;
+      if (branch.includes(normalizedQuery)) return true;
+      if (generation && generation.includes(queryDigits || query)) return true;
       if (phone.toLowerCase().includes(query.toLowerCase())) return true;
       if (queryDigits && phoneDigits.includes(queryDigits)) return true;
       return false;
@@ -347,6 +351,9 @@ export default function AdminUserList({
                 <th className="px-6 py-4 text-stone-500 font-semibold text-xs">
                   Ngày tạo
                 </th>
+                <th className="px-6 py-4 text-stone-500 font-semibold text-xs">
+                  Nhánh / Đời
+                </th>
                 <th className="px-6 py-4 text-stone-500 font-semibold text-xs text-right">
                   Hành động
                 </th>
@@ -407,11 +414,25 @@ export default function AdminUserList({
                     </span>
                   </td>
                   <td className="px-6 py-4 text-stone-500">
-                    {new Date(user.created_at).toLocaleDateString("vi-VN", {
+                    {`${new Date(user.created_at).toLocaleDateString("vi-VN", {
                       year: "numeric",
                       month: "2-digit",
                       day: "2-digit",
-                    })}
+                    })} ${new Date(user.created_at).toLocaleTimeString("vi-VN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
+                    })}`}
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="text-stone-700">
+                      {user.branch?.trim() || "Chưa cập nhật"}
+                    </p>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      {user.generation != null
+                        ? `Đời thứ ${user.generation}`
+                        : "Chưa cập nhật"}
+                    </p>
                   </td>
                   <td className="px-6 py-4 text-right">
                     {user.id !== currentUserId ? (
@@ -464,7 +485,7 @@ export default function AdminUserList({
               {filteredUsers.length === 0 && (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-6 py-8 text-center text-stone-500"
                   >
                     {searchTerm.trim()
