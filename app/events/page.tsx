@@ -22,7 +22,8 @@ export default async function PublicEventsPage() {
       ),
     supabase
       .from("custom_events")
-      .select("id, name, content, event_date, location, created_by"),
+      .select("id, name, content, event_date, location, created_by, status")
+      .eq("status", "published"),
   ]);
 
   const persons = personsRes.data || [];

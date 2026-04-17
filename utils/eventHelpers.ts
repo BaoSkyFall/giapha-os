@@ -31,6 +31,7 @@ export interface CustomEventRecord {
   event_date: string;
   location: string | null;
   created_by: string | null;
+  status?: "draft" | "published";
 }
 
 /**
@@ -154,6 +155,7 @@ export function computeEvents(
 
   // ── Custom Events (solar) ───────────────────────────────────────
   for (const ce of customEvents) {
+    if (ce.status === "draft") continue;
     if (!ce.event_date) continue;
     const [y, m, d] = ce.event_date.split("-").map(Number);
     if (!y || !m || !d) continue;

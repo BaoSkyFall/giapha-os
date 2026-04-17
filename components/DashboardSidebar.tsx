@@ -3,6 +3,7 @@
 import { useUser } from "@/components/UserProvider";
 import {
   BarChart3,
+  CalendarDays,
   Database,
   FileText,
   Import,
@@ -37,6 +38,12 @@ const adminItems: NavItem[] = [
     href: "/dashboard/additional-data-requests",
     label: "Yêu cầu bổ sung",
     icon: <MessageSquareMore className="size-5" />,
+  },
+  {
+    key: "events-manage",
+    href: "/dashboard/events/manage",
+    label: "Quản lý sự kiện",
+    icon: <CalendarDays className="size-5" />,
   },
   {
     key: "stats",

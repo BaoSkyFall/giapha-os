@@ -187,11 +187,21 @@ CREATE TABLE IF NOT EXISTS public.custom_events (
   content TEXT,
   event_date DATE NOT NULL,
   location TEXT,
+  status TEXT NOT NULL DEFAULT 'published' CHECK (status IN ('draft', 'published')),
   created_by UUID REFERENCES public.profiles(id) DEFAULT auth.uid(),
   
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE public.custom_events
+  ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'published';
+
+ALTER TABLE public.custom_events
+  DROP CONSTRAINT IF EXISTS custom_events_status_check;
+
+ALTER TABLE public.custom_events
+  ADD CONSTRAINT custom_events_status_check CHECK (status IN ('draft', 'published'));
 
 -- ==========================================
 -- INDEXES
@@ -222,6 +232,7 @@ CREATE INDEX IF NOT EXISTS idx_phone_otp_requests_provider_request_id ON public.
 -- Custom events lookups
 CREATE INDEX IF NOT EXISTS idx_custom_events_date ON public.custom_events(event_date);
 CREATE INDEX IF NOT EXISTS idx_custom_events_created_by ON public.custom_events(created_by);
+CREATE INDEX IF NOT EXISTS idx_custom_events_status ON public.custom_events(status);
 
 -- ==========================================
 -- RLS POLICIES
@@ -291,13 +302,24 @@ DROP POLICY IF EXISTS "Enable read access for authenticated users" ON public.cus
 CREATE POLICY "Enable read access for authenticated users" ON public.custom_events FOR SELECT TO authenticated USING (true);
 
 DROP POLICY IF EXISTS "Authenticated users can insert custom events" ON public.custom_events;
-CREATE POLICY "Authenticated users can insert custom events" ON public.custom_events FOR INSERT TO authenticated WITH CHECK (auth.uid() = created_by);
-
 DROP POLICY IF EXISTS "Users can update own custom events" ON public.custom_events;
-CREATE POLICY "Users can update own custom events" ON public.custom_events FOR UPDATE TO authenticated USING (auth.uid() = created_by OR public.is_admin());
-
 DROP POLICY IF EXISTS "Users can delete own custom events" ON public.custom_events;
-CREATE POLICY "Users can delete own custom events" ON public.custom_events FOR DELETE TO authenticated USING (auth.uid() = created_by OR public.is_admin());
+DROP POLICY IF EXISTS "Admins can insert custom events" ON public.custom_events;
+DROP POLICY IF EXISTS "Admins can update custom events" ON public.custom_events;
+DROP POLICY IF EXISTS "Admins can delete custom events" ON public.custom_events;
+
+CREATE POLICY "Admins can insert custom events" ON public.custom_events
+FOR INSERT TO authenticated
+WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admins can update custom events" ON public.custom_events
+FOR UPDATE TO authenticated
+USING (public.is_admin())
+WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admins can delete custom events" ON public.custom_events
+FOR DELETE TO authenticated
+USING (public.is_admin());
 
 -- ==========================================
 -- TRIGGERS

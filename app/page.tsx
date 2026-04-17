@@ -44,7 +44,8 @@ export default async function HomePage() {
       ),
     supabase
       .from("custom_events")
-      .select("id, name, content, event_date, location, created_by"),
+      .select("id, name, content, event_date, location, created_by, status")
+      .eq("status", "published"),
     supabase
       .from("blog_posts")
       .select("id, title, slug, excerpt, cover_image_url, is_featured, published_at")

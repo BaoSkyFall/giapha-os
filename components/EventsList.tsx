@@ -187,9 +187,9 @@ export default function EventsList({
   const router = useRouter();
   const [filter, setFilter] = useState<
     "all" | "birthday" | "death_anniversary" | "custom_event"
-  >("all");
+  >(persons.length === 0 ? "custom_event" : "all");
   const [showCount, setShowCount] = useState(20);
-  const [showDeceasedBirthdays, setShowDeceasedBirthdays] = useState(false);
+  const showDeceasedBirthdays = false;
 
   // Custom Event Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);

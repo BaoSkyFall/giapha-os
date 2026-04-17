@@ -1,7 +1,11 @@
 "use client";
 
+import {
+  createCustomEvent,
+  deleteCustomEvent,
+  updateCustomEvent,
+} from "@/app/actions/custom-event";
 import { CustomEventRecord } from "@/utils/eventHelpers";
-import { createClient } from "@/utils/supabase/client";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import {
   AlertCircle,
@@ -33,6 +37,9 @@ export default function CustomEventModal({
   const [eventDate, setEventDate] = useState(eventToEdit?.event_date || "");
   const [location, setLocation] = useState(eventToEdit?.location || "");
   const [content, setContent] = useState(eventToEdit?.content || "");
+  const [status, setStatus] = useState<"draft" | "published">(
+    eventToEdit?.status === "draft" ? "draft" : "published",
+  );
 
   useEffect(() => {
     if (isOpen) {
@@ -41,11 +48,13 @@ export default function CustomEventModal({
         setEventDate(eventToEdit.event_date);
         setLocation(eventToEdit.location || "");
         setContent(eventToEdit.content || "");
+        setStatus(eventToEdit.status === "draft" ? "draft" : "published");
       } else {
         setName("");
         setEventDate("");
         setLocation("");
         setContent("");
+        setStatus("published");
       }
       setError(null);
     }
@@ -69,29 +78,24 @@ export default function CustomEventModal({
     setError(null);
 
     try {
-      const supabase = createClient();
       const payload = {
         name,
         event_date: eventDate,
         location: location || null,
         content: content || null,
+        status,
       };
 
-      let resultError;
+      let resultError: string | null = null;
       if (eventToEdit) {
-        const { error: err } = await supabase
-          .from("custom_events")
-          .update(payload)
-          .eq("id", eventToEdit.id);
-        resultError = err;
+        const result = await updateCustomEvent(eventToEdit.id, payload);
+        resultError = "error" in result ? (result.error ?? null) : null;
       } else {
-        const { error: err } = await supabase
-          .from("custom_events")
-          .insert([payload]);
-        resultError = err;
+        const result = await createCustomEvent(payload);
+        resultError = "error" in result ? (result.error ?? null) : null;
       }
 
-      if (resultError) throw resultError;
+      if (resultError) throw new Error(resultError);
 
       onSuccess();
       onClose();
@@ -114,13 +118,8 @@ export default function CustomEventModal({
     setLoading(true);
     setError(null);
     try {
-      const supabase = createClient();
-      const { error: err } = await supabase
-        .from("custom_events")
-        .delete()
-        .eq("id", eventToEdit.id);
-
-      if (err) throw err;
+      const result = await deleteCustomEvent(eventToEdit.id);
+      if ("error" in result && result.error) throw new Error(result.error);
 
       onSuccess();
       onClose();
@@ -236,6 +235,24 @@ export default function CustomEventModal({
                         onChange={(e) => setEventDate(e.target.value)}
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-stone-700 mb-1.5">
+                      Trạng thái
+                    </label>
+                    <select
+                      className={inputClasses}
+                      value={status}
+                      onChange={(e) =>
+                        setStatus(
+                          e.target.value === "draft" ? "draft" : "published",
+                        )
+                      }
+                    >
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                    </select>
                   </div>
 
                   <div>
