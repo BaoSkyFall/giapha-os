@@ -69,7 +69,10 @@ export default async function HomePage() {
     }),
   );
   const upcomingEvents = computeEvents(persons, customEvents)
-    .filter((event) => event.daysUntil >= 0)
+    .filter(
+      (event) =>
+        event.daysUntil >= 0 && event.type !== "death_anniversary",
+    )
     .slice(0, LANDING_EVENT_LIMIT)
     .map(({ nextOccurrence, ...rest }) => ({
       ...rest,
