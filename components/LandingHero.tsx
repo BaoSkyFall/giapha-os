@@ -309,7 +309,7 @@ export default function LandingHero({
                           src={post.coverImageUrl}
                           alt={post.title}
                           fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="object-cover object-top group-hover:scale-105 transition-transform duration-500"
                           sizes="(max-width: 1024px) 50vw, 25vw"
                         />
                       ) : (
