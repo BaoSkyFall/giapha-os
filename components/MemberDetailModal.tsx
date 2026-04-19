@@ -10,6 +10,7 @@ import {
   ArrowLeft,
   Edit2,
   ExternalLink,
+  GitBranch,
   MessageSquarePlus,
   X,
 } from "lucide-react";
@@ -34,6 +35,7 @@ export default function MemberDetailModal() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [treeNavError, setTreeNavError] = useState<string | null>(null);
 
   const [person, setPerson] = useState<Person | null>(null);
   const [privateData, setPrivateData] = useState<Record<string, unknown> | null>(
@@ -41,6 +43,7 @@ export default function MemberDetailModal() {
   );
 
   const closeModal = () => {
+    setTreeNavError(null);
     setMemberModalId(null);
     setShowCreateMember(false);
     setIsEditing(false);
@@ -89,6 +92,7 @@ export default function MemberDetailModal() {
       setIsOpen(true);
       setIsEditing(false);
       setIsRequestingUpdate(false);
+      setTreeNavError(null);
       fetchData(memberId);
     } else if (showCreateMember) {
       setIsOpen(true);
@@ -97,12 +101,14 @@ export default function MemberDetailModal() {
       setPerson(null);
       setPrivateData(null);
       setError(null);
+      setTreeNavError(null);
     } else {
       setIsOpen(false);
       setTimeout(() => {
         setPerson(null);
         setPrivateData(null);
         setError(null);
+        setTreeNavError(null);
         setIsEditing(false);
         setIsRequestingUpdate(false);
       }, 300);
@@ -147,9 +153,33 @@ export default function MemberDetailModal() {
     }
   };
 
+  const handleOpenTreeView = () => {
+    const personId = person?.id?.trim();
+    if (!personId) {
+      setTreeNavError("Không thể mở cây gia phả vì thiếu mã thành viên.");
+      return;
+    }
+
+    const isValidUuid =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+        personId,
+      );
+    if (!isValidUuid) {
+      setTreeNavError("Không thể mở cây gia phả vì mã thành viên không hợp lệ.");
+      return;
+    }
+
+    const nextPath = `/dashboard/members?view=tree&rootId=${encodeURIComponent(personId)}`;
+    closeModal();
+    if (typeof window !== "undefined") {
+      window.location.assign(nextPath);
+    }
+  };
+
   const formInitialData = person ? { ...person, ...(privateData ?? {}) } : undefined;
   const canOpenAdditionalDataRequest =
     !!person && !!profile && !isAdmin && !canEdit && !showCreateMember;
+  const isDetailMode = !isEditing && !isRequestingUpdate;
 
   return (
     <AnimatePresence>
@@ -161,7 +191,7 @@ export default function MemberDetailModal() {
           transition={{ duration: 0.2 }}
           className="fixed inset-0 z-100 flex items-center justify-center p-4 sm:p-6 bg-stone-900/40 backdrop-blur-sm"
         >
-          {!isEditing && !showCreateMember && !isRequestingUpdate && (
+          {isDetailMode && !showCreateMember && (
             <div className="absolute inset-0 cursor-pointer" onClick={closeModal} />
           )}
 
@@ -172,12 +202,13 @@ export default function MemberDetailModal() {
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
             className="relative bg-white/95 backdrop-blur-2xl rounded-3xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col border border-stone-200"
           >
-            <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20 flex items-center gap-2">
+            <div className="absolute top-4 right-4 sm:top-5 sm:right-5 z-20 flex max-w-[calc(100%-1.5rem)] sm:max-w-[calc(100%-2rem)] flex-wrap items-center justify-end gap-2">
               {(isEditing || isRequestingUpdate) && (
                 <button
                   onClick={() => {
                     setIsEditing(false);
                     setIsRequestingUpdate(false);
+                    setTreeNavError(null);
                   }}
                   className="flex items-center gap-1.5 px-4 py-2 bg-stone-100/80 text-stone-700 rounded-full hover:bg-stone-200 font-semibold text-sm shadow-sm border border-stone-200/50 transition-colors"
                 >
@@ -186,7 +217,7 @@ export default function MemberDetailModal() {
                 </button>
               )}
 
-              {!isEditing && !isRequestingUpdate && canEdit && person && (
+              {isDetailMode && canEdit && person && (
                 <>
                   <Link
                     href={`/dashboard/members/${person.id}`}
@@ -196,7 +227,10 @@ export default function MemberDetailModal() {
                     <span className="hidden sm:inline">Xem chi tiết</span>
                   </Link>
                   <button
-                    onClick={() => setIsEditing(true)}
+                    onClick={() => {
+                      setTreeNavError(null);
+                      setIsEditing(true);
+                    }}
                     className="flex items-center gap-1.5 px-4 py-2 bg-amber-100/80 text-amber-800 rounded-full hover:bg-amber-200 font-semibold text-sm shadow-sm border border-amber-200/50 transition-colors"
                   >
                     <Edit2 className="size-4" />
@@ -211,13 +245,26 @@ export default function MemberDetailModal() {
                 </>
               )}
 
-              {!isEditing && !isRequestingUpdate && canOpenAdditionalDataRequest && (
+              {isDetailMode && person && (
                 <button
-                  onClick={() => setIsRequestingUpdate(true)}
+                  onClick={handleOpenTreeView}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-violet-100/80 text-violet-800 rounded-full hover:bg-violet-200 font-semibold text-xs sm:text-sm shadow-sm border border-violet-200/60 transition-colors"
+                >
+                  <GitBranch className="size-4 shrink-0" />
+                  <span className="whitespace-nowrap">Xem dưới dạng cây gia phả</span>
+                </button>
+              )}
+
+              {isDetailMode && canOpenAdditionalDataRequest && (
+                <button
+                  onClick={() => {
+                    setTreeNavError(null);
+                    setIsRequestingUpdate(true);
+                  }}
                   className="flex items-center gap-1.5 px-4 py-2 bg-sky-100/80 text-sky-800 rounded-full hover:bg-sky-200 font-semibold text-sm shadow-sm border border-sky-200/60 transition-colors"
                 >
                   <MessageSquarePlus className="size-4" />
-                  <span className="">Đề xuất bổ sung</span>
+                  <span>Đề xuất bổ sung</span>
                 </button>
               )}
 
@@ -229,6 +276,13 @@ export default function MemberDetailModal() {
                 <X className="size-5" />
               </button>
             </div>
+
+            {treeNavError && isDetailMode && (
+              <div className="absolute top-16 left-4 right-4 sm:left-5 sm:right-5 z-20 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 shadow-sm">
+                <AlertCircle className="mt-0.5 size-4 shrink-0" />
+                <p>{treeNavError}</p>
+              </div>
+            )}
 
             {loading ? (
               <div className="flex-1 min-h-[400px] flex items-center justify-center flex-col gap-4">
