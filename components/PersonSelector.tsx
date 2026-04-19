@@ -59,6 +59,7 @@ export default function PersonSelector({
   const [remoteError, setRemoteError] = useState<string | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const latestRequestSeqRef = useRef(0);
 
   const currentPerson = persons.find((p) => p.id === selectedId);
 
@@ -101,7 +102,7 @@ export default function PersonSelector({
 
     const timeoutId = window.setTimeout(() => {
       setDebouncedSearchTerm(searchTerm.trim());
-    }, serverSearch.debounceMs ?? 220);
+    }, serverSearch.debounceMs ?? 300);
 
     return () => window.clearTimeout(timeoutId);
   }, [searchTerm, serverSearch]);
@@ -110,6 +111,7 @@ export default function PersonSelector({
     if (!serverSearch || !isOpen) return;
 
     const controller = new AbortController();
+    const requestSeq = ++latestRequestSeqRef.current;
 
     const run = async () => {
       setIsRemoteLoading(true);
@@ -132,13 +134,22 @@ export default function PersonSelector({
 
         const payload = (await response.json()) as { persons?: Person[] };
         const nextPersons = Array.isArray(payload.persons) ? payload.persons : [];
+        if (requestSeq !== latestRequestSeqRef.current || controller.signal.aborted) {
+          return;
+        }
         setRemotePersons(nextPersons);
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") return;
+        if (requestSeq !== latestRequestSeqRef.current || controller.signal.aborted) {
+          return;
+        }
         setRemotePersons([]);
         setRemoteError("Không tải được dữ liệu tìm kiếm.");
       } finally {
-        if (!controller.signal.aborted) {
+        if (
+          !controller.signal.aborted &&
+          requestSeq === latestRequestSeqRef.current
+        ) {
           setIsRemoteLoading(false);
         }
       }
@@ -247,6 +258,13 @@ export default function PersonSelector({
               </div>
             </div>
             <div className="overflow-y-auto flex-1 p-1.5 custom-scrollbar">
+              {serverSearch && isRemoteLoading ? (
+                <div className="px-4 py-10 text-center">
+                  <div className="mx-auto mb-3 size-7 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
+                  <p className="text-sm font-medium text-stone-600">Đang tìm kiếm...</p>
+                </div>
+              ) : (
+                <>
               {showAllOption && searchTerm.toLowerCase() === "" && (
                 <button
                   onClick={() => handleSelect(null)}
@@ -349,10 +367,6 @@ export default function PersonSelector({
                     );
                   })}
                 </div>
-              ) : isRemoteLoading ? (
-                <div className="px-4 py-8 text-center text-sm text-stone-500">
-                  Đang tìm kiếm...
-                </div>
               ) : remoteError ? (
                 <div className="px-4 py-8 text-center text-sm text-red-600">
                   {remoteError}
@@ -369,6 +383,8 @@ export default function PersonSelector({
                     Thử tìm với tên khác
                   </div>
                 </div>
+              )}
+                </>
               )}
             </div>
           </motion.div>

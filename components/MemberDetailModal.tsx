@@ -14,7 +14,6 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useDashboard } from "./DashboardContext";
 import SyncFamilyButton from "./SyncFamilyButton";
@@ -26,9 +25,9 @@ export default function MemberDetailModal() {
     setMemberModalId,
     showCreateMember,
     setShowCreateMember,
+    publishMemberMutation,
   } = useDashboard();
   const { isAdmin, isEditor: canEdit, profile, supabase } = useUser();
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isRequestingUpdate, setIsRequestingUpdate] = useState(false);
@@ -121,20 +120,31 @@ export default function MemberDetailModal() {
     };
   }, [isOpen]);
 
-  const handleEditSuccess = (savedPersonId: string) => {
+  const handleEditSuccess = (savedPersonId: string, savedPerson?: Person) => {
     setIsEditing(false);
-    setPerson(null);
+    if (savedPerson) {
+      setPerson(savedPerson);
+      publishMemberMutation({
+        kind: "upsert",
+        source: "modal-edit",
+        person: savedPerson,
+      });
+    }
     setPrivateData(null);
-    fetchData(savedPersonId);
-    router.refresh();
+    void fetchData(savedPersonId);
   };
 
-  const handleCreateSuccess = (savedPersonId: string) => {
+  const handleCreateSuccess = (savedPersonId: string, savedPerson?: Person) => {
     setShowCreateMember(false);
     setMemberModalId(savedPersonId);
-    setTimeout(() => {
-      router.refresh();
-    }, 100);
+    if (savedPerson) {
+      setPerson(savedPerson);
+      publishMemberMutation({
+        kind: "upsert",
+        source: "modal-create",
+        person: savedPerson,
+      });
+    }
   };
 
   const formInitialData = person ? { ...person, ...(privateData ?? {}) } : undefined;
@@ -261,7 +271,7 @@ export default function MemberDetailModal() {
                 <AdditionalDataRequestForm
                   person={person}
                   onSuccess={() => {
-                    router.refresh();
+                    setIsRequestingUpdate(false);
                   }}
                   onCancel={() => setIsRequestingUpdate(false)}
                 />

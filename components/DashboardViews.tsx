@@ -6,13 +6,13 @@ import RootSelector from "@/components/RootSelector";
 import { Person, Relationship } from "@/types";
 import dynamic from "next/dynamic";
 import { AlertTriangle } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const FamilyTree = dynamic(() => import("@/components/FamilyTree"));
 const MindmapTree = dynamic(() => import("@/components/MindmapTree"));
 
 const FOUNDER_ROOT_ID = "0911c310-31cd-43c2-a705-67770bd074df";
-const HEAVY_ROOT_IDS = new Set(["0911c310-31cd-43c2-a705-67770bd074df"]);
+const HEAVY_ROOT_IDS = new Set(["0911c310-31cd-43c2-a705-67770bd074df", "fc22c7b0-5e7a-4c13-977e-0cdcc29cd5fa", "2a15f9c1-47a8-4106-85e8-1f223725e124"]);
 
 interface DashboardViewsProps {
   persons: Person[];
@@ -38,16 +38,68 @@ export default function DashboardViews({
   listPersons,
   listQueryState,
 }: DashboardViewsProps) {
-  const { view: currentView, rootId, setRootId, isViewLoading } = useDashboard();
+  const {
+    view: currentView,
+    rootId,
+    setRootId,
+    isViewLoading,
+    memberMutation,
+  } = useDashboard();
   const scrollContainerRef = useRef<HTMLElement>(null);
+  const [livePersons, setLivePersons] = useState<Person[]>(persons);
+  const [liveListPersons, setLiveListPersons] = useState<Person[]>(
+    listPersons ?? persons,
+  );
+  const [liveListTotal, setLiveListTotal] = useState<number>(
+    listQueryState?.total ?? (listPersons ?? persons).length,
+  );
+
+  useEffect(() => {
+    setLivePersons(persons);
+  }, [persons]);
+
+  useEffect(() => {
+    const nextListPersons = listPersons ?? persons;
+    setLiveListPersons(nextListPersons);
+    setLiveListTotal(listQueryState?.total ?? nextListPersons.length);
+  }, [listPersons, persons, listQueryState?.total]);
+
+  useEffect(() => {
+    if (!memberMutation || memberMutation.kind !== "upsert") return;
+    const updatedPerson = memberMutation.person;
+
+    setLivePersons((prev) => {
+      const idx = prev.findIndex((person) => person.id === updatedPerson.id);
+      if (idx === -1) return [updatedPerson, ...prev];
+      if (prev[idx] === updatedPerson) return prev;
+      const next = [...prev];
+      next[idx] = updatedPerson;
+      return next;
+    });
+
+    setLiveListPersons((prev) => {
+      const idx = prev.findIndex((person) => person.id === updatedPerson.id);
+      if (idx === -1) {
+        return [updatedPerson, ...prev];
+      }
+      if (prev[idx] === updatedPerson) return prev;
+      const next = [...prev];
+      next[idx] = updatedPerson;
+      return next;
+    });
+
+    if (memberMutation.source === "modal-create") {
+      setLiveListTotal((prev) => prev + 1);
+    }
+  }, [memberMutation]);
 
   const personsMap = useMemo(() => {
     const map = new Map<string, Person>();
-    for (const person of persons) {
+    for (const person of livePersons) {
       map.set(person.id, person);
     }
     return map;
-  }, [persons]);
+  }, [livePersons]);
 
   const selectedRoot = useMemo(() => {
     if (!rootId) return null;
@@ -64,14 +116,13 @@ export default function DashboardViews({
     ).length;
   }, [relationships, rootId]);
 
-  const nextUpperRoot = useMemo(() => {
-    if (!selectedRoot) return null;
-
+  const resolveUpperRoot = useCallback(
+    (personId: string): Person | null => {
     const parentLinks = relationships.filter(
       (relationship) =>
         (relationship.type === "biological_child" ||
           relationship.type === "adopted_child") &&
-        relationship.person_b === selectedRoot.id,
+        relationship.person_b === personId,
     );
     if (parentLinks.length === 0) return null;
 
@@ -110,13 +161,23 @@ export default function DashboardViews({
       });
 
     return parentCandidates[0]?.person ?? null;
-  }, [personsMap, relationships, selectedRoot]);
+  }, [personsMap, relationships]);
+
+  const selectedRootUpperRoot = useMemo(() => {
+    if (!selectedRoot) return null;
+    return resolveUpperRoot(selectedRoot.id);
+  }, [resolveUpperRoot, selectedRoot]);
 
   const contextRoot = useMemo(() => {
     if (!selectedRoot) return null;
-    if (selectedRootChildCount > 1 || !nextUpperRoot) return selectedRoot;
-    return nextUpperRoot;
-  }, [nextUpperRoot, selectedRoot, selectedRootChildCount]);
+    if (selectedRootChildCount > 1 || !selectedRootUpperRoot) return selectedRoot;
+    return selectedRootUpperRoot;
+  }, [selectedRootUpperRoot, selectedRoot, selectedRootChildCount]);
+
+  const contextUpperRoot = useMemo(() => {
+    if (!contextRoot) return null;
+    return resolveUpperRoot(contextRoot.id);
+  }, [contextRoot, resolveUpperRoot]);
 
   const roots = contextRoot ? [contextRoot] : [];
   const isTreeMode = currentView === "tree" || currentView === "mindmap";
@@ -130,9 +191,9 @@ export default function DashboardViews({
     selectedRoot?.id !== contextRoot?.id;
   const showGoUpperArrow =
     shouldRequireRoot &&
-    Boolean(selectedRoot) &&
-    Boolean(nextUpperRoot) &&
-    selectedRoot?.id !== FOUNDER_ROOT_ID;
+    Boolean(contextRoot) &&
+    Boolean(contextUpperRoot) &&
+    contextRoot?.id !== FOUNDER_ROOT_ID;
   const showHeavyRootWarning =
     shouldRequireRoot &&
     Boolean(contextRoot?.id) &&
@@ -151,12 +212,12 @@ export default function DashboardViews({
         ref={scrollContainerRef}
         className="flex-1 overflow-auto bg-rice-paper/50 flex flex-col"
       >
-        {!isViewLoading && currentView !== "list" && persons.length > 0 && (
+        {!isViewLoading && currentView !== "list" && livePersons.length > 0 && (
           <div className="sticky top-0 z-30 w-full border-b border-stone-200/70 bg-rice-paper/95 backdrop-blur">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3 w-full flex flex-col gap-3">
               <div className="flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">
                 <div className="flex items-center gap-2">
-                  <RootSelector persons={persons} currentRootId={rootId} />
+                  <RootSelector persons={livePersons} currentRootId={rootId} />
                 </div>
                 <div
                   id="tree-toolbar-portal"
@@ -217,7 +278,7 @@ export default function DashboardViews({
         {!isViewLoading && currentView === "list" && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full relative z-10">
             <DashboardMemberList
-              initialPersons={listPersons ?? persons}
+              initialPersons={liveListPersons}
               canEdit={canEdit}
               currentSearchTerm={listQueryState?.searchTerm}
               currentFilterOption={listQueryState?.filterOption}
@@ -226,7 +287,7 @@ export default function DashboardViews({
               currentBranchFilter={listQueryState?.branchFilter}
               currentPage={listQueryState?.page}
               pageSize={listQueryState?.pageSize}
-              totalCount={listQueryState?.total}
+              totalCount={liveListTotal}
             />
           </div>
         )}
@@ -241,7 +302,7 @@ export default function DashboardViews({
                   personsMap={personsMap}
                   relationships={relationships}
                   roots={roots}
-                  upperRoot={showGoUpperArrow ? nextUpperRoot : null}
+                  upperRoot={showGoUpperArrow ? contextUpperRoot : null}
                   onChangeRoot={setRootId}
                   canEdit={canEdit}
                 />
@@ -251,7 +312,7 @@ export default function DashboardViews({
                   personsMap={personsMap}
                   relationships={relationships}
                   roots={roots}
-                  upperRoot={showGoUpperArrow ? nextUpperRoot : null}
+                  upperRoot={showGoUpperArrow ? contextUpperRoot : null}
                   onChangeRoot={setRootId}
                   canEdit={canEdit}
                 />

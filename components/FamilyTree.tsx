@@ -335,7 +335,7 @@ export default function FamilyTree({
           dangerouslySetInnerHTML={{
             __html: `
         .css-tree ul {
-          padding-top: 30px; 
+          padding-top: 30px;
           position: relative;
           display: flex;
           justify-content: center;
@@ -413,9 +413,9 @@ export default function FamilyTree({
           }}
         />
 
-        {/* 
-        Use w-max to prevent wrapping and allow scrolling. 
-        mx-auto centers it if smaller than screen. 
+        {/*
+        Use w-max to prevent wrapping and allow scrolling.
+        mx-auto centers it if smaller than screen.
         p-8 adds padding inside scroll area.
       */}
         <div
@@ -431,15 +431,17 @@ export default function FamilyTree({
               <motion.button
                 type="button"
                 onClick={() => onChangeRoot(upperRoot.id)}
-                className="inline-flex items-center justify-center rounded-full border border-violet-300 bg-white px-3 py-2 text-violet-700 shadow-sm hover:bg-violet-50"
+                className="inline-flex flex-col items-center justify-center rounded-full border border-violet-300 bg-white px-3 py-2 text-violet-700 shadow-sm hover:bg-violet-50"
                 title={`Lên đời trước: ${upperRoot.full_name}`}
                 animate={{ y: [0, -6, 0] }}
                 transition={{
-                  duration: 1.8,
+                  duration: 1,
                   repeat: Number.POSITIVE_INFINITY,
                   ease: "easeInOut",
                 }}
               >
+                <p>{upperRoot.full_name} - Đời {upperRoot.generation}</p>
+
                 <ArrowUp className="size-4" />
               </motion.button>
             </div>

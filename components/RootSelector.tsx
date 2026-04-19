@@ -29,6 +29,7 @@ export default function RootSelector({
       serverSearch={{
         endpoint: "/api/members/search",
         limit: 60,
+        debounceMs: 300,
       }}
       featuredIds={FEATURED_ROOT_IDS}
       placeholder="Chọn người..."

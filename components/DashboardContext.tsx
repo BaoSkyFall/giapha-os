@@ -1,8 +1,16 @@
 "use client";
 
+import { Person } from "@/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useContext, useEffect, useState, useTransition } from "react";
 import { ViewMode } from "./ViewToggle";
+
+export interface MemberMutation {
+  kind: "upsert";
+  source: "modal-edit" | "modal-create";
+  person: Person;
+  at: number;
+}
 
 interface DashboardState {
   memberModalId: string | null;
@@ -16,6 +24,8 @@ interface DashboardState {
   isViewLoading: boolean;
   rootId: string | null;
   setRootId: (id: string | null) => void;
+  memberMutation: MemberMutation | null;
+  publishMemberMutation: (mutation: Omit<MemberMutation, "at">) => void;
 }
 
 export const DashboardContext = createContext<DashboardState | undefined>(
@@ -33,6 +43,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const [view, setViewState] = useState<ViewMode>("list");
   const [isViewLoading, startViewTransition] = useTransition();
   const [rootId, setRootIdState] = useState<string | null>(null);
+  const [memberMutation, setMemberMutation] = useState<MemberMutation | null>(null);
 
   useEffect(() => {
     const avatarParam = searchParams.get("avatar");
@@ -127,6 +138,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const publishMemberMutation = (mutation: Omit<MemberMutation, "at">) => {
+    setMemberMutation({
+      ...mutation,
+      at: Date.now(),
+    });
+  };
+
   return (
     <DashboardContext.Provider
       value={{
@@ -141,6 +159,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         isViewLoading,
         rootId,
         setRootId,
+        memberMutation,
+        publishMemberMutation,
       }}
     >
       {children}
@@ -165,6 +185,8 @@ export function useDashboard(): DashboardState {
       isViewLoading: false,
       rootId: null,
       setRootId: () => {},
+      memberMutation: null,
+      publishMemberMutation: () => {},
     };
   }
   return context;

@@ -118,12 +118,21 @@ CREATE TABLE IF NOT EXISTS public.phone_otp_requests (
   attempts INT NOT NULL DEFAULT 0,
   max_attempts INT NOT NULL DEFAULT 5,
   verified_at TIMESTAMPTZ,
+  reset_grant_hash TEXT,
+  reset_grant_expires_at TIMESTAMPTZ,
+  reset_grant_used_at TIMESTAMPTZ,
   invalidated_at TIMESTAMPTZ,
   failure_reason TEXT
 );
 
 ALTER TABLE public.phone_otp_requests
   ADD COLUMN IF NOT EXISTS provider_request_id TEXT;
+ALTER TABLE public.phone_otp_requests
+  ADD COLUMN IF NOT EXISTS reset_grant_hash TEXT;
+ALTER TABLE public.phone_otp_requests
+  ADD COLUMN IF NOT EXISTS reset_grant_expires_at TIMESTAMPTZ;
+ALTER TABLE public.phone_otp_requests
+  ADD COLUMN IF NOT EXISTS reset_grant_used_at TIMESTAMPTZ;
 
 -- PERSONS (Core entity for family tree)
 CREATE TABLE IF NOT EXISTS public.persons (

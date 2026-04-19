@@ -34,8 +34,8 @@ interface MemberFormProps {
   initialData?: Person;
   isEditing?: boolean;
   isAdmin?: boolean;
-  /** Called with the saved person's ID after a successful save. Overrides default router.push. */
-  onSuccess?: (personId: string) => void;
+  /** Called with the saved person's ID and latest row after a successful save. Overrides default router.push. */
+  onSuccess?: (personId: string, savedPerson?: Person) => void;
   /** Called when user clicks Cancel. Overrides default router.back(). */
   onCancel?: () => void;
 }
@@ -242,8 +242,13 @@ export default function MemberForm({
       // After save: use callback if provided, otherwise fall back to page navigation
       if (!personId)
         throw new Error("Không lấy được ID thành viên sau khi lưu.");
+      const { data: savedPersonData } = await supabase
+        .from("persons")
+        .select("*")
+        .eq("id", personId)
+        .single();
       if (onSuccess) {
-        onSuccess(personId);
+        onSuccess(personId, (savedPersonData as Person) ?? undefined);
       } else {
         router.push("/dashboard/members/" + personId);
         router.refresh();
