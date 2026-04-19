@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 
 import { Person, Relationship } from "@/types";
 import { AnimatePresence, motion } from "framer-motion";
-import { Filter, Image as ImageIcon, ZoomIn, ZoomOut } from "lucide-react";
+import { ArrowUp, Filter, Image as ImageIcon, ZoomIn, ZoomOut } from "lucide-react";
 import { useDashboard } from "./DashboardContext";
 import ExportButton from "./ExportButton";
 import FamilyNodeCard from "./FamilyNodeCard";
@@ -16,11 +16,15 @@ export default function FamilyTree({
   personsMap,
   relationships,
   roots,
+  upperRoot,
+  onChangeRoot,
   canEdit,
 }: {
   personsMap: Map<string, Person>;
   relationships: Relationship[];
   roots: Person[];
+  upperRoot?: Person | null;
+  onChangeRoot?: (rootId: string | null) => void;
   canEdit?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,22 +61,19 @@ export default function FamilyTree({
   const handleZoomOut = () => setScale((s) => Math.max(s - 0.1, 0.3));
   const handleResetZoom = () => setScale(1);
 
-  const hasInitiallyScrolledRef = useRef(false);
   const savedScrollLeftRef = useRef<number | null>(null);
+  const rootKey = useMemo(() => roots.map((root) => root.id).join("|"), [roots]);
 
   useEffect(() => {
-    if (containerRef.current) {
-      const el = containerRef.current;
-      if (!hasInitiallyScrolledRef.current) {
-        // First render: center the scroll area horizontally
-        el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
-        hasInitiallyScrolledRef.current = true;
-      } else if (savedScrollLeftRef.current != null) {
-        // Subsequent re-renders (e.g. router.refresh): restore previous position
-        el.scrollLeft = savedScrollLeftRef.current;
-      }
-    }
-  }, [roots]);
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Root changed: always start from top and center horizontally.
+    el.scrollTop = 0;
+    const centeredLeft = Math.max(0, (el.scrollWidth - el.clientWidth) / 2);
+    el.scrollLeft = centeredLeft;
+    savedScrollLeftRef.current = centeredLeft;
+  }, [rootKey]);
 
   // Persist horizontal scroll position so it survives re-renders
   useEffect(() => {
@@ -342,6 +343,10 @@ export default function FamilyTree({
           user-select: none;
         }
 
+        .css-tree > ul {
+          padding-top: 0;
+        }
+
         .css-tree li {
           float: left; text-align: center;
           list-style-type: none;
@@ -375,11 +380,11 @@ export default function FamilyTree({
           height: 30px;
         }
 
-        /* Remove top connector from first child */
-        .css-tree ul:first-child > li {
+        /* Remove top connector and top spacing for top-level nodes */
+        .css-tree > ul > li {
           padding-top: 0px;
         }
-        .css-tree ul:first-child > li::before {
+        .css-tree > ul > li::before {
           display: none;
         }
 
@@ -421,6 +426,24 @@ export default function FamilyTree({
             transformOrigin: "top center",
           }}
         >
+          {upperRoot && onChangeRoot && (
+            <div className="flex justify-center pb-3">
+              <motion.button
+                type="button"
+                onClick={() => onChangeRoot(upperRoot.id)}
+                className="inline-flex items-center justify-center rounded-full border border-violet-300 bg-white px-3 py-2 text-violet-700 shadow-sm hover:bg-violet-50"
+                title={`Lên đời trước: ${upperRoot.full_name}`}
+                animate={{ y: [0, -6, 0] }}
+                transition={{
+                  duration: 1.8,
+                  repeat: Number.POSITIVE_INFINITY,
+                  ease: "easeInOut",
+                }}
+              >
+                <ArrowUp className="size-4" />
+              </motion.button>
+            </div>
+          )}
           <ul>
             {roots.map((root) => (
               <React.Fragment key={root.id}>

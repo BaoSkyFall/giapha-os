@@ -68,9 +68,9 @@ const features = [
 
 const ancestors = [
   { name: "Phạm Phú Thứ", years: "1821 – 1882", image: "/phamphuthu_2.png", slug: "pham-phu-thu-nha-canh-tan-tien-phong" },
-  { name: "Phạm Phú Quốc", years: "1935 – 1965", image: "/phamphuquoc_1.jpg", slug: "pham-phu-quoc-phi-cong-huyen-thoai" },
-  { name: "Phạm Phú Tiết", years: "", slug: "pham-phu-tiet-tong-doc-chien-si-cach-mang" },
+  { name: "Phạm Phú Tiết", years: "1892 - 1981",image: "/phamphutiet_1.jpg", slug: "pham-phu-tiet-tong-doc-chien-si-cach-mang" },
   { name: "Phạm Phú Bằng", years: "1930 – 2024", image: "/phamphubang_1.jpeg", slug: "pham-phu-bang-dai-ta-nha-bao" },
+  { name: "Phạm Phú Quốc", years: "1935 – 1965", image: "/phamphuquoc_1.jpg", slug: "pham-phu-quoc-phi-cong-huyen-thoai" },
 ];
 
 /** Serialized version for server→client boundary (Date → string). */

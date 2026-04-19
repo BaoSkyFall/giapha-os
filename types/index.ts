@@ -31,6 +31,8 @@ export interface AdminUserData {
   created_at: string;
   full_name?: string | null;
   phone_number?: string | null;
+  generation?: number | null;
+  branch?: string | null;
 }
 
 export interface Person {

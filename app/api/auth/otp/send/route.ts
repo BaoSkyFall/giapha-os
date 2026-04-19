@@ -117,6 +117,37 @@ export async function POST(request: NextRequest) {
         { status: 429 },
       );
     }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("id,is_active")
+      .eq("phone_number", phoneNumber)
+      .maybeSingle();
+
+    if (profileError) {
+      return NextResponse.json(
+        { error: "Khong the kiem tra trang thai tai khoan.", traceId },
+        { status: 500 },
+      );
+    }
+
+    if (purpose === "register" && profile?.id) {
+      return NextResponse.json(
+        { error: "So dien thoai da duoc dang ky.", traceId },
+        { status: 409 },
+      );
+    }
+
+    if (purpose === "forgot_password" && (!profile?.id || !profile.is_active)) {
+      return NextResponse.json(
+        {
+          error: "Khong tim thay tai khoan dang hoat dong voi so dien thoai nay.",
+          traceId,
+        },
+        { status: 404 },
+      );
+    }
+
     otpLog("info", "otp_send.phone_normalized", {
       traceId,
       maskedPhone,

@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type AuthMode = "login" | "register" | "forgot_password";
-type OtpStep = "credentials" | "otp";
+type OtpStep = "credentials" | "otp" | "reset_password";
 type CredentialStep = "phone" | "password";
 
 type SendOtpResponse = {
@@ -27,6 +27,8 @@ type AuthResponse = {
   error?: string;
   traceId?: string;
   remainingAttempts?: number;
+  resetGrant?: string;
+  resetGrantExpiresAt?: string;
   session?: {
     accessToken: string;
     refreshToken: string;
@@ -61,7 +63,7 @@ const modeHeaderTitles: Record<AuthMode, string> = {
 const modeDescriptions: Record<AuthMode, string> = {
   login: "Nhập số điện thoại và mật khẩu 6 số để đăng nhập.",
   register: "Nhập số điện thoại, tạo mật khẩu 6 số rồi xác thực OTP để đăng ký.",
-  forgot_password: "Nhập số điện thoại, tạo mật khẩu mới 6 số và xác thực OTP.",
+  forgot_password: "Nhập số điện thoại, xác thực OTP trước rồi đặt mật khẩu mới 6 số.",
 };
 
 const passwordPlaceholder: Record<AuthMode, string> = {
@@ -95,6 +97,7 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otpCode, setOtpCode] = useState("");
   const [maskedPhoneNumber, setMaskedPhoneNumber] = useState("");
+  const [resetGrant, setResetGrant] = useState("");
   const [resendAvailableAt, setResendAvailableAt] = useState<number | null>(null);
   const [countdown, setCountdown] = useState(0);
 
@@ -156,11 +159,12 @@ export default function LoginPage() {
     return query ? `/login?${query}` : "/login";
   };
 
-  const resetOtpState = (nextCredentialStep: CredentialStep = "password") => {
+  const resetOtpState = (nextCredentialStep: CredentialStep = "phone") => {
     setStep("credentials");
     setCredentialStep(nextCredentialStep);
     setOtpCode("");
     setMaskedPhoneNumber("");
+    setResetGrant("");
     setCountdown(0);
     setResendAvailableAt(null);
     otpLastAutoSubmittedRef.current = "";
@@ -218,21 +222,22 @@ export default function LoginPage() {
       return;
     }
 
-    if (mode === "login") {
-      setLoadingPrimary(true);
-      try {
-        const response = await fetch("/api/auth/phone/check", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ phoneNumber }),
-        });
+    let nextAction: "password" | "send_otp" | null = null;
+    setLoadingPrimary(true);
+    try {
+      const response = await fetch("/api/auth/phone/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber }),
+      });
 
-        const data = (await response.json()) as PhoneCheckResponse;
-        if (!response.ok) {
-          setError(data.error || "Không thể kiểm tra số điện thoại.");
-          return;
-        }
+      const data = (await response.json()) as PhoneCheckResponse;
+      if (!response.ok) {
+        setError(data.error || "Không thể kiểm tra số điện thoại.");
+        return;
+      }
 
+      if (mode === "login") {
         if (!data.exists) {
           setError("Số điện thoại chưa được đăng ký.");
           return;
@@ -242,19 +247,42 @@ export default function LoginPage() {
           setError("Tài khoản chưa được kích hoạt.");
           return;
         }
-      } catch (requestError) {
-        setError(
-          requestError instanceof Error
-            ? requestError.message
-            : "Không thể kiểm tra số điện thoại.",
-        );
-        return;
-      } finally {
-        setLoadingPrimary(false);
+
+        nextAction = "password";
+      } else if (mode === "register") {
+        if (data.exists) {
+          setError("Số điện thoại đã được đăng ký.");
+          return;
+        }
+
+        nextAction = "password";
+      } else {
+        if (!data.exists || !data.canLogin) {
+          setError("Không tìm thấy tài khoản đang hoạt động với số điện thoại này.");
+          return;
+        }
+
+        nextAction = "send_otp";
       }
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Không thể kiểm tra số điện thoại.",
+      );
+      return;
+    } finally {
+      setLoadingPrimary(false);
     }
 
-    setCredentialStep("password");
+    if (nextAction === "send_otp") {
+      await sendOtp(false);
+      return;
+    }
+
+    if (nextAction === "password") {
+      setCredentialStep("password");
+    }
   };
 
   const sendOtp = async (isResend = false) => {
@@ -342,15 +370,24 @@ export default function LoginPage() {
     clearNotices();
 
     try {
+      const payload: {
+        phoneNumber: string;
+        code: string;
+        purpose: AuthMode;
+        password?: string;
+      } = {
+        phoneNumber,
+        code: finalOtpCode,
+        purpose: mode,
+      };
+      if (mode === "register") {
+        payload.password = password;
+      }
+
       const response = await fetch("/api/auth/otp/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          phoneNumber,
-          code: finalOtpCode,
-          purpose: mode,
-          password,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = (await response.json()) as AuthResponse;
@@ -360,6 +397,20 @@ export default function LoginPage() {
             ? ` Còn lại ${data.remainingAttempts} lượt thử.`
             : "";
         setError((data.error || "Xác minh OTP thất bại.") + attemptsText);
+        return;
+      }
+
+      if (mode === "forgot_password") {
+        if (!data.resetGrant) {
+          setError("Không thể tạo thông tin đặt lại mật khẩu sau OTP.");
+          return;
+        }
+
+        setResetGrant(data.resetGrant);
+        setPassword("");
+        setConfirmPassword("");
+        setStep("reset_password");
+        setInfo("OTP hợp lệ. Vui lòng đặt mật khẩu mới.");
         return;
       }
 
@@ -383,6 +434,11 @@ export default function LoginPage() {
       return;
     }
 
+    if (mode === "forgot_password") {
+      setError("Vui lòng xác thực OTP trước khi đặt mật khẩu mới.");
+      return;
+    }
+
     if (!isPasswordValid) {
       setError(`Mật khẩu phải gồm đúng ${PASSWORD_LENGTH} chữ số.`);
       return;
@@ -399,6 +455,55 @@ export default function LoginPage() {
     }
 
     await sendOtp(false);
+  };
+
+  const submitForgotPasswordReset = async (explicitPassword?: string) => {
+    const finalPassword = explicitPassword ?? password;
+    if (!resetGrant) {
+      setError("Không tìm thấy reset grant hợp lệ. Vui lòng xác thực OTP lại.");
+      return;
+    }
+
+    if (!/^\d{6}$/.test(finalPassword)) {
+      setError(`Mật khẩu phải gồm đúng ${PASSWORD_LENGTH} chữ số.`);
+      return;
+    }
+
+    if (confirmPassword.length === 0 || confirmPassword !== finalPassword) {
+      setError("Xác nhận mật khẩu không khớp.");
+      return;
+    }
+
+    setLoadingPrimary(true);
+    clearNotices();
+
+    try {
+      const response = await fetch("/api/auth/password/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phoneNumber,
+          resetGrant,
+          newPassword: finalPassword,
+        }),
+      });
+
+      const data = (await response.json()) as AuthResponse;
+      if (!response.ok) {
+        setError(data.error || "Không thể đặt lại mật khẩu.");
+        return;
+      }
+
+      await setSessionAndRedirect(data);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Không thể đặt lại mật khẩu.",
+      );
+    } finally {
+      setLoadingPrimary(false);
+    }
   };
 
   const tryAutoSubmitPasswordStep = (overrides?: {
@@ -422,6 +527,8 @@ export default function LoginPage() {
       return;
     }
 
+    if (mode !== "register") return;
+
     if (effectivePassword.length !== PASSWORD_LENGTH) return;
     if (effectiveConfirmPassword.length !== PASSWORD_LENGTH) return;
     if (effectivePassword !== effectiveConfirmPassword) return;
@@ -441,6 +548,26 @@ export default function LoginPage() {
     if (otpLastAutoSubmittedRef.current === submissionKey) return;
     otpLastAutoSubmittedRef.current = submissionKey;
     void submitOtpFlow(completedOtpCode);
+  };
+
+  const tryAutoSubmitForgotReset = (overrides?: {
+    nextPassword?: string;
+    nextConfirmPassword?: string;
+  }) => {
+    if (mode !== "forgot_password" || step !== "reset_password") return;
+    if (loadingPrimary || loadingSecondary) return;
+
+    const effectivePassword = overrides?.nextPassword ?? password;
+    const effectiveConfirmPassword =
+      overrides?.nextConfirmPassword ?? confirmPassword;
+    if (effectivePassword.length !== PASSWORD_LENGTH) return;
+    if (effectiveConfirmPassword.length !== PASSWORD_LENGTH) return;
+    if (effectivePassword !== effectiveConfirmPassword) return;
+
+    const submissionKey = `forgot_reset:${phoneNumber}:${effectivePassword}:${effectiveConfirmPassword}`;
+    if (passwordLastAutoSubmittedRef.current === submissionKey) return;
+    passwordLastAutoSubmittedRef.current = submissionKey;
+    void submitForgotPasswordReset(effectivePassword);
   };
 
   return (
@@ -627,7 +754,7 @@ export default function LoginPage() {
                           <p className="mt-2 ml-1 text-xs text-altar-wood/60">{passwordPlaceholder[mode]}</p>
                       </div>
 
-                      {mode !== "login" && (
+                      {mode === "register" && (
                         <div>
                           <label className="mb-1.5 ml-1 block text-[13px] font-semibold text-heritage-red">
                             Xác nhận mật khẩu
@@ -661,9 +788,11 @@ export default function LoginPage() {
                           ? loadingPrimary
                             ? "Đang đăng nhập..."
                             : "Đăng nhập"
-                          : loadingPrimary
-                            ? "Đang gửi OTP..."
-                            : "Gửi mã OTP"}
+                          : mode === "register"
+                            ? loadingPrimary
+                              ? "Đang gửi OTP..."
+                              : "Gửi mã OTP"
+                            : "Tiếp tục"}
                       </button>
 
                       {mode === "login" ? (
@@ -719,7 +848,9 @@ export default function LoginPage() {
                   </h4>
                   <button
                     type="button"
-                    onClick={() => resetOtpState("password")}
+                    onClick={() =>
+                      resetOtpState(mode === "forgot_password" ? "phone" : "password")
+                    }
                     className="inline-flex items-center gap-1 text-xs font-semibold text-heritage-red/80 underline underline-offset-4 transition-colors hover:text-heritage-red"
                   >
                     <ArrowLeft className="size-3.5" />
@@ -767,6 +898,83 @@ export default function LoginPage() {
                     : loadingPrimary
                       ? "Đang gửi lại..."
                       : "Gửi lại OTP"}
+                </button>
+              </div>
+            )}
+
+            {step === "reset_password" && mode === "forgot_password" && (
+              <div className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-bold tracking-wide text-heritage-red uppercase">
+                    Đặt mật khẩu mới
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      clearNotices();
+                      setPassword("");
+                      setConfirmPassword("");
+                      setStep("otp");
+                    }}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-heritage-red/80 underline underline-offset-4 transition-colors hover:text-heritage-red"
+                  >
+                    <ArrowLeft className="size-3.5" />
+                    Quay lại OTP
+                  </button>
+                </div>
+
+                <p className="text-center text-sm text-altar-wood/70">
+                  OTP đã xác thực. Vui lòng nhập mật khẩu mới 6 số.
+                </p>
+
+                <div>
+                  <label className="mb-1.5 ml-1 block text-[13px] font-semibold text-heritage-red">
+                    Mật khẩu mới 6 số
+                  </label>
+                  <div className="rounded-xl border border-heritage-gold/20 bg-rice-paper/40 p-2.5 sm:p-3.5">
+                    <SixDigitPasswordInput
+                      idPrefix="forgot-reset-password"
+                      value={password}
+                      onChange={setPasswordAndClearError}
+                      onComplete={(value) => {
+                        void tryAutoSubmitForgotReset({
+                          nextPassword: value,
+                        });
+                      }}
+                      disabled={loadingPrimary || loadingSecondary}
+                      autoComplete="new-password"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 ml-1 block text-[13px] font-semibold text-heritage-red">
+                    Xác nhận mật khẩu
+                  </label>
+                  <div className="rounded-xl border border-heritage-gold/20 bg-rice-paper/40 p-2.5 sm:p-3.5">
+                    <SixDigitPasswordInput
+                      idPrefix="forgot-reset-confirm-password"
+                      value={confirmPassword}
+                      onChange={setConfirmPassword}
+                      onComplete={(value) => {
+                        void tryAutoSubmitForgotReset({
+                          nextConfirmPassword: value,
+                        });
+                      }}
+                      disabled={loadingPrimary || loadingSecondary}
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => void submitForgotPasswordReset()}
+                  disabled={loadingPrimary}
+                  className="w-full rounded-lg bg-heritage-red px-4 py-4 text-[15px] font-bold text-white shadow-lg transition-all duration-300 hover:bg-heritage-red-dark disabled:cursor-wait disabled:opacity-70"
+                >
+                  {loadingPrimary ? "Đang đặt lại..." : "Đặt lại mật khẩu"}
                 </button>
               </div>
             )}

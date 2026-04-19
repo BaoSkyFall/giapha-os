@@ -1,14 +1,18 @@
-"use client";
+﻿"use client";
 
 import { useDashboard } from "@/components/DashboardContext";
 import DashboardMemberList from "@/components/DashboardMemberList";
 import RootSelector from "@/components/RootSelector";
 import { Person, Relationship } from "@/types";
-import { useMemo } from "react";
 import dynamic from "next/dynamic";
+import { AlertTriangle } from "lucide-react";
+import { useEffect, useMemo, useRef } from "react";
 
 const FamilyTree = dynamic(() => import("@/components/FamilyTree"));
 const MindmapTree = dynamic(() => import("@/components/MindmapTree"));
+
+const FOUNDER_ROOT_ID = "0911c310-31cd-43c2-a705-67770bd074df";
+const HEAVY_ROOT_IDS = new Set(["0911c310-31cd-43c2-a705-67770bd074df"]);
 
 interface DashboardViewsProps {
   persons: Person[];
@@ -34,60 +38,170 @@ export default function DashboardViews({
   listPersons,
   listQueryState,
 }: DashboardViewsProps) {
-  const { view: currentView, rootId, isViewLoading } = useDashboard();
+  const { view: currentView, rootId, setRootId, isViewLoading } = useDashboard();
+  const scrollContainerRef = useRef<HTMLElement>(null);
 
-  // Prepare map and roots for tree views
-  const { personsMap, roots, defaultRootId } = useMemo(() => {
-    const pMap = new Map<string, Person>();
-    persons.forEach((p) => pMap.set(p.id, p));
+  const personsMap = useMemo(() => {
+    const map = new Map<string, Person>();
+    for (const person of persons) {
+      map.set(person.id, person);
+    }
+    return map;
+  }, [persons]);
 
-    const childIds = new Set(
-      relationships
-        .filter(
-          (r) => r.type === "biological_child" || r.type === "adopted_child",
-        )
-        .map((r) => r.person_b),
+  const selectedRoot = useMemo(() => {
+    if (!rootId) return null;
+    return personsMap.get(rootId) ?? null;
+  }, [personsMap, rootId]);
+
+  const selectedRootChildCount = useMemo(() => {
+    if (!rootId) return 0;
+    return relationships.filter(
+      (relationship) =>
+        (relationship.type === "biological_child" ||
+          relationship.type === "adopted_child") &&
+        relationship.person_a === rootId,
+    ).length;
+  }, [relationships, rootId]);
+
+  const nextUpperRoot = useMemo(() => {
+    if (!selectedRoot) return null;
+
+    const parentLinks = relationships.filter(
+      (relationship) =>
+        (relationship.type === "biological_child" ||
+          relationship.type === "adopted_child") &&
+        relationship.person_b === selectedRoot.id,
     );
+    if (parentLinks.length === 0) return null;
 
-    let finalRootId = rootId;
+    const parentCandidates = parentLinks
+      .map((link) => {
+        const person = personsMap.get(link.person_a);
+        if (!person) return null;
+        return { person, relationType: link.type };
+      })
+      .filter(
+        (
+          value,
+        ): value is {
+          person: Person;
+          relationType: Relationship["type"];
+        } => value !== null,
+      )
+      .sort((a, b) => {
+        if (a.relationType !== b.relationType) {
+          return a.relationType === "biological_child" ? -1 : 1;
+        }
 
-    // If no rootId is provided, fallback to the earliest created person
-    if (!finalRootId || !pMap.has(finalRootId)) {
-      const rootsFallback = persons.filter((p) => !childIds.has(p.id));
-      // Prefer non-in-law roots (actual blood ancestors), fall back to any root
-      const preferredRoot =
-        rootsFallback.find((p) => !p.is_in_law) ?? rootsFallback[0];
-      if (preferredRoot) {
-        finalRootId = preferredRoot.id;
-      } else if (persons.length > 0) {
-        finalRootId = persons[0].id; // ultimate fallback
-      }
-    }
+        if (a.person.is_in_law !== b.person.is_in_law) {
+          return a.person.is_in_law ? 1 : -1;
+        }
 
-    let calculatedRoots: Person[] = [];
-    if (finalRootId && pMap.has(finalRootId)) {
-      calculatedRoots = [pMap.get(finalRootId)!];
-    }
+        const aGeneration = a.person.generation ?? Number.MAX_SAFE_INTEGER;
+        const bGeneration = b.person.generation ?? Number.MAX_SAFE_INTEGER;
+        if (aGeneration !== bGeneration) return aGeneration - bGeneration;
 
-    return {
-      personsMap: pMap,
-      roots: calculatedRoots,
-      defaultRootId: finalRootId,
-    };
-  }, [persons, relationships, rootId]);
+        const aYear = a.person.birth_year ?? Number.MAX_SAFE_INTEGER;
+        const bYear = b.person.birth_year ?? Number.MAX_SAFE_INTEGER;
+        if (aYear !== bYear) return aYear - bYear;
 
-  const activeRootId = rootId || defaultRootId;
+        return a.person.id.localeCompare(b.person.id);
+      });
+
+    return parentCandidates[0]?.person ?? null;
+  }, [personsMap, relationships, selectedRoot]);
+
+  const contextRoot = useMemo(() => {
+    if (!selectedRoot) return null;
+    if (selectedRootChildCount > 1 || !nextUpperRoot) return selectedRoot;
+    return nextUpperRoot;
+  }, [nextUpperRoot, selectedRoot, selectedRootChildCount]);
+
+  const roots = contextRoot ? [contextRoot] : [];
+  const isTreeMode = currentView === "tree" || currentView === "mindmap";
+  const shouldRequireRoot = isTreeMode && !isViewLoading;
+  const showMissingRootHint = shouldRequireRoot && !rootId;
+  const showInvalidRootHint = shouldRequireRoot && Boolean(rootId) && !selectedRoot;
+  const showContextRootHint =
+    shouldRequireRoot &&
+    Boolean(selectedRoot) &&
+    Boolean(contextRoot) &&
+    selectedRoot?.id !== contextRoot?.id;
+  const showGoUpperArrow =
+    shouldRequireRoot &&
+    Boolean(selectedRoot) &&
+    Boolean(nextUpperRoot) &&
+    selectedRoot?.id !== FOUNDER_ROOT_ID;
+  const showHeavyRootWarning =
+    shouldRequireRoot &&
+    Boolean(contextRoot?.id) &&
+    HEAVY_ROOT_IDS.has(contextRoot?.id ?? "");
+
+  useEffect(() => {
+    if (!isTreeMode || !rootId) return;
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.scrollTop = 0;
+  }, [isTreeMode, rootId]);
 
   return (
     <>
-      <main className="flex-1 overflow-auto bg-rice-paper/50 flex flex-col">
-        {!isViewLoading && currentView !== "list" && persons.length > 0 && activeRootId && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-2 w-full flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">
-            <RootSelector persons={persons} currentRootId={activeRootId} />
-            <div
-              id="tree-toolbar-portal"
-              className="flex items-center gap-2 flex-wrap justify-center"
-            />
+      <main
+        ref={scrollContainerRef}
+        className="flex-1 overflow-auto bg-rice-paper/50 flex flex-col"
+      >
+        {!isViewLoading && currentView !== "list" && persons.length > 0 && (
+          <div className="sticky top-0 z-30 w-full border-b border-stone-200/70 bg-rice-paper/95 backdrop-blur">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3 w-full flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">
+                <div className="flex items-center gap-2">
+                  <RootSelector persons={persons} currentRootId={rootId} />
+                </div>
+                <div
+                  id="tree-toolbar-portal"
+                  className="flex items-center gap-2 flex-wrap justify-center"
+                />
+              </div>
+
+              {showHeavyRootWarning && (
+                <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                  <p>
+                    Gốc hiển thị này làm cây gia phả lớn và web load chậm. Nếu thấy giật lag, vui lòng đổi gốc hiển thị nhỏ hơn.
+                  </p>
+                </div>
+              )}
+
+              {showContextRootHint && selectedRoot && contextRoot && (
+                <div className="flex items-start gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-sm text-violet-900">
+                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                  <p>
+                    Đang hiển thị ngữ cảnh gia đình của <strong>{selectedRoot.full_name}</strong> từ nhánh cha/mẹ: <strong>{contextRoot.full_name}</strong>.
+                  </p>
+                </div>
+              )}
+
+              {showMissingRootHint && (
+                <div className="flex items-start gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+                  <p>Vui lòng chọn Gốc hiển thị để hiển thị gia phả.</p>
+                </div>
+              )}
+
+              {showInvalidRootHint && (
+                <div className="flex items-start justify-between gap-3 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900">
+                  <p>Gốc hiển thị đã lưu không còn hợp lệ trong danh sách hiện tại.</p>
+                  <button
+                    type="button"
+                    className="shrink-0 rounded-lg border border-red-300 bg-white px-2.5 py-1 text-xs font-semibold text-red-700 hover:bg-red-100"
+                    onClick={() => setRootId(null)}
+                  >
+                    Xóa root
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -117,24 +231,33 @@ export default function DashboardViews({
           </div>
         )}
 
-        {!isViewLoading && <div className="flex-1 w-full relative z-10">
-          {currentView === "tree" && (
-            <FamilyTree
-              personsMap={personsMap}
-              relationships={relationships}
-              roots={roots}
-              canEdit={canEdit}
-            />
+        {!isViewLoading &&
+          currentView !== "list" &&
+          !showMissingRootHint &&
+          !showInvalidRootHint && (
+            <div className="flex-1 w-full relative z-10">
+              {currentView === "tree" && (
+                <FamilyTree
+                  personsMap={personsMap}
+                  relationships={relationships}
+                  roots={roots}
+                  upperRoot={showGoUpperArrow ? nextUpperRoot : null}
+                  onChangeRoot={setRootId}
+                  canEdit={canEdit}
+                />
+              )}
+              {currentView === "mindmap" && (
+                <MindmapTree
+                  personsMap={personsMap}
+                  relationships={relationships}
+                  roots={roots}
+                  upperRoot={showGoUpperArrow ? nextUpperRoot : null}
+                  onChangeRoot={setRootId}
+                  canEdit={canEdit}
+                />
+              )}
+            </div>
           )}
-          {currentView === "mindmap" && (
-            <MindmapTree
-              personsMap={personsMap}
-              relationships={relationships}
-              roots={roots}
-              canEdit={canEdit}
-            />
-          )}
-        </div>}
       </main>
     </>
   );

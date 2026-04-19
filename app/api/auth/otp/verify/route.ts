@@ -2,6 +2,7 @@ import { buildOtpAliasEmail, OTP_MAX_ATTEMPTS, OTP_LENGTH } from "@/utils/auth/o
 import { isValidPhonePassword, PHONE_PASSWORD_LENGTH } from "@/utils/auth/password";
 import { otpLog } from "@/utils/auth/log";
 import { maskPhoneNumber, normalizeVietnamPhone } from "@/utils/auth/phone";
+import { createResetGrant, hashResetGrant, RESET_GRANT_TTL_MS } from "@/utils/auth/reset-grant";
 import { getRequestIp } from "@/utils/auth/request";
 import { consumeOtpAttempt, consumeRateLimit } from "@/utils/auth/rate-limit";
 import { verifyOtpWithProvider } from "@/utils/auth/sms";
@@ -14,10 +15,14 @@ type OtpPurpose = "register" | "forgot_password";
 
 const isSchemaMissingError = (error: { code?: string; message?: string }) =>
   error.code === "42P01" ||
+  error.code === "42703" ||
   error.code === "PGRST205" ||
   error.message?.includes("phone_otp_requests") ||
   error.message?.includes("phone_number") ||
-  error.message?.includes("provider_request_id");
+  error.message?.includes("provider_request_id") ||
+  error.message?.includes("reset_grant_hash") ||
+  error.message?.includes("reset_grant_expires_at") ||
+  error.message?.includes("reset_grant_used_at");
 
 const getAnonClient = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -56,11 +61,12 @@ export async function POST(request: NextRequest) {
     const code = payload?.code;
     const purpose = payload?.purpose as OtpPurpose | undefined;
     const password = payload?.password;
+    const requiresPassword = purpose === "register";
 
     if (
       typeof rawPhoneNumber !== "string" ||
       typeof code !== "string" ||
-      typeof password !== "string" ||
+      (requiresPassword && typeof password !== "string") ||
       (purpose !== "register" && purpose !== "forgot_password")
     ) {
       otpLog("warn", "otp_verify.invalid_payload", { traceId });
@@ -78,7 +84,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!isValidPhonePassword(password)) {
+    if (
+      purpose === "forgot_password" &&
+      typeof password === "string" &&
+      password.length > 0
+    ) {
+      otpLog("warn", "otp_verify.unexpected_password_in_forgot_flow", {
+        traceId,
+      });
+      return NextResponse.json(
+        { error: "Buoc xac thuc OTP khong nhan mat khau.", traceId },
+        { status: 400 },
+      );
+    }
+
+    if (requiresPassword && !isValidPhonePassword(password as string)) {
       otpLog("warn", "otp_verify.invalid_password_format", { traceId });
       return NextResponse.json(
         {
@@ -330,6 +350,8 @@ export async function POST(request: NextRequest) {
     }
 
     if (purpose === "register") {
+      const registerPassword = password as string;
+
       const { data: existingProfile, error: existingError } = await adminSupabase
         .from("profiles")
         .select("id")
@@ -354,7 +376,7 @@ export async function POST(request: NextRequest) {
       const { data: createdUser, error: createUserError } =
         await adminSupabase.auth.admin.createUser({
           email: loginEmail,
-          password,
+          password: registerPassword,
           email_confirm: true,
           user_metadata: {
             phone_number: phoneNumber,
@@ -401,7 +423,7 @@ export async function POST(request: NextRequest) {
 
       const { data: signInData, error: signInError } = await signInWithEmailPassword(
         loginEmail,
-        password,
+        registerPassword,
       );
 
       if (signInError || !signInData.session) {
@@ -451,60 +473,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: userData, error: getUserError } =
-      await adminSupabase.auth.admin.getUserById(existingProfile.id);
+    const nowIso = new Date().toISOString();
+    const resetGrant = createResetGrant();
+    const resetGrantHash = hashResetGrant(resetGrant);
+    const resetGrantExpiresAt = new Date(
+      Date.now() + RESET_GRANT_TTL_MS,
+    ).toISOString();
 
-    if (getUserError || !userData.user) {
-      return NextResponse.json(
-        { error: "Khong the tai thong tin tai khoan.", traceId },
-        { status: 500 },
-      );
-    }
-
-    const loginEmail = userData.user.email || buildOtpAliasEmail(phoneNumber);
-    const metadata = {
-      ...(userData.user.user_metadata || {}),
-      phone_number: phoneNumber,
-      auth_method: "phone_password",
-    };
-
-    const { error: updateUserError } =
-      await adminSupabase.auth.admin.updateUserById(existingProfile.id, {
-        password,
-        email: loginEmail,
-        email_confirm: true,
-        user_metadata: metadata,
-      });
-
-    if (updateUserError) {
-      return NextResponse.json(
-        {
-          error: updateUserError.message || "Khong the cap nhat mat khau.",
-          traceId,
-        },
-        { status: 500 },
-      );
-    }
-
-    await adminSupabase
+    const { error: markVerifiedError } = await adminSupabase
       .from("phone_otp_requests")
       .update({
-        verified_at: new Date().toISOString(),
+        verified_at: nowIso,
         failure_reason: null,
+        reset_grant_hash: resetGrantHash,
+        reset_grant_expires_at: resetGrantExpiresAt,
+        reset_grant_used_at: null,
       })
       .eq("id", challenge.id);
 
-    const { data: signInData, error: signInError } = await signInWithEmailPassword(
-      loginEmail,
-      password,
-    );
-
-    if (signInError || !signInData.session) {
+    if (markVerifiedError) {
+      if (isSchemaMissingError(markVerifiedError)) {
+        return NextResponse.json(
+          {
+            error:
+              "Thieu cot reset grant trong bang OTP. Vui long cap nhat schema SQL.",
+            traceId,
+          },
+          { status: 500 },
+        );
+      }
       return NextResponse.json(
         {
-          error:
-            signInError?.message ||
-            "Dat lai mat khau thanh cong nhung khong tao duoc phien dang nhap.",
+          error: "Khong the khoi tao reset grant cho buoc dat lai mat khau.",
           traceId,
         },
         { status: 500 },
@@ -513,11 +513,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      session: {
-        accessToken: signInData.session.access_token,
-        refreshToken: signInData.session.refresh_token,
-        expiresAt: signInData.session.expires_at,
-      },
+      resetGrant,
+      resetGrantExpiresAt,
       profile: {
         id: existingProfile.id,
         phoneNumber,

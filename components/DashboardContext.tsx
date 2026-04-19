@@ -23,6 +23,7 @@ export const DashboardContext = createContext<DashboardState | undefined>(
 );
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
+  const ROOT_STORAGE_KEY = "dashboard_members_root_id";
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -41,7 +42,14 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     if (viewParam) setViewState(viewParam);
 
     const rootIdParam = searchParams.get("rootId");
-    if (rootIdParam) setRootIdState(rootIdParam);
+    if (rootIdParam) {
+      setRootIdState(rootIdParam);
+    } else if (typeof window !== "undefined") {
+      const persistedRootId = window.localStorage.getItem(ROOT_STORAGE_KEY);
+      if (persistedRootId) {
+        setRootIdState(persistedRootId);
+      }
+    }
 
     // We intentionally ignore memberModalId in the Next.js router loop
     // to avoid Next.js triggering re-renders on push.
@@ -83,21 +91,15 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const DEFAULT_ROOT_ID = "0911c310-31cd-43c2-a705-67770bd074df";
-
   const setView = (v: ViewMode) => {
     setViewState(v);
-    // Auto-set default rootId when switching to tree/mindmap if none is set
-    const nextRootId =
-      (v === "tree" || v === "mindmap") && !rootId ? DEFAULT_ROOT_ID : rootId;
-    if ((v === "tree" || v === "mindmap") && !rootId) {
-      setRootIdState(DEFAULT_ROOT_ID);
-    }
 
     const params = new URLSearchParams(searchParams.toString());
     params.set("view", v);
-    if ((v === "tree" || v === "mindmap") && nextRootId) {
-      params.set("rootId", nextRootId);
+    if ((v === "tree" || v === "mindmap") && rootId) {
+      params.set("rootId", rootId);
+    } else {
+      params.delete("rootId");
     }
 
     const query = params.toString();
@@ -109,6 +111,12 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const setRootId = (id: string | null) => {
     setRootIdState(id);
     if (typeof window !== "undefined") {
+      if (id) {
+        window.localStorage.setItem(ROOT_STORAGE_KEY, id);
+      } else {
+        window.localStorage.removeItem(ROOT_STORAGE_KEY);
+      }
+
       const newUrl = new URL(window.location.href);
       if (id) {
         newUrl.searchParams.set("rootId", id);

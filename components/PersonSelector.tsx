@@ -5,11 +5,10 @@ import { matchesSearchQuery } from "@/utils/textSearch";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDown, Database, Search } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import DefaultAvatar from "./DefaultAvatar";
 import { FemaleIcon, MaleIcon } from "./GenderIcons";
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
 const getGenderStyle = (gender: string) => {
   if (gender === "male") return "bg-sky-100 text-sky-600";
   if (gender === "female") return "bg-rose-100 text-rose-600";
@@ -22,6 +21,13 @@ const getAvatarBg = (gender: string) => {
   return "bg-linear-to-br from-stone-400 to-stone-600";
 };
 
+interface ServerSearchConfig {
+  endpoint: string;
+  queryParam?: string;
+  limit?: number;
+  debounceMs?: number;
+}
+
 export default function PersonSelector({
   persons,
   selectedId,
@@ -31,6 +37,8 @@ export default function PersonSelector({
   className = "w-full sm:w-72",
   showAllOption = false,
   allOptionLabel = "Toàn bộ dữ liệu",
+  featuredIds = [],
+  serverSearch,
 }: {
   persons: Person[];
   selectedId?: string | null;
@@ -40,21 +48,38 @@ export default function PersonSelector({
   className?: string;
   showAllOption?: boolean;
   allOptionLabel?: string;
+  featuredIds?: string[];
+  serverSearch?: ServerSearchConfig;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [remotePersons, setRemotePersons] = useState<Person[]>([]);
+  const [isRemoteLoading, setIsRemoteLoading] = useState(false);
+  const [remoteError, setRemoteError] = useState<string | null>(null);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const currentPerson = persons.find((p) => p.id === selectedId);
 
-  const filteredPersons = persons.filter((p) =>
-    matchesSearchQuery([p.full_name, p.birth_year, p.generation], searchTerm),
+  const filteredPersons = useMemo(
+    () =>
+      persons.filter((p) =>
+        matchesSearchQuery([p.full_name, p.birth_year, p.generation], searchTerm),
+      ),
+    [persons, searchTerm],
   );
+
+  const featuredIdSet = useMemo(() => new Set(featuredIds), [featuredIds]);
+  const showFeaturedHighlight = searchTerm.trim().length === 0;
+  const displayedPersons = serverSearch ? remotePersons : filteredPersons;
 
   const handleSelect = (personId: string | null) => {
     onSelect(personId);
     setIsOpen(false);
     setSearchTerm("");
+    setDebouncedSearchTerm("");
+    setRemoteError(null);
   };
 
   useEffect(() => {
@@ -70,6 +95,59 @@ export default function PersonSelector({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (!serverSearch) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm.trim());
+    }, serverSearch.debounceMs ?? 220);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [searchTerm, serverSearch]);
+
+  useEffect(() => {
+    if (!serverSearch || !isOpen) return;
+
+    const controller = new AbortController();
+
+    const run = async () => {
+      setIsRemoteLoading(true);
+      setRemoteError(null);
+
+      try {
+        const url = new URL(serverSearch.endpoint, window.location.origin);
+        url.searchParams.set(serverSearch.queryParam ?? "q", debouncedSearchTerm);
+        url.searchParams.set("limit", String(serverSearch.limit ?? 60));
+
+        const response = await fetch(url.toString(), {
+          method: "GET",
+          cache: "no-store",
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Search failed with status ${response.status}`);
+        }
+
+        const payload = (await response.json()) as { persons?: Person[] };
+        const nextPersons = Array.isArray(payload.persons) ? payload.persons : [];
+        setRemotePersons(nextPersons);
+      } catch (error) {
+        if (error instanceof Error && error.name === "AbortError") return;
+        setRemotePersons([]);
+        setRemoteError("Không tải được dữ liệu tìm kiếm.");
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsRemoteLoading(false);
+        }
+      }
+    };
+
+    void run();
+
+    return () => controller.abort();
+  }, [debouncedSearchTerm, isOpen, serverSearch]);
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
@@ -197,10 +275,12 @@ export default function PersonSelector({
                 </button>
               )}
 
-              {filteredPersons.length > 0 ? (
+              {displayedPersons.length > 0 ? (
                 <div className="space-y-0.5">
-                  {filteredPersons.map((person) => {
+                  {displayedPersons.map((person) => {
                     const isSelected = person.id === selectedId;
+                    const isFeatured =
+                      showFeaturedHighlight && featuredIdSet.has(person.id);
                     return (
                       <button
                         key={person.id}
@@ -209,6 +289,8 @@ export default function PersonSelector({
                           ${
                             isSelected
                               ? "bg-amber-50 text-amber-900 border border-amber-200/50 shadow-sm"
+                              : isFeatured
+                                ? "bg-gradient-to-b from-red-800 via-red-700 to-red-800 text-amber-300  shadow-[0_0_20px_rgba(220,38,38,0.3)] border border-blue-200/70 shadow-xs"
                               : "text-stone-700 hover:bg-stone-100/80 border border-transparent"
                           }`}
                       >
@@ -247,16 +329,17 @@ export default function PersonSelector({
                           >
                             {person.full_name}{" "}
                             {person.birth_year ? (
-                              <span className="text-stone-400 font-normal">
+                              <span className={`${isFeatured && !isSelected ? "text-amber-300" : "text-stone-400"} font-normal`}>
                                 ({person.birth_year})
                               </span>
                             ) : null}
                           </p>
                           {person.generation != null && (
-                            <p className="text-[10px] text-stone-400 font-medium">
+                            <p className="text-[10px] ${isFeatured && !isSelected ? 'text-amber-300' : 'text-stone-400'} font-medium">
                               Đời thứ {person.generation}
                             </p>
                           )}
+
                         </div>
 
                         {isSelected && (
@@ -265,6 +348,14 @@ export default function PersonSelector({
                       </button>
                     );
                   })}
+                </div>
+              ) : isRemoteLoading ? (
+                <div className="px-4 py-8 text-center text-sm text-stone-500">
+                  Đang tìm kiếm...
+                </div>
+              ) : remoteError ? (
+                <div className="px-4 py-8 text-center text-sm text-red-600">
+                  {remoteError}
                 </div>
               ) : (
                 <div className="px-4 py-8 text-center flex flex-col items-center justify-center gap-2">

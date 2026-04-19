@@ -4,6 +4,7 @@ import { Person, Relationship } from "@/types";
 import { formatDisplayDate } from "@/utils/dateHelpers";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ArrowUp,
   ChevronDown,
   ChevronRight,
   ChevronsDownUp,
@@ -29,6 +30,8 @@ interface MindmapTreeProps {
   personsMap: Map<string, Person>;
   relationships: Relationship[];
   roots: Person[];
+  upperRoot?: Person | null;
+  onChangeRoot?: (rootId: string | null) => void;
   canEdit?: boolean;
 }
 
@@ -310,6 +313,8 @@ export default function MindmapTree({
   personsMap,
   relationships,
   roots,
+  upperRoot,
+  onChangeRoot,
   canEdit,
 }: MindmapTreeProps) {
   const { showAvatar, setShowAvatar, setMemberModalId } = useDashboard();
@@ -322,7 +327,9 @@ export default function MindmapTree({
     type: "expand" | "collapse";
     ts: number;
   } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const filtersRef = useRef<HTMLDivElement>(null);
+  const rootKey = useMemo(() => roots.map((root) => root.id).join("|"), [roots]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -346,6 +353,15 @@ export default function MindmapTree({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    // Root changed: reset vertical scroll and center horizontal scroll.
+    el.scrollTop = 0;
+    el.scrollLeft = Math.max(0, (el.scrollWidth - el.clientWidth) / 2);
+  }, [rootKey]);
 
   const ctx: MindmapContextData = useMemo(() => {
     const adj = buildAdjacencyLists(relationships, personsMap);
@@ -386,7 +402,10 @@ export default function MindmapTree({
   }
 
   return (
-    <div className="w-full h-full relative p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-140px)] flex justify-start lg:justify-center overflow-x-auto">
+    <div
+      ref={containerRef}
+      className="w-full h-full relative p-4 sm:p-6 lg:p-8 min-h-[calc(100vh-140px)] flex justify-start lg:justify-center overflow-x-auto"
+    >
       {/* Grouped Toolbar (Expand/Collapse, Filters, Export) Portaled to Header */}
       {portalNode &&
         createPortal(
@@ -507,13 +526,32 @@ export default function MindmapTree({
         className="font-sans min-w-max pb-20 p-10 px-0 sm:px-8"
       >
         {roots.map((root, index) => (
-          <MindmapNode
-            key={root.id}
-            personId={root.id}
-            level={0}
-            isLast={index === roots.length - 1}
-            ctx={ctx}
-          />
+          <div key={root.id} className="w-fit">
+            {index === 0 && upperRoot && onChangeRoot && (
+              <div className="mb-2 flex justify-center">
+                <motion.button
+                  type="button"
+                  onClick={() => onChangeRoot(upperRoot.id)}
+                  className="inline-flex items-center justify-center rounded-full border border-violet-300 bg-white px-3 py-2 text-violet-700 shadow-sm hover:bg-violet-50"
+                  title={`Lên đời trước: ${upperRoot.full_name}`}
+                  animate={{ y: [0, -6, 0] }}
+                  transition={{
+                    duration: 1.8,
+                    repeat: Number.POSITIVE_INFINITY,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <ArrowUp className="size-4" />
+                </motion.button>
+              </div>
+            )}
+            <MindmapNode
+              personId={root.id}
+              level={0}
+              isLast={index === roots.length - 1}
+              ctx={ctx}
+            />
+          </div>
         ))}
       </div>
     </div>

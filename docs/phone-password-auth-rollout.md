@@ -12,11 +12,13 @@ Before enabling this flow in production, complete all steps below.
 Run SQL in Supabase SQL editor:
 
 - `docs/auth-hardening-migration.sql`
+- `docs/forgot-password-reset-grant-migration.sql`
 
 This creates:
 - distributed auth rate-limit table
 - `auth_consume_rate_limit(...)` RPC
 - `auth_consume_otp_attempt(...)` RPC
+- reset-grant columns used by OTP-first forgot-password flow
 
 ## 2) Check data readiness
 
@@ -70,6 +72,6 @@ This script refuses to run when non-admin users are still missing `phone_number`
 
 - Member login via `/login` with phone + 6-digit password
 - Admin login via `/login` with phone + 6-digit password
-- Register flow requires OTP
-- Forgot-password flow requires OTP
+- Register flow checks phone first, then requires OTP
+- Forgot-password flow checks active phone first, verifies OTP, then asks for new password
 - Password change works at `/dashboard/account`
