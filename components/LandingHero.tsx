@@ -7,6 +7,7 @@ import MuxPlayer from "@mux/mux-player-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Manrope, Playfair_Display } from "next/font/google";
+import { useMemo, useState } from "react";
 import type { ComponentProps, ElementType } from "react";
 
 const fadeIn: Variants = {
@@ -41,6 +42,7 @@ const manrope = Manrope({
 });
 
 const HERO_PLAYBACK_ID = "02gzwandixH4J534bd00JsCvlFfw6ha101WQ00C9b3sGibM";
+const TIMELINE_EVENT_LIMIT = 5;
 
 const muxBackgroundStyle = {
   "--controls": "none",
@@ -106,6 +108,30 @@ export default function LandingHero({
   events,
   highlightedPosts,
 }: LandingHeroProps) {
+  const [showDeathAnniversary, setShowDeathAnniversary] = useState(false);
+  const [showBirthday, setShowBirthday] = useState(false);
+
+  const visibleEvents = useMemo(
+    () =>
+      events.filter((event) => {
+        if (event.type === "custom_event") return true;
+        if (event.type === "death_anniversary") return showDeathAnniversary;
+        if (event.type === "birthday") return showBirthday;
+        return false;
+      }).slice(0, TIMELINE_EVENT_LIMIT),
+    [events, showBirthday, showDeathAnniversary],
+  );
+
+  const hasHiddenTimelineEvents = useMemo(
+    () =>
+      events.some(
+        (event) =>
+          (event.type === "death_anniversary" && !showDeathAnniversary) ||
+          (event.type === "birthday" && !showBirthday),
+      ),
+    [events, showBirthday, showDeathAnniversary],
+  );
+
   return (
     <>
       {/* Hero Section */}
@@ -362,18 +388,48 @@ export default function LandingHero({
           >
             Sự Kiện Sắp Tới
           </motion.h2>
+          <motion.div
+            className="mb-8 flex flex-wrap items-center justify-center gap-3"
+            variants={fadeIn}
+          >
+            <label className="inline-flex items-center gap-2 rounded-full border border-heritage-gold/30 bg-rice-paper px-3 py-1.5 text-sm text-altar-wood">
+              <input
+                type="checkbox"
+                className="size-4 accent-heritage-red"
+                checked={showDeathAnniversary}
+                onChange={(event) => setShowDeathAnniversary(event.target.checked)}
+              />
+              <span>Hiện ngày giỗ</span>
+            </label>
+            <label className="inline-flex items-center gap-2 rounded-full border border-heritage-gold/30 bg-rice-paper px-3 py-1.5 text-sm text-altar-wood">
+              <input
+                type="checkbox"
+                className="size-4 accent-heritage-red"
+                checked={showBirthday}
+                onChange={(event) => setShowBirthday(event.target.checked)}
+              />
+              <span>Hiện sinh nhật</span>
+            </label>
+          </motion.div>
           <div className="relative border-l-2 border-heritage-gold ml-4 md:ml-0">
-            {events.length === 0 ? (
+            {visibleEvents.length === 0 ? (
               <motion.div className="pl-10 py-8 text-center" variants={fadeIn}>
                 <CalendarDays className="size-10 mx-auto mb-3 text-altar-wood/20" />
-                <p className="text-altar-wood/50">Chưa có sự kiện nào sắp tới</p>
+                <p className="text-altar-wood/50">
+                  {hasHiddenTimelineEvents
+                    ? "Không có sự kiện đang hiển thị. Hãy bật Ngày giỗ hoặc Sinh nhật để xem thêm."
+                    : "Chưa có sự kiện nào sắp tới"}
+                </p>
               </motion.div>
             ) : (
-              events.map((event, idx) => (
+              visibleEvents.map((event, idx) => (
                 <motion.div
                   key={`${event.personId}-${event.type}-${idx}`}
                   className="mb-12 relative pl-10"
                   variants={fadeIn}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: idx * 0.05 }}
                 >
                   <div
                     className={`absolute -left-[11px] top-0 w-5 h-5 rounded-full border-4 border-white ${event.type === "death_anniversary"

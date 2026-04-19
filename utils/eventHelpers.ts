@@ -145,6 +145,8 @@ export function computeEvents(
           daysUntil,
           eventDateLabel: `${lDay.toString().padStart(2, "0")}/${lMonth.toString().padStart(2, "0")} ÂL`,
           originYear: p.death_year,
+          originMonth: lMonth,
+          originDay: lDay,
           isDeceased: p.is_deceased,
         });
       } catch {

@@ -3,9 +3,10 @@ import Header from "@/components/Header";
 import LandingHero from "@/components/LandingHero";
 import { computeEvents } from "@/utils/eventHelpers";
 import { createAdminClient } from "@/utils/supabase/admin";
+import { Solar } from "lunar-javascript";
 import config from "./config";
 
-const LANDING_EVENT_LIMIT = 5;
+const LANDING_EVENT_POOL_LIMIT = 30;
 const LANDING_HIGHLIGHT_POST_LIMIT = 4;
 const LANDING_MIN_FEATURED_TARGET = 3;
 
@@ -68,12 +69,36 @@ export default async function HomePage() {
       isFeatured: post.is_featured,
     }),
   );
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayLunar = Solar.fromYmd(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    today.getDate(),
+  ).getLunar();
+  const currentSolarMonth = today.getMonth();
+  const currentSolarYear = today.getFullYear();
+  const currentLunarMonth = Math.abs(todayLunar.getMonth());
+  const currentLunarDay = todayLunar.getDay();
+
   const upcomingEvents = computeEvents(persons, customEvents)
-    .filter(
-      (event) =>
-        event.daysUntil >= 0 && event.type !== "death_anniversary",
-    )
-    .slice(0, LANDING_EVENT_LIMIT)
+    .filter((event) => {
+      if (event.daysUntil < 0) return false;
+
+      if (event.type === "death_anniversary") {
+        return (
+          event.originMonth === currentLunarMonth &&
+          (event.originDay ?? 0) >= currentLunarDay
+        );
+      }
+
+      return (
+        event.nextOccurrence.getFullYear() === currentSolarYear &&
+        event.nextOccurrence.getMonth() === currentSolarMonth
+      );
+    })
+    .slice(0, LANDING_EVENT_POOL_LIMIT)
     .map(({ nextOccurrence, ...rest }) => ({
       ...rest,
       nextOccurrence: nextOccurrence.toISOString(),
