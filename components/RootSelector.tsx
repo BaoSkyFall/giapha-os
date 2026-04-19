@@ -34,7 +34,7 @@ export default function RootSelector({
       featuredIds={FEATURED_ROOT_IDS}
       placeholder="Chọn người..."
       label="Gốc hiển thị"
-      className="w-full sm:w-72"
+      className="w-[70vw] sm:w-80"
       showAllOption
       allOptionLabel="Trống"
     />

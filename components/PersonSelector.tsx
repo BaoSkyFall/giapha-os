@@ -34,7 +34,7 @@ export default function PersonSelector({
   onSelect,
   placeholder = "Chọn người...",
   label = "Gốc hiển thị",
-  className = "w-full sm:w-72",
+  className = "w-[70vw] sm:w-80",
   showAllOption = false,
   allOptionLabel = "Toàn bộ dữ liệu",
   featuredIds = [],
@@ -343,7 +343,7 @@ export default function PersonSelector({
 
                         <div className="flex-1 min-w-0 text-left">
                           <p
-                            className={`truncate ${isSelected ? "font-bold" : "font-medium group-hover/item:text-stone-900"}`}
+                            className={`truncate text-xs sm:text-sm ${isSelected ? "font-bold" : "font-medium group-hover/item:text-stone-900"}`}
                           >
                             {person.full_name}{" "}
                             {person.birth_year ? (
@@ -353,7 +353,13 @@ export default function PersonSelector({
                             ) : null}
                           </p>
                           {person.generation != null && (
-                            <p className="text-[10px] ${isFeatured && !isSelected ? 'text-amber-300' : 'text-stone-400'} font-medium">
+                            <p
+                              className={`text-[12px] sm:text-[14px] ${
+                                isFeatured && !isSelected
+                                  ? "text-amber-300"
+                                  : "text-stone-400"
+                              } font-medium`}
+                            >
                               Đời thứ {person.generation}
                             </p>
                           )}

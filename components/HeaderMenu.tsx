@@ -69,7 +69,7 @@ export default function HeaderMenu({ displayName }: HeaderMenuProps) {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex min-w-[220px] items-center gap-2 rounded-full border border-transparent py-1.5 pl-2 pr-4 transition-all duration-200 hover:border-stone-200 hover:bg-stone-100"
+        className="group flex sm:min-w-[220px] items-center gap-2 rounded-full border border-transparent py-1.5 pl-2 pr-4 transition-all duration-200 hover:border-stone-200 hover:bg-stone-100 justify-end"
       >
         <div className="flex size-8 items-center justify-center rounded-full bg-linear-to-br from-amber-200 to-amber-100 font-bold text-amber-800 shadow-sm ring-1 ring-amber-300/50">
           {avatarLabel || <UserCircle className="size-5" />}

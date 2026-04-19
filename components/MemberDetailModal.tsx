@@ -217,7 +217,7 @@ export default function MemberDetailModal() {
                   className="flex items-center gap-1.5 px-4 py-2 bg-sky-100/80 text-sky-800 rounded-full hover:bg-sky-200 font-semibold text-sm shadow-sm border border-sky-200/60 transition-colors"
                 >
                   <MessageSquarePlus className="size-4" />
-                  <span className="hidden sm:inline">Đề xuất bổ sung</span>
+                  <span className="">Đề xuất bổ sung</span>
                 </button>
               )}
 
