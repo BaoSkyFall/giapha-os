@@ -820,8 +820,8 @@ export default function LoginPage() {
                             : "Đăng nhập"
                           : mode === "register"
                             ? loadingPrimary
-                              ? "Đang gửi OTP..."
-                              : "Gửi mã OTP"
+                              ? "Đang đăng ký..."
+                              : "Đăng ký"
                             : "Tiếp tục"}
                       </button>
 

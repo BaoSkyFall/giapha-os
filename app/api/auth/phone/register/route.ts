@@ -144,6 +144,8 @@ export async function POST(request: NextRequest) {
       });
 
     if (upsertProfileError) {
+      await adminSupabase.auth.admin.deleteUser(userId);
+
       return NextResponse.json(
         { error: "Khong the khoi tao ho so nguoi dung.", traceId },
         { status: 500 },
