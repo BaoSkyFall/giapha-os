@@ -62,7 +62,7 @@ const modeHeaderTitles: Record<AuthMode, string> = {
 
 const modeDescriptions: Record<AuthMode, string> = {
   login: "Nhập số điện thoại và mật khẩu 6 số để đăng nhập.",
-  register: "Nhập số điện thoại, tạo mật khẩu 6 số rồi xác thực OTP để đăng ký.",
+  register: "Nhập số điện thoại và tạo mật khẩu 6 số để đăng ký.",
   forgot_password: "Nhập số điện thoại, xác thực OTP trước rồi đặt mật khẩu mới 6 số.",
 };
 
@@ -359,6 +359,36 @@ export default function LoginPage() {
     }
   };
 
+  const submitRegister = async (explicitPassword?: string) => {
+    const finalPassword = explicitPassword ?? password;
+    setLoadingPrimary(true);
+    clearNotices();
+
+    try {
+      const response = await fetch("/api/auth/phone/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber, password: finalPassword }),
+      });
+
+      const data = (await response.json()) as AuthResponse;
+      if (!response.ok) {
+        setError(data.error || "Đăng ký thất bại.");
+        return;
+      }
+
+      await setSessionAndRedirect(data);
+    } catch (requestError) {
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Đăng ký thất bại.",
+      );
+    } finally {
+      setLoadingPrimary(false);
+    }
+  };
+
   const submitOtpFlow = async (explicitOtpCode?: string) => {
     const finalOtpCode = explicitOtpCode ?? otpCode;
     if (finalOtpCode.length !== OTP_LENGTH) {
@@ -454,7 +484,7 @@ export default function LoginPage() {
       return;
     }
 
-    await sendOtp(false);
+    await submitRegister();
   };
 
   const submitForgotPasswordReset = async (explicitPassword?: string) => {
@@ -536,7 +566,7 @@ export default function LoginPage() {
     const submissionKey = `${mode}:${phoneNumber}:${effectivePassword}:${effectiveConfirmPassword}`;
     if (passwordLastAutoSubmittedRef.current === submissionKey) return;
     passwordLastAutoSubmittedRef.current = submissionKey;
-    void sendOtp(false);
+    void submitRegister(effectivePassword);
   };
 
   const tryAutoSubmitOtp = (completedOtpCode: string) => {
