@@ -14,6 +14,12 @@ export interface AdditionalDataRequestTelegramPayload {
   decisionNote?: string | null;
 }
 
+export interface TelegramSendResult {
+  ok: boolean;
+  skipped: boolean;
+  error?: string;
+}
+
 const TELEGRAM_API_BASE = "https://api.telegram.org";
 
 const getBaseUrl = () => {
@@ -55,7 +61,9 @@ const buildTelegramText = (payload: AdditionalDataRequestTelegramPayload) => {
   ];
 
   if (payload.relationshipDetails && payload.relationshipDetails.length > 0) {
-    lines.push(`Thông tin quan hệ gia phả: ${payload.relationshipDetails.join(" | ")}`);
+    lines.push(
+      `Thông tin quan hệ gia phả: ${payload.relationshipDetails.join(" | ")}`,
+    );
   }
 
   if (payload.decisionNote && payload.decisionNote.trim().length > 0) {
@@ -68,7 +76,7 @@ const buildTelegramText = (payload: AdditionalDataRequestTelegramPayload) => {
 
 export const sendAdditionalDataRequestTelegram = async (
   payload: AdditionalDataRequestTelegramPayload,
-) => {
+): Promise<TelegramSendResult> => {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
@@ -131,7 +139,8 @@ export const sendAdditionalDataRequestTelegram = async (
     return {
       ok: false,
       skipped: false,
-      error: error instanceof Error ? error.message : "Lỗi Telegram không xác định",
+      error:
+        error instanceof Error ? error.message : "Lỗi Telegram không xác định",
     };
   }
 };

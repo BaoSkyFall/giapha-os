@@ -5,6 +5,8 @@ import {
   getAdditionalDataRequestAdminLink,
   sendAdditionalDataRequestTelegram,
 } from "@/utils/telegram";
+import { sendApprovalSms } from "@/utils/notifications/approval-sms";
+import { normalizeVietnamPhone } from "@/utils/auth/phone";
 import { revalidatePath } from "next/cache";
 
 type RelationshipDirection = "parent" | "child" | "spouse";
@@ -35,6 +37,11 @@ export interface SubmitAdditionalDataRequestInput {
 }
 
 type JsonRecord = Record<string, unknown>;
+type NotificationResult = {
+  ok: boolean;
+  skipped: boolean;
+  error?: string;
+};
 
 interface NewRelationshipTargetProposal {
   full_name: string;
@@ -105,6 +112,7 @@ const NUMERIC_FIELDS = new Set<string>([
 const BOOLEAN_FIELDS = new Set<string>(["is_deceased", "is_in_law"]);
 const GENDER_VALUES = new Set(["male", "female", "other"]);
 const CHILD_RELATION_TYPES = new Set(["biological_child", "adopted_child"]);
+const APPROVAL_SMS_TEST_ALLOWED_PHONE = "0938443767";
 
 const FIELD_LABELS: Record<string, string> = {
   full_name: "họ và tên",
@@ -227,6 +235,39 @@ const buildRelationshipDetails = (relationships: NormalizedRelationshipAddition[
     return `${item.direction}:${relationshipType}:${targetLabel}`;
   });
 };
+
+const buildNotificationWarning = (
+  results: { label: string; result: NotificationResult }[],
+) => {
+  const failed = results.filter(({ result }) => !result.ok);
+  if (failed.length === 0) return null;
+
+  return failed
+    .map(({ label, result }) => `${label}: ${result.error ?? "Không gửi được thông báo."}`)
+    .join(" ");
+};
+
+const buildApprovalSmsMessage = ({
+  requestId,
+  personName,
+  submitterName,
+  changedFields,
+  reviewedAt,
+}: {
+  requestId: string;
+  personName: string;
+  submitterName: string;
+  changedFields: string[];
+  reviewedAt: string;
+}) =>
+  [
+    "Yêu cầu bổ sung dữ liệu đã được phê duyệt.",
+    `Mã yêu cầu: ${requestId}`,
+    `Thành viên: ${personName}`,
+    `Người gửi: ${submitterName}`,
+    `Nội dung: ${changedFields.length > 0 ? changedFields.join(", ") : "Không có"}`,
+    `Thời gian duyệt: ${new Date(reviewedAt).toLocaleString("vi-VN")}`,
+  ].join("\n");
 
 const normalizeRelationshipAdditions = async (
   personId: string,
@@ -405,6 +446,26 @@ const notifyTelegram = async (
   }
 
   return result;
+};
+
+const loadNotificationNames = async (
+  personId: string,
+  submittedBy: string,
+) => {
+  const supabase = await getSupabase();
+  const [{ data: person }, { data: submitter }] = await Promise.all([
+    supabase.from("persons").select("full_name").eq("id", personId).single(),
+    supabase
+      .from("profiles")
+      .select("id, full_name")
+      .eq("id", submittedBy)
+      .single(),
+  ]);
+
+  return {
+    personName: person?.full_name ?? personId,
+    submitterName: submitter?.full_name || submitter?.id || submittedBy,
+  };
 };
 
 export async function submitAdditionalDataRequest(
@@ -684,23 +745,16 @@ export async function approveAdditionalDataRequest(
     return { error: `Không thể cập nhật trạng thái yêu cầu: ${statusError.message}` };
   }
 
-  const { data: person } = await supabase
-    .from("persons")
-    .select("full_name")
-    .eq("id", loaded.data.person_id)
-    .single();
+  const { personName, submitterName } = await loadNotificationNames(
+    loaded.data.person_id,
+    loaded.data.submitted_by,
+  );
 
-  const { data: submitter } = await supabase
-    .from("profiles")
-    .select("id, full_name")
-    .eq("id", loaded.data.submitted_by)
-    .single();
-
-  await notifyTelegram(
+  const telegram = await notifyTelegram(
     "approved",
     requestId,
-    person?.full_name ?? loaded.data.person_id,
-    submitter?.full_name || submitter?.id || loaded.data.submitted_by,
+    personName,
+    submitterName,
     requestPayload,
     resolvedDecisionNote,
   );
@@ -708,7 +762,16 @@ export async function approveAdditionalDataRequest(
   revalidatePath("/dashboard/additional-data-requests");
   revalidatePath("/dashboard/members");
 
-  return { success: true, status: "approved", reviewedAt };
+  const warning = buildNotificationWarning([
+    { label: "Telegram", result: telegram },
+  ]);
+
+  return {
+    success: true,
+    status: "approved",
+    reviewedAt,
+    warning,
+  };
 }
 
 export async function rejectAdditionalDataRequest(
@@ -745,28 +808,137 @@ export async function rejectAdditionalDataRequest(
     return { error: `Không thể cập nhật trạng thái yêu cầu: ${error.message}` };
   }
 
-  const { data: person } = await supabase
-    .from("persons")
-    .select("full_name")
-    .eq("id", loaded.data.person_id)
-    .single();
+  const { personName, submitterName } = await loadNotificationNames(
+    loaded.data.person_id,
+    loaded.data.submitted_by,
+  );
 
-  const { data: submitter } = await supabase
-    .from("profiles")
-    .select("id, full_name")
-    .eq("id", loaded.data.submitted_by)
-    .single();
-
-  await notifyTelegram(
+  const telegram = await notifyTelegram(
     "rejected",
     requestId,
-    person?.full_name ?? loaded.data.person_id,
-    submitter?.full_name || submitter?.id || loaded.data.submitted_by,
+    personName,
+    submitterName,
     loaded.payload,
     resolvedDecisionNote,
   );
 
   revalidatePath("/dashboard/additional-data-requests");
 
-  return { success: true, status: "rejected", reviewedAt };
+  const warning = buildNotificationWarning([
+    { label: "Telegram", result: telegram },
+  ]);
+
+  return {
+    success: true,
+    status: "rejected",
+    reviewedAt,
+    warning,
+  };
+}
+
+export async function sendLatestApprovedAdditionalDataRequestSmsTest() {
+  const profile = await getProfile();
+  if (!profile || profile.role !== "admin") {
+    return { error: "Chỉ quản trị viên mới được gửi SMS thử nghiệm." };
+  }
+
+  const testPhone = normalizeText(
+    process.env.ADDITIONAL_DATA_REQUEST_SMS_TEST_PHONE,
+  );
+
+  if (!testPhone) {
+    return {
+      success: true,
+      warning:
+        "Chưa cấu hình số điện thoại SMS thử nghiệm. Hãy thiết lập ADDITIONAL_DATA_REQUEST_SMS_TEST_PHONE.",
+    };
+  }
+
+  try {
+    if (
+      normalizeVietnamPhone(testPhone) !==
+      normalizeVietnamPhone(APPROVAL_SMS_TEST_ALLOWED_PHONE)
+    ) {
+      return {
+        success: true,
+        warning:
+          "Số SMS thử nghiệm không khớp số đã cho phép cho giai đoạn kiểm thử này.",
+      };
+    }
+  } catch {
+    return {
+      success: true,
+      warning: "Số điện thoại SMS thử nghiệm chưa hợp lệ.",
+    };
+  }
+
+  const supabase = await getSupabase();
+  const { data: rows, error } = await supabase
+    .from("additional_data_requests")
+    .select("*")
+    .eq("status", "approved")
+    .eq("reviewed_by", profile.id)
+    .order("reviewed_at", { ascending: false })
+    .limit(1);
+
+  if (error) {
+    return {
+      error: `Không thể tải yêu cầu đã phê duyệt gần nhất: ${error.message}`,
+    };
+  }
+
+  const latest = rows?.[0];
+  if (!latest || typeof latest.id !== "string") {
+    return {
+      error: "Chưa có yêu cầu nào do bạn phê duyệt để gửi SMS thử nghiệm.",
+    };
+  }
+
+  const payloadRaw = asObject(latest.request_payload);
+  const payload: RequestPayload = {
+    person_changes: asObject(payloadRaw.person_changes),
+    private_changes: asObject(payloadRaw.private_changes),
+    relationship_additions: Array.isArray(payloadRaw.relationship_additions)
+      ? (payloadRaw.relationship_additions as NormalizedRelationshipAddition[])
+      : [],
+    submitter_note: normalizeText(payloadRaw.submitter_note) ?? null,
+  };
+
+  const personId =
+    typeof latest.person_id === "string" ? latest.person_id : "unknown-person";
+  const submittedBy =
+    typeof latest.submitted_by === "string" ? latest.submitted_by : "unknown-user";
+  const reviewedAt =
+    typeof latest.reviewed_at === "string"
+      ? latest.reviewed_at
+      : new Date().toISOString();
+
+  const { personName, submitterName } = await loadNotificationNames(
+    personId,
+    submittedBy,
+  );
+
+  const sms = await sendApprovalSms({
+    phoneNumber: testPhone,
+    traceId: latest.id,
+    message: buildApprovalSmsMessage({
+      requestId: latest.id,
+      personName,
+      submitterName,
+      changedFields: buildChangedFieldList(payload),
+      reviewedAt,
+    }),
+  });
+
+  if (!sms.ok) {
+    return {
+      success: true,
+      warning: sms.error ?? "Không gửi được SMS thử nghiệm.",
+    };
+  }
+
+  return {
+    success: true,
+    message: "Đã gửi SMS thử nghiệm cho yêu cầu phê duyệt gần nhất.",
+  };
 }

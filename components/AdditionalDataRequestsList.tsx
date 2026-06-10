@@ -3,6 +3,7 @@
 import {
   approveAdditionalDataRequest,
   rejectAdditionalDataRequest,
+  sendLatestApprovedAdditionalDataRequestSmsTest,
 } from "@/app/actions/additional-data-request";
 import {
   AdditionalDataRequestItem,
@@ -405,6 +406,7 @@ export default function AdditionalDataRequestsList({
   const [generationFilter, setGenerationFilter] = useState("all");
   const [branchFilter, setBranchFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [smsTestLoading, setSmsTestLoading] = useState(false);
 
   const showNotification = (message: string) => {
     setNotification(message);
@@ -435,7 +437,11 @@ export default function AdditionalDataRequestsList({
       reviewed_at: result?.reviewedAt ?? new Date().toISOString(),
       decision_note: null,
     });
-    showNotification("Đã phê duyệt yêu cầu.");
+    showNotification(
+      result?.warning
+        ? `Đã phê duyệt yêu cầu. Cảnh báo thông báo: ${result.warning}`
+        : "Đã phê duyệt yêu cầu.",
+    );
     setLoadingId(null);
   };
 
@@ -455,8 +461,30 @@ export default function AdditionalDataRequestsList({
       reviewed_at: result?.reviewedAt ?? new Date().toISOString(),
       decision_note: note || null,
     });
-    showNotification("Đã từ chối yêu cầu.");
+    showNotification(
+      result?.warning
+        ? `Đã từ chối yêu cầu. Cảnh báo thông báo: ${result.warning}`
+        : "Đã từ chối yêu cầu.",
+    );
     setLoadingId(null);
+  };
+
+  const handleSendSmsTest = async () => {
+    setSmsTestLoading(true);
+    const result = await sendLatestApprovedAdditionalDataRequestSmsTest();
+
+    if (result?.error) {
+      showNotification(result.error);
+      setSmsTestLoading(false);
+      return;
+    }
+
+    showNotification(
+      result?.warning ||
+        result?.message ||
+        "Đã xử lý yêu cầu gửi SMS thử nghiệm.",
+    );
+    setSmsTestLoading(false);
   };
 
   const generationOptions = useMemo(
@@ -594,6 +622,20 @@ export default function AdditionalDataRequestsList({
           Hiển thị {paginatedRequests.length} / {filteredRequests.length} yêu cầu
           (tổng {requests.length}).
         </p>
+
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-stone-100 pt-4">
+          <p className="text-xs text-stone-500">
+            Gửi SMS thử nghiệm bằng yêu cầu gần nhất bạn đã phê duyệt.
+          </p>
+          <button
+            type="button"
+            onClick={handleSendSmsTest}
+            disabled={smsTestLoading}
+            className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm font-semibold text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {smsTestLoading ? "Đang gửi SMS..." : "Gửi SMS thử nghiệm"}
+          </button>
+        </div>
       </section>
 
       {paginatedRequests.length === 0 && (
