@@ -11,6 +11,12 @@
     .trim();
 };
 
+// Tokens for server-side search against the normalized `name_search` column
+// (docs/members-search-migration.sql). Mirrors normalizeForSearch so that
+// `name_search ILIKE '%token%'` for every token === the JS matchesSearchQuery.
+export const tokenizeForSearch = (value: string | null | undefined): string[] =>
+  normalizeForSearch(value).split(" ").filter(Boolean);
+
 export const matchesSearchQuery = (
   haystackParts: Array<string | number | null | undefined>,
   query: string | null | undefined,
