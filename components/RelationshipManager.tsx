@@ -93,12 +93,12 @@ export default function RelationshipManager({
       // This is a bit complex because we need to check both a and b columns
       const { data: relsA, error: errA } = await supabase
         .from("relationships")
-        .select(`*, target:persons!person_b(*)`) // if I am A, target is B
+        .select(`*, target:persons!person_b(id, full_name, gender, avatar_url)`) // if I am A, target is B
         .eq("person_a", personId);
 
       const { data: relsB, error: errB } = await supabase
         .from("relationships")
-        .select(`*, target:persons!person_a(*)`) // if I am B, target is A
+        .select(`*, target:persons!person_a(id, full_name, gender, avatar_url)`) // if I am B, target is A
         .eq("person_b", personId);
 
       if (errA || errB) throw errA || errB;
@@ -146,7 +146,7 @@ export default function RelationshipManager({
         const { data: childrenMarriages } = await supabase
           .from("relationships")
           .select(
-            `*, person_a_data:persons!person_a(*), person_b_data:persons!person_b(*)`,
+            `*, person_a_data:persons!person_a(id, full_name, gender, avatar_url), person_b_data:persons!person_b(id, full_name, gender, avatar_url)`,
           )
           .eq("type", "marriage")
           .or(
@@ -204,12 +204,12 @@ export default function RelationshipManager({
 
       const { data } = await supabase
         .from("persons")
-        .select("*")
+        .select("id, full_name, gender, birth_year, birth_month, birth_day")
         .ilike("full_name", `%${searchTerm}%`)
         .neq("id", personId) // Exclude self
         .limit(5);
 
-      if (data) setSearchResults(data);
+      if (data) setSearchResults(data as unknown as Person[]);
     };
 
     const timeoutId = setTimeout(searchPeople, 300);
@@ -222,11 +222,11 @@ export default function RelationshipManager({
       const fetchRecent = async () => {
         const { data } = await supabase
           .from("persons")
-          .select("*")
+          .select("id, full_name, gender, birth_year, birth_month, birth_day")
           .neq("id", personId)
           .order("created_at", { ascending: false })
           .limit(10);
-        if (data) setRecentMembers(data);
+        if (data) setRecentMembers(data as unknown as Person[]);
       };
       fetchRecent();
     }
