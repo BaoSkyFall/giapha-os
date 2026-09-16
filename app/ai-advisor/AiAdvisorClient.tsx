@@ -2,7 +2,16 @@
 
 import { FAQ_CHIPS, type FaqChip } from "./data";
 import { useState, useCallback, useRef, useEffect } from "react";
-import type { ChatMessage, StreamChunk } from "@/types/ai-advisor";
+import Link from "next/link";
+import type {
+  ChatMessage,
+  StreamChunk,
+  CandidatePerson,
+  PersonProfileData,
+  PersonDetail,
+  RelationshipData,
+  StructuredAnswerPayload,
+} from "@/types/ai-advisor";
 
 // ─────────────────────────────────────────────────────────────
 // Session types
@@ -36,7 +45,6 @@ function loadLocalSessionIndex(): SessionMeta[] {
 
 function saveLocalSessionIndex(sessions: SessionMeta[]): void {
   try {
-    // Only persist local-source sessions to the index
     const localOnly = sessions.filter((s) => s.source === "local");
     localStorage.setItem(LS_SESSION_INDEX, JSON.stringify(localOnly));
   } catch (err) {
@@ -70,59 +78,222 @@ function deleteLocalSession(sessionId: string): void {
 }
 
 // ─────────────────────────────────────────────────────────────
-// UI helpers
-// ─────────────────────────────────────────────────────────────
-
-const STEP_LABELS: Record<string, string> = {
-  parsing:   "Phân tích câu hỏi",
-  searching: "Truy vấn cơ sở dữ liệu",
-  verifying: "Xác minh danh tính",
-  narrating: "Tổng hợp hồ sơ thành viên",
-};
-
-const ALL_STEPS = ["parsing", "searching", "verifying", "narrating"];
-
-// ─────────────────────────────────────────────────────────────
-// Sub-components
+// Sub-components & Interactive Cards
 // ─────────────────────────────────────────────────────────────
 
 function UserMessage({ content }: { content: string }) {
   return (
-    <div className="flex justify-end animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="max-w-[70%] bg-white shadow-md rounded-2xl rounded-tr-none p-4 border-r-4 border-[#E8B931]">
-        <p className="text-[#201212] leading-relaxed">{content}</p>
+    <div className="flex justify-end animate-in fade-in slide-in-from-bottom-3 duration-300">
+      <div className="max-w-[78%] bg-[#B31D1D] text-white shadow-md rounded-2xl rounded-tr-none px-5 py-3.5 border border-[#B31D1D]">
+        <p className="text-sm md:text-base leading-relaxed text-white font-normal text-pretty">{content}</p>
       </div>
     </div>
   );
 }
 
-function AiMessage({ content }: { content: string }) {
-  const lines = content.split("\n").filter((l) => l.trim() !== "");
+function DisambiguationCard({
+  candidates,
+  onSelect,
+}: {
+  candidates: CandidatePerson[];
+  onSelect: (personId: string, name: string) => void;
+}) {
   return (
-    <div className="flex justify-start animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
-      <div className="max-w-[80%] flex gap-4">
-        <div className="flex-shrink-0">
-          <div className="w-10 h-10 rounded-full bg-[#B31D1D] flex items-center justify-center shadow-lg border-2 border-[#E8B931]/30">
-            <span className="material-symbols-outlined text-white text-xl">temple_buddhist</span>
+    <div className="mt-3 space-y-2.5">
+      <p className="text-xs font-semibold text-stone-600 uppercase tracking-wider">
+        Vui lòng chọn thành viên bạn muốn tra cứu:
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {candidates.map((c) => (
+          <div
+            key={c.person_id}
+            className="bg-stone-50 border border-stone-200 hover:border-[#B31D1D] rounded-xl p-3.5 transition-all shadow-sm hover:shadow flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <span className="font-bold text-stone-900 text-sm md:text-base">
+                  {c.honorific ? `${c.honorific} ` : ""}{c.display_name}
+                </span>
+                {c.generation && (
+                  <span className="text-[11px] font-medium bg-[#E8B931]/20 text-[#8B6A00] px-2 py-0.5 rounded-full border border-[#E8B931]/30 shrink-0">
+                    Đời {c.generation}
+                  </span>
+                )}
+              </div>
+              <div className="text-xs text-stone-600 space-y-0.5 mb-3">
+                {c.branch && <p>Nhánh: <span className="font-medium text-stone-800">{c.branch}</span></p>}
+                {(c.birth_year || c.birth_display) && (
+                  <p>Sinh: <span className="font-medium text-stone-800">{c.birth_display || c.birth_year}</span></p>
+                )}
+                {c.father_name && (
+                  <p>Thân phụ: <span className="font-medium text-stone-800">{c.father_name}</span></p>
+                )}
+                {c.mother_name && (
+                  <p>Thân mẫu: <span className="font-medium text-stone-800">{c.mother_name}</span></p>
+                )}
+              </div>
+            </div>
+            <button
+              onClick={() => onSelect(c.person_id, c.display_name)}
+              className="w-full py-1.5 px-3 bg-white hover:bg-[#B31D1D] text-[#B31D1D] hover:text-white border border-[#B31D1D]/40 rounded-lg text-xs font-semibold transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+            >
+              <span>Chọn thành viên này</span>
+              <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RelationshipCard({ rel }: { rel: RelationshipData }) {
+  return (
+    <div className="mt-3 bg-amber-50/70 border border-amber-200/80 rounded-xl p-4 shadow-sm">
+      <div className="flex items-center gap-2 mb-2 text-[#B31D1D] font-bold text-sm">
+        <span className="material-symbols-outlined text-lg">schema</span>
+        <span>Mắt xích quan hệ huyết thống</span>
+      </div>
+      {rel.path_labels && rel.path_labels.length > 0 && (
+        <div className="space-y-1.5 my-2.5 pl-2 border-l-2 border-[#E8B931]">
+          {rel.path_labels.map((step, idx) => (
+            <div key={idx} className="text-xs text-stone-700 flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#B31D1D] shrink-0" />
+              <span>{step}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="mt-2.5 pt-2.5 border-t border-amber-200/60 flex flex-wrap gap-2 text-xs">
+        <span className="px-2.5 py-1 bg-white border border-amber-200 rounded-md font-medium text-stone-800">
+          Cách xưng hô: <strong>{rel.a_calls_b}</strong> / <strong>{rel.b_calls_a}</strong>
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function PersonProfileCard({ person }: { person?: PersonDetail | null }) {
+  if (!person) return null;
+  const p = person as Record<string, unknown>;
+  const personId = (p.id || p.person_id) as string | undefined;
+  if (!personId) return null;
+  const fullName = (p.full_name || p.display_name || "") as string;
+  const honorific = (p.honorific || "") as string;
+  const generation = p.generation as number | null | undefined;
+  const branch = p.branch as string | null | undefined;
+  const birthDisplay = (p.birth_display || (p.birth_year ? String(p.birth_year) : null)) as string | null;
+  const deathDisplay = (p.death_display || (p.death_year ? String(p.death_year) : null)) as string | null;
+
+  return (
+    <div className="mt-3 bg-stone-50 border border-stone-200 rounded-xl p-3.5 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div>
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-stone-900 text-sm md:text-base">
+            {honorific ? `${honorific} ` : ""}{fullName}
+          </span>
+          {generation && (
+            <span className="text-[11px] font-medium bg-[#E8B931]/20 text-[#8B6A00] px-2 py-0.5 rounded-full border border-[#E8B931]/30">
+              Đời {generation}
+            </span>
+          )}
+        </div>
+        <div className="text-xs text-stone-500 mt-1 flex flex-wrap gap-x-3">
+          {branch && <span>Nhánh: <strong>{branch}</strong></span>}
+          {birthDisplay && <span>Sinh: <strong>{birthDisplay}</strong></span>}
+          {deathDisplay && <span>Mất: <strong>{deathDisplay}</strong></span>}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <Link
+          href={`/dashboard/members?id=${personId}`}
+          className="px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 shadow-sm"
+        >
+          <span className="material-symbols-outlined text-[14px]">account_tree</span>
+          <span>Xem gia phả</span>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function AssistantMessage({
+  msg,
+  onSelectCandidate,
+  onSuggestionClick,
+}: {
+  msg: ChatMessage;
+  onSelectCandidate: (personId: string, name: string) => void;
+  onSuggestionClick: (query: string) => void;
+}) {
+  const lines = (msg.content || "").split("\n").filter((l) => l.trim() !== "");
+  const primaryPerson = msg.data?.primary_person;
+  const relationship = msg.data?.relationship;
+
+  return (
+    <div className="flex justify-start animate-in fade-in slide-in-from-bottom-3 duration-300">
+      <div className="max-w-[85%] md:max-w-[80%] flex gap-3.5">
+        <div className="flex-shrink-0 mt-0.5">
+          <div className="w-9 h-9 rounded-full bg-[#B31D1D] flex items-center justify-center shadow border border-[#E8B931]/40">
+            <span className="material-symbols-outlined text-white text-lg">temple_buddhist</span>
           </div>
         </div>
-        <div className="bg-white shadow-xl rounded-2xl rounded-tl-none overflow-hidden border-t-4 border-[#B31D1D]">
-          <div className="h-1 bg-gradient-to-r from-[#E8B931] via-[#B31D1D] to-[#E8B931] opacity-50" />
-          <div className="p-5">
-            <div className="text-[#201212] leading-relaxed space-y-2">
+        <div className="flex-1 bg-white shadow-sm rounded-2xl rounded-tl-none overflow-hidden border border-stone-200/90">
+          <div className="h-1 bg-gradient-to-r from-[#E8B931] via-[#B31D1D] to-[#E8B931] opacity-70" />
+          <div className="p-4 md:p-5">
+            <div className="text-stone-800 text-sm md:text-base leading-relaxed space-y-2 text-pretty">
               {lines.map((line, i) =>
-                line.startsWith("- ") ? (
-                  <li key={i} className="flex items-start gap-3 list-none">
-                    <span className="w-5 h-5 rounded-full bg-[#E8B931]/20 flex items-center justify-center mt-0.5 shrink-0">
-                      <span className="w-2 h-2 rounded-full bg-[#E8B931]" />
+                line.startsWith("- ") || line.startsWith("• ") ? (
+                  <li key={i} className="flex items-start gap-2.5 list-none">
+                    <span className="w-4 h-4 rounded-full bg-[#E8B931]/20 flex items-center justify-center mt-1 shrink-0">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#8B6A00]" />
                     </span>
-                    <span dangerouslySetInnerHTML={{ __html: line.slice(2).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") }} />
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: line.slice(2).replace(/\*\*(.*?)\*\*/g, "<strong class='text-stone-900 font-semibold'>$1</strong>"),
+                      }}
+                    />
                   </li>
                 ) : (
-                  <p key={i} dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") }} />
+                  <p
+                    key={i}
+                    dangerouslySetInnerHTML={{
+                      __html: line.replace(/\*\*(.*?)\*\*/g, "<strong class='text-stone-900 font-semibold'>$1</strong>"),
+                    }}
+                  />
                 )
               )}
             </div>
+
+            {/* Disambiguation Cards */}
+            {msg.candidates && msg.candidates.length > 0 ? (
+              <DisambiguationCard candidates={msg.candidates} onSelect={onSelectCandidate} />
+            ) : null}
+
+            {/* Structured Person Profile Card */}
+            {msg.response_type === "person" && primaryPerson ? (
+              <PersonProfileCard person={primaryPerson} />
+            ) : null}
+
+            {/* Structured Relationship Path Card */}
+            {msg.response_type === "relationship" && relationship ? (
+              <RelationshipCard rel={relationship} />
+            ) : null}
+
+            {/* Follow-up Suggestions */}
+            {msg.suggestions && msg.suggestions.length > 0 && (
+              <div className="mt-4 pt-3 border-t border-stone-100 flex flex-wrap gap-2">
+                {msg.suggestions.map((sug, sIdx) => (
+                  <button
+                    key={sIdx}
+                    onClick={() => onSuggestionClick(sug)}
+                    className="px-3 py-1 bg-stone-50 hover:bg-[#B31D1D]/10 text-stone-600 hover:text-[#B31D1D] border border-stone-200 hover:border-[#B31D1D]/30 rounded-full text-xs font-medium transition-all text-left"
+                  >
+                    {sug}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -130,85 +301,85 @@ function AiMessage({ content }: { content: string }) {
   );
 }
 
-function ThinkingState({ steps }: { steps: string[] }) {
+function ThinkingState() {
   return (
-    <div className="flex justify-start animate-in fade-in duration-500">
-      <div className="max-w-[80%] flex gap-4">
-        <div className="flex-shrink-0">
-          <div className="w-10 h-10 rounded-full bg-[#B31D1D]/20 flex items-center justify-center border-2 border-[#B31D1D]/10">
-            <span className="material-symbols-outlined text-[#B31D1D] text-xl animate-pulse">psychology</span>
+    <div className="flex justify-start animate-in fade-in duration-300">
+      <div className="max-w-[80%] flex gap-3.5">
+        <div className="flex-shrink-0 mt-0.5">
+          <div className="w-9 h-9 rounded-full bg-[#B31D1D]/10 flex items-center justify-center border border-[#B31D1D]/20">
+            <span className="material-symbols-outlined text-[#B31D1D] text-lg animate-pulse">
+              hourglass_top
+            </span>
           </div>
         </div>
-        <div className="bg-[#F1EDE2]/50 border border-[#E8B931]/10 p-4 rounded-2xl rounded-tl-none">
-          <div className="flex items-center gap-3 text-slate-500 mb-2">
-            <div className="flex gap-1">
-              <span className="w-1.5 h-1.5 bg-[#B31D1D] rounded-full animate-bounce [animation-delay:-0.3s]" />
-              <span className="w-1.5 h-1.5 bg-[#B31D1D] rounded-full animate-bounce [animation-delay:-0.15s]" />
-              <span className="w-1.5 h-1.5 bg-[#B31D1D] rounded-full animate-bounce" />
-            </div>
-            <span className="text-xs font-medium italic">Đang tìm kiếm trong gia phả...</span>
-          </div>
-          {steps.length > 0 && (
-            <div className="flex flex-col gap-1.5 border-l border-[#B31D1D]/30 pl-3">
-              {ALL_STEPS.map((step) => {
-                const idx = steps.indexOf(step);
-                if (idx === -1) return null;
-                const done = idx < steps.length - 1;
-                return (
-                  <div key={step} className="flex items-center gap-2">
-                    {done
-                      ? <span className="material-symbols-outlined text-[14px] text-emerald-600">check_circle</span>
-                      : <span className="w-3 h-3 border-2 border-[#B31D1D] border-t-transparent rounded-full animate-spin" />
-                    }
-                    <span className={`text-[10px] uppercase tracking-widest font-bold ${done ? "text-slate-400" : "text-[#B31D1D]"}`}>
-                      {STEP_LABELS[step] ?? step}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+        <div className="bg-white border border-stone-200 p-4 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-3">
+          <span className="w-4 h-4 border-2 border-[#B31D1D] border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-medium text-stone-600">Đang tra cứu cơ sở dữ liệu gia phả...</span>
         </div>
       </div>
     </div>
   );
 }
 
-function ChatInput({ onSend, onFaq, disabled }: {
+function ChatInput({
+  onSend,
+  onFaq,
+  disabled,
+}: {
   onSend: (msg: string) => void;
   onFaq: (chip: FaqChip) => void;
   disabled: boolean;
 }) {
   const [value, setValue] = useState("");
-  const handleSend = () => { if (!value.trim() || disabled) return; onSend(value.trim()); setValue(""); };
-  const handleKey = (e: React.KeyboardEvent) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
+  const handleSend = () => {
+    if (!value.trim() || disabled) return;
+    onSend(value.trim());
+    setValue("");
+  };
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
 
   return (
-    <div className="p-6 bg-[#FFFCF5] border-t border-[#E8B931]/20 flex-shrink-0">
-      <div className="max-w-4xl mx-auto flex flex-col gap-4">
-        <div className="flex flex-wrap gap-2">
+    <div className="sticky bottom-0 bg-[#FBF9F5] border-t border-stone-200/80 p-4 md:p-5 flex-shrink-0 z-10 shadow-sm">
+      <div className="max-w-[960px] mx-auto flex flex-col gap-3">
+        <div className="flex flex-wrap gap-2 overflow-x-auto pb-1">
           {FAQ_CHIPS.slice(0, 4).map((chip) => (
-            <button key={chip.question} onClick={() => onFaq(chip)} disabled={disabled}
-              className="px-4 py-1.5 rounded-full bg-white border border-[#E8B931]/30 text-xs font-medium text-slate-600 hover:border-[#B31D1D] hover:text-[#B31D1D] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            <button
+              key={chip.question}
+              onClick={() => onFaq(chip)}
+              disabled={disabled}
+              className="px-3.5 py-1.5 rounded-full bg-white border border-stone-200 text-xs font-medium text-stone-700 hover:border-[#B31D1D] hover:text-[#B31D1D] transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
               {chip.label}
             </button>
           ))}
         </div>
         <div className="relative flex items-center group">
-          <div className="absolute left-4 flex items-center text-[#B31D1D]/40 group-focus-within:text-[#B31D1D] transition-colors pointer-events-none">
-            <span className="material-symbols-outlined">auto_awesome</span>
-          </div>
-          <input id="ai-chat-input" type="text" value={value} onChange={(e) => setValue(e.target.value)}
-            onKeyDown={handleKey} disabled={disabled}
-            placeholder="Hỏi về bất kỳ thành viên, sự kiện hoặc lịch sử tộc Phạm Phú..."
-            className="w-full pl-12 pr-16 py-4 bg-white rounded-2xl border-2 border-[#E8B931]/20 focus:border-[#B31D1D] focus:outline-none shadow-lg transition-all text-[#201212] disabled:opacity-60 disabled:cursor-not-allowed" />
-          <button onClick={handleSend} disabled={disabled || !value.trim()} aria-label="Gửi"
-            className="absolute right-3 p-2 bg-[#B31D1D] text-white rounded-xl shadow-md hover:bg-[#93000C] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center">
-            <span className="material-symbols-outlined">send</span>
+          <input
+            id="genealogy-search-input"
+            type="text"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={handleKey}
+            disabled={disabled}
+            placeholder="Hỏi về thành viên, quan hệ họ hàng, hoặc cội nguồn chi phái..."
+            className="w-full pl-4 pr-14 py-3.5 bg-white rounded-xl border border-stone-300 focus:border-[#B31D1D] focus:ring-1 focus:ring-[#B31D1D] focus:outline-none shadow-sm transition-all text-stone-900 text-sm md:text-base disabled:opacity-60 disabled:cursor-not-allowed placeholder:text-stone-400"
+          />
+          <button
+            onClick={handleSend}
+            disabled={disabled || !value.trim()}
+            aria-label="Gửi tra cứu"
+            className="absolute right-2 p-2 bg-[#B31D1D] text-white rounded-lg shadow hover:bg-[#93000C] active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
+          >
+            <span className="material-symbols-outlined text-lg">search</span>
           </button>
         </div>
-        <p className="text-center text-[10px] text-slate-400 font-medium tracking-wider">
-          THÔNG TIN AI CUNG CẤP CÓ THỂ CẦN ĐƯỢC XÁC MINH VỚI TRƯỞNG TỘC
+        <p className="text-center text-[11px] text-stone-500 font-medium tracking-wide">
+          Hệ thống tra cứu dữ liệu xác định — Thông tin chính xác theo hồ sơ phả hệ Tộc Phạm Phú
         </p>
       </div>
     </div>
@@ -236,25 +407,21 @@ interface Props {
 // ─────────────────────────────────────────────────────────────
 
 export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: Props) {
-  // Merged session list: Supabase sessions first (most recent), then local sessions
   const [sessions, setSessions] = useState<SessionMeta[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | undefined>(undefined);
   const [activeSessionSource, setActiveSessionSource] = useState<SessionSource>("local");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isThinking, setIsThinking] = useState(false);
-  const [agentSteps, setAgentSteps] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // On mount: merge Supabase sessions (from server) + localStorage sessions
   useEffect(() => {
     const localSessions = loadLocalSessionIndex();
     const supabaseMetas: SessionMeta[] = supabaseSessions.map((s) => ({
       id: s.id,
-      title: s.title ?? "Phiên chat",
+      title: s.title ?? "Phiên tra cứu",
       updatedAt: s.updated_at,
       source: "supabase" as const,
     }));
-    // Show Supabase sessions first, then local sessions (avoid duplicates)
     const localIds = new Set(localSessions.map((s) => s.id));
     const supabaseIds = new Set(supabaseMetas.map((s) => s.id));
     const uniqueLocal = localSessions.filter((s) => !supabaseIds.has(s.id));
@@ -272,22 +439,19 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
     setActiveSessionId(undefined);
     setActiveSessionSource(isAuthenticated ? "supabase" : "local");
     setMessages([]);
-    setAgentSteps([]);
   }, [isAuthenticated]);
 
   const handleSelectSession = useCallback(async (session: SessionMeta) => {
     setActiveSessionId(session.id);
     setActiveSessionSource(session.source);
-    setAgentSteps([]);
 
     if (session.source === "local") {
       setMessages(loadLocalMessages(session.id));
     } else {
-      // Fetch from Supabase API
       try {
         const res = await fetch(`/api/chat/sessions/${session.id}`);
         if (res.ok) {
-          const { session: data } = await res.json() as { session: { messages: ChatMessage[] } };
+          const { session: data } = (await res.json()) as { session: { messages: ChatMessage[] } };
           setMessages(data.messages ?? []);
         }
       } catch (err) {
@@ -296,223 +460,262 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
     }
   }, []);
 
-  const handleDeleteSession = useCallback(async (session: SessionMeta, e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDeleteSession = useCallback(
+    async (session: SessionMeta, e: React.MouseEvent) => {
+      e.stopPropagation();
 
-    if (session.source === "local") {
-      deleteLocalSession(session.id);
-    } else {
-      try {
-        await fetch(`/api/chat/sessions/${session.id}`, { method: "DELETE" });
-      } catch (err) {
-        console.error({ err }, "Failed to delete Supabase session");
+      if (session.source === "local") {
+        deleteLocalSession(session.id);
+      } else {
+        try {
+          await fetch(`/api/chat/sessions/${session.id}`, { method: "DELETE" });
+        } catch (err) {
+          console.error({ err }, "Failed to delete Supabase session");
+        }
       }
-    }
 
-    setSessions((prev) => {
-      const updated = prev.filter((s) => s.id !== session.id);
-      saveLocalSessionIndex(updated);
-      return updated;
-    });
+      setSessions((prev) => {
+        const updated = prev.filter((s) => s.id !== session.id);
+        saveLocalSessionIndex(updated);
+        return updated;
+      });
 
-    if (activeSessionId === session.id) {
-      setActiveSessionId(undefined);
-      setMessages([]);
-    }
-  }, [activeSessionId]);
+      if (activeSessionId === session.id) {
+        setActiveSessionId(undefined);
+        setMessages([]);
+      }
+    },
+    [activeSessionId]
+  );
 
-  /** FAQ chips: inject pre-written answer directly, no API call. */
   const handleFaq = useCallback((chip: FaqChip) => {
     const now = new Date().toISOString();
     setMessages((prev) => [
       ...prev,
       { role: "user", content: chip.question, timestamp: now },
-      { role: "assistant", content: chip.answer, timestamp: now },
+      { role: "assistant", content: chip.answer, timestamp: now, response_type: "answer" },
     ]);
   }, []);
 
-  // ── Send message ─────────────────────────────────────────────
+  // ── Send message / Query ─────────────────────────────────────
 
-  const handleSend = useCallback(async (userMessage: string) => {
-    if (!userMessage.trim() || isThinking) return;
+  const executeSend = useCallback(
+    async (userMessage: string, selectedPersonId?: string) => {
+      if ((!userMessage.trim() && !selectedPersonId) || isThinking) return;
 
-    // Determine session source for this interaction:
-    // - No active session + authenticated → new Supabase session
-    // - No active session + anonymous → new local session  
-    // - Active session → keep its original source (local stays local even if user logged in)
-    const sessionSource: SessionSource = activeSessionId
-      ? activeSessionSource
-      : isAuthenticated ? "supabase" : "local";
+      const sessionSource: SessionSource = activeSessionId
+        ? activeSessionSource
+        : isAuthenticated
+        ? "supabase"
+        : "local";
 
-    const historySnapshot = messages.map((m) => ({ role: m.role, content: m.content }));
+      const historySnapshot = messages.map((m) => ({ role: m.role, content: m.content }));
 
-    const newUserMsg: ChatMessage = {
-      role: "user",
-      content: userMessage,
-      timestamp: new Date().toISOString(),
-    };
-    const updatedWithUser = [...messages, newUserMsg];
-    setMessages(updatedWithUser);
-    setIsThinking(true);
-    setAgentSteps([]);
+      const displayPrompt = userMessage.trim() || `Chọn thành viên tra cứu [${selectedPersonId}]`;
+      const newUserMsg: ChatMessage = {
+        role: "user",
+        content: displayPrompt,
+        timestamp: new Date().toISOString(),
+      };
+      const updatedWithUser = [...messages, newUserMsg];
+      setMessages(updatedWithUser);
+      setIsThinking(true);
 
-    // Create session ID if starting fresh
-    const currentSessionId = activeSessionId ?? crypto.randomUUID();
-    if (!activeSessionId) {
-      setActiveSessionId(currentSessionId);
-      setActiveSessionSource(sessionSource);
-    }
-
-    let accumulatedText = "";
-
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMessage,
-          session_id: currentSessionId,
-          messages: historySnapshot,
-          session_source: sessionSource,
-        }),
-      });
-
-      if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed) continue;
-          let chunk: StreamChunk;
-          try { chunk = JSON.parse(trimmed); } catch { continue; }
-
-          if (chunk.type === "agent_step") {
-            setAgentSteps((prev) => [...prev, chunk.step]);
-          } else if (chunk.type === "text") {
-            accumulatedText += chunk.delta;
-          } else if (chunk.type === "error") {
-            accumulatedText = `⚠️ ${chunk.message}`;
-          }
-        }
+      const currentSessionId = activeSessionId ?? crypto.randomUUID();
+      if (!activeSessionId) {
+        setActiveSessionId(currentSessionId);
+        setActiveSessionSource(sessionSource);
       }
 
-      if (accumulatedText) {
-        const aiMsg: ChatMessage = {
-          role: "assistant",
-          content: accumulatedText,
-          timestamp: new Date().toISOString(),
-        };
-        const finalMessages = [...updatedWithUser, aiMsg];
-        setMessages(finalMessages);
+      let accumulatedText = "";
+      let structuredResult: StructuredAnswerPayload | undefined;
 
-        if (sessionSource === "local") {
-          // Persist messages to localStorage
-          saveLocalMessages(currentSessionId, finalMessages);
-          // Update session index
-          setSessions((prev) => {
-            const title = prev.find((s) => s.id === currentSessionId)?.title ?? userMessage.slice(0, 60);
-            const meta: SessionMeta = { id: currentSessionId, title, updatedAt: new Date().toISOString(), source: "local" };
-            const filtered = prev.filter((s) => s.id !== currentSessionId);
-            const next = [meta, ...filtered];
-            saveLocalSessionIndex(next);
-            return next;
-          });
-        } else {
-          // Supabase session — server already saved it. Refresh session list to reflect new title/order.
-          try {
-            const res = await fetch("/api/chat/sessions");
-            if (res.ok) {
-              const { sessions: updated } = await res.json() as { sessions: SupabaseSessionMeta[] };
-              setSessions((prev) => {
-                const localSessions = prev.filter((s) => s.source === "local");
-                const supabaseMetas: SessionMeta[] = (updated ?? []).map((s: SupabaseSessionMeta) => ({
-                  id: s.id,
-                  title: s.title ?? "Phiên chat",
-                  updatedAt: s.updated_at,
-                  source: "supabase" as const,
-                }));
-                return [...supabaseMetas, ...localSessions];
-              });
+      try {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: userMessage,
+            selected_person_id: selectedPersonId,
+            session_id: currentSessionId,
+            messages: historySnapshot,
+            session_source: sessionSource,
+          }),
+        });
+
+        if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            let chunk: StreamChunk;
+            try {
+              chunk = JSON.parse(trimmed);
+            } catch {
+              continue;
             }
-          } catch (err) {
-            console.error({ err }, "Failed to refresh Supabase sessions");
+
+            if (chunk.type === "text") {
+              accumulatedText += chunk.delta;
+            } else if (chunk.type === "structured") {
+              structuredResult = chunk.payload;
+              if (chunk.payload?.message) {
+                accumulatedText = chunk.payload.message;
+              }
+            } else if (chunk.type === "error") {
+              accumulatedText = `⚠️ ${chunk.message}`;
+            }
           }
         }
+
+        if (accumulatedText) {
+          const assistantMsg: ChatMessage = {
+            role: "assistant",
+            content: accumulatedText,
+            timestamp: new Date().toISOString(),
+            response_type: structuredResult?.type,
+            candidates: structuredResult?.candidates,
+            suggestions: structuredResult?.suggestions,
+            data: structuredResult?.data,
+            meta: structuredResult?.meta,
+          };
+          const finalMessages = [...updatedWithUser, assistantMsg];
+          setMessages(finalMessages);
+
+          if (sessionSource === "local") {
+            saveLocalMessages(currentSessionId, finalMessages);
+            setSessions((prev) => {
+              const title =
+                prev.find((s) => s.id === currentSessionId)?.title ?? userMessage.slice(0, 60);
+              const meta: SessionMeta = {
+                id: currentSessionId,
+                title,
+                updatedAt: new Date().toISOString(),
+                source: "local",
+              };
+              const filtered = prev.filter((s) => s.id !== currentSessionId);
+              const next = [meta, ...filtered];
+              saveLocalSessionIndex(next);
+              return next;
+            });
+          }
+        }
+      } catch (error) {
+        console.error({ error }, "executeSend failed");
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content:
+              "⚠️ Có lỗi kết nối đến hệ thống tra cứu gia phả. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau giây lát.",
+            timestamp: new Date().toISOString(),
+          },
+        ]);
+      } finally {
+        setIsThinking(false);
       }
-    } catch (error) {
-      console.error({ error }, "handleSend failed");
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: "⚠️ Có lỗi kết nối. Vui lòng thử lại.", timestamp: new Date().toISOString() },
-      ]);
-    } finally {
-      setIsThinking(false);
-      setAgentSteps([]);
-    }
-  }, [isThinking, activeSessionId, activeSessionSource, isAuthenticated, messages]);
+    },
+    [isThinking, activeSessionId, activeSessionSource, isAuthenticated, messages]
+  );
+
+  const handleSend = useCallback(
+    (userMessage: string) => {
+      executeSend(userMessage);
+    },
+    [executeSend]
+  );
+
+  const handleSelectCandidate = useCallback(
+    (personId: string, name: string) => {
+      executeSend(`Tra cứu thông tin ${name}`, personId);
+    },
+    [executeSend]
+  );
+
+  const handleSuggestionClick = useCallback(
+    (query: string) => {
+      executeSend(query);
+    },
+    [executeSend]
+  );
 
   // ─────────────────────────────────────────────────────────────
   // Render
   // ─────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-[#F7F3EA]">
+    <div className="flex flex-col flex-1 min-h-0 bg-[#FBF9F5]" style={{ scrollbarGutter: "stable" }}>
       {/* ── Sub-header bar ── */}
-      <div className="flex-shrink-0 border-b-2 border-[#E8B931]/20 bg-[#F7F3EA] shadow-sm mt-4">
-        <div className="max-w-[1200px] mx-auto px-4 h-14 flex items-center justify-between">
-          <div>
-            <h1 className="text-[#B31D1D] italic text-base font-bold leading-tight flex items-center gap-2"
-              style={{ fontFamily: "'Playfair Display', serif" }}>
-              Trợ lý AI Tộc Phạm Phú
-              <span className="text-[9px] font-bold uppercase tracking-widest bg-[#E8B931]/20 text-[#9a6800] border border-[#E8B931]/40 px-1.5 py-0.5 rounded-full leading-none not-italic">
-                Beta
-              </span>
+      <div className="flex-shrink-0 border-b border-stone-200/90 bg-white shadow-xs">
+        <div className="max-w-[960px] mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <h1
+              className="text-[#B31D1D] text-base md:text-lg font-bold leading-tight flex items-center gap-2"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Tra cứu Gia phả Tộc Phạm Phú
             </h1>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 pl-2 border-l border-stone-200">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[0.6rem] font-bold text-emerald-600 uppercase tracking-widest">Đang hoạt động</span>
+              <span className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider">
+                Hệ thống đang hoạt động
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button onClick={handleNewSession}
-              className="flex items-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg bg-[#B31D1D] text-white text-sm font-medium hover:bg-[#93000C] transition-all shadow-md"
-              aria-label="Phiên mới">
-              <span className="material-symbols-outlined text-[18px]">add</span>
+          <div className="flex items-center gap-2.5">
+            <button
+              onClick={handleNewSession}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#B31D1D] text-white text-xs md:text-sm font-semibold hover:bg-[#93000C] transition-all shadow-sm"
+              aria-label="Phiên mới"
+            >
+              <span className="material-symbols-outlined text-[16px]">add</span>
               <span className="hidden sm:inline">Phiên mới</span>
             </button>
             {sessions.length > 0 && (
               <div className="relative group">
-                <button className="flex items-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg border border-[#E8B931]/30 bg-white text-sm text-slate-600 hover:border-[#B31D1D] hover:text-[#B31D1D] transition-all shadow-sm" aria-label="Lịch sử">
-                  <span className="material-symbols-outlined text-[18px]">history</span>
+                <button
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 bg-white text-xs md:text-sm text-stone-700 hover:border-[#B31D1D] hover:text-[#B31D1D] transition-all shadow-xs"
+                  aria-label="Lịch sử tra cứu"
+                >
+                  <span className="material-symbols-outlined text-[16px]">history</span>
                   <span className="hidden sm:inline">
                     {activeSessionId
-                      ? (sessions.find((s) => s.id === activeSessionId)?.title ?? "Phiên hiện tại")
+                      ? sessions.find((s) => s.id === activeSessionId)?.title ?? "Phiên hiện tại"
                       : "Lịch sử"}
                   </span>
                 </button>
-                <div className="absolute right-0 top-full mt-1 w-72 bg-white rounded-xl shadow-xl border border-stone-200/60 py-2 z-50 hidden group-hover:block">
+                <div className="absolute right-0 top-full mt-1.5 w-72 bg-white rounded-xl shadow-lg border border-stone-200 py-1.5 z-50 hidden group-hover:block">
                   {sessions.map((session) => (
-                    <div key={session.id} onClick={() => handleSelectSession(session)}
-                      className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors ${session.id === activeSessionId
-                        ? "bg-[#F7F3EA] text-[#B31D1D] font-semibold"
-                        : "text-slate-600 hover:bg-[#F7F3EA]/50"}`}>
-                      <span className="material-symbols-outlined text-[16px] shrink-0">
-                        {session.source === "supabase" ? "cloud" : "smartphone"}
+                    <div
+                      key={session.id}
+                      onClick={() => handleSelectSession(session)}
+                      className={`flex items-center gap-2.5 px-3.5 py-2 cursor-pointer transition-colors ${
+                        session.id === activeSessionId
+                          ? "bg-amber-50 text-[#B31D1D] font-semibold"
+                          : "text-stone-700 hover:bg-stone-50"
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[15px] text-stone-400 shrink-0">
+                        {session.source === "supabase" ? "cloud" : "storage"}
                       </span>
-                      <span className="text-sm truncate flex-1">{session.title}</span>
-                      <button onClick={(e) => handleDeleteSession(session, e)}
-                        className="text-slate-300 hover:text-red-500 transition-colors shrink-0" title="Xoá phiên">
+                      <span className="text-xs truncate flex-1">{session.title}</span>
+                      <button
+                        onClick={(e) => handleDeleteSession(session, e)}
+                        className="text-stone-300 hover:text-red-500 transition-colors shrink-0"
+                        title="Xoá phiên"
+                      >
                         <span className="material-symbols-outlined text-[14px]">delete</span>
                       </button>
                     </div>
@@ -524,44 +727,95 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
         </div>
       </div>
 
-      {/* ── Beta notice ── */}
-      <div className="flex-shrink-0 bg-amber-50 border-b border-amber-200/60 px-4 py-2">
-        <p className="max-w-[1200px] mx-auto text-amber-700 text-sm text-center leading-relaxed">
-          ⚗️ <strong>Phiên bản thử nghiệm (Beta)</strong> — AI có thể mắc lỗi. Bạn có thể xác minh thông tin với quản trị viên.
+      {/* ── Official Genealogy Notice (Replaces AI Disclaimer) ── */}
+      <div className="flex-shrink-0 bg-stone-100/70 border-b border-stone-200/80 px-4 py-2">
+        <p className="max-w-[960px] mx-auto text-stone-600 text-xs text-center leading-relaxed text-pretty">
+          🎋 <strong>Thông tin tra cứu chính thức:</strong> Toàn bộ dữ liệu được đối chiếu từ văn bản phả đồ Tộc Phạm Phú.
+          Nếu phát hiện thông tin chưa cập nhật, xin vui lòng thông báo cho Ban quản trị dòng tộc.
         </p>
       </div>
 
       {/* ── Chat Canvas ── */}
-      <div className="flex-1 overflow-y-auto p-6 md:p-8 relative">
-        <div className="max-w-4xl mx-auto flex flex-col gap-6 min-h-full">
-          <svg className="absolute bottom-0 right-0 opacity-5 w-[320px] pointer-events-none" fill="currentColor" viewBox="0 0 100 100">
-            <path d="M50 0C53 20 65 30 80 35C65 40 53 50 50 70C47 50 35 40 20 35C35 30 47 20 50 0Z" fill="#B31D1D" />
-            <path d="M50 30C52 40 60 45 70 47C60 50 52 55 50 65C48 55 40 50 30 47C40 45 48 40 50 30Z" fill="#E8B931" />
-          </svg>
-
+      <div className="flex-1 overflow-y-auto p-4 md:p-6 relative">
+        <div className="max-w-[960px] mx-auto flex flex-col gap-5 min-h-full">
           {messages.length === 0 && !isThinking && (
-            <div className="flex flex-col items-center justify-center flex-1 text-center py-20">
-              <div className="w-20 h-20 rounded-full bg-[#B31D1D]/10 flex items-center justify-center mb-6">
-                <span className="material-symbols-outlined text-[#B31D1D] text-4xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  psychology
-                </span>
+            <div className="flex flex-col items-center justify-center flex-1 text-center py-16">
+              <div className="w-16 h-16 rounded-2xl bg-[#B31D1D]/10 flex items-center justify-center mb-4 border border-[#B31D1D]/20">
+                <span className="material-symbols-outlined text-[#B31D1D] text-3xl">menu_book</span>
               </div>
-              <h2 className="text-[#B31D1D] text-2xl font-bold mb-3 italic" style={{ fontFamily: "'Playfair Display', serif" }}>
-                Xin chào! Tôi là Trợ lý AI Tộc Phạm Phú
+              <h2
+                className="text-[#B31D1D] text-2xl font-bold mb-2 italic"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                Tra cứu Gia phả Tộc Phạm Phú
               </h2>
-              <p className="text-slate-500 text-sm max-w-md leading-relaxed">
-                Tôi có thể giúp bạn tìm kiếm thông tin về thành viên, lịch sử và sự kiện trong dòng họ. Hãy đặt câu hỏi bất kỳ nhé
+              <p className="text-stone-500 text-sm max-w-md leading-relaxed text-pretty mb-8">
+                Tìm kiếm thông tin tiền nhân, tra cứu mối quan hệ họ hàng, thế hệ chi phái và cội nguồn dòng tộc một cách chính xác tuyệt đối.
               </p>
+
+              {/* Suggestion Starter Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-xl text-left">
+                <button
+                  onClick={() => handleSend("Thủy tổ tộc Phạm Phú là ai?")}
+                  className="p-3.5 bg-white border border-stone-200 hover:border-[#B31D1D] rounded-xl text-xs transition-all shadow-xs hover:shadow-sm group"
+                >
+                  <div className="flex items-center gap-2 font-bold text-stone-800 group-hover:text-[#B31D1D] mb-1">
+                    <span className="material-symbols-outlined text-[16px] text-[#B31D1D]">crown</span>
+                    <span>Thủy tổ dòng họ là ai?</span>
+                  </div>
+                  <p className="text-stone-500 text-[11px]">Xem nguồn cội và người khai sáng Tộc Phạm Phú tại Gò Nổi.</p>
+                </button>
+
+                <button
+                  onClick={() => handleSend("Phạm Phú Thứ là ai?")}
+                  className="p-3.5 bg-white border border-stone-200 hover:border-[#B31D1D] rounded-xl text-xs transition-all shadow-xs hover:shadow-sm group"
+                >
+                  <div className="flex items-center gap-2 font-bold text-stone-800 group-hover:text-[#B31D1D] mb-1">
+                    <span className="material-symbols-outlined text-[16px] text-[#B31D1D]">person</span>
+                    <span>Danh thần Phạm Phú Thứ</span>
+                  </div>
+                  <p className="text-stone-500 text-[11px]">Tiểu sử, trước tác và công trạng của đại thần triều Nguyễn.</p>
+                </button>
+
+                <button
+                  onClick={() => handleSend("Phạm Phú Thứ và Phạm Phú Quốc có quan hệ gì?")}
+                  className="p-3.5 bg-white border border-stone-200 hover:border-[#B31D1D] rounded-xl text-xs transition-all shadow-xs hover:shadow-sm group"
+                >
+                  <div className="flex items-center gap-2 font-bold text-stone-800 group-hover:text-[#B31D1D] mb-1">
+                    <span className="material-symbols-outlined text-[16px] text-[#B31D1D]">hub</span>
+                    <span>Tra quan hệ hai thành viên</span>
+                  </div>
+                  <p className="text-stone-500 text-[11px]">Xác định vai vế, cách xưng hô và tổ tiên chung gần nhất.</p>
+                </button>
+
+                <button
+                  onClick={() => handleSend("Thủy tổ Phái Nhất là ai?")}
+                  className="p-3.5 bg-white border border-stone-200 hover:border-[#B31D1D] rounded-xl text-xs transition-all shadow-xs hover:shadow-sm group"
+                >
+                  <div className="flex items-center gap-2 font-bold text-stone-800 group-hover:text-[#B31D1D] mb-1">
+                    <span className="material-symbols-outlined text-[16px] text-[#B31D1D]">account_tree</span>
+                    <span>Tra cứu theo Chi phái</span>
+                  </div>
+                  <p className="text-stone-500 text-[11px]">Khám phá các nhánh Phái Nhất, Phái Nhì và các chi phái kế tiếp.</p>
+                </button>
+              </div>
             </div>
           )}
 
           {messages.map((msg, i) =>
-            msg.role === "user"
-              ? <UserMessage key={i} content={msg.content} />
-              : <AiMessage key={i} content={msg.content} />
+            msg.role === "user" ? (
+              <UserMessage key={i} content={msg.content} />
+            ) : (
+              <AssistantMessage
+                key={i}
+                msg={msg}
+                onSelectCandidate={handleSelectCandidate}
+                onSuggestionClick={handleSuggestionClick}
+              />
+            )
           )}
 
-          {isThinking && <ThinkingState steps={agentSteps} />}
+          {isThinking && <ThinkingState />}
           <div ref={messagesEndRef} />
         </div>
       </div>
