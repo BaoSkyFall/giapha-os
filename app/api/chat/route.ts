@@ -3,25 +3,13 @@ import type {
   ChatRequestBody,
   StreamChunk,
   ChatMessage,
-  AgentStep,
 } from "@/types/ai-advisor";
 import { NextRequest } from "next/server";
 
 const BACK_END_AI_URL = process.env.BACK_END_AI_URL ?? "http://localhost:5000";
 
-const SIMULATED_STEPS: Array<{ step: AgentStep; label: string; at: number }> = [
-  { step: "parsing",   label: "Đang phân tích câu hỏi...",         at: 300  },
-  { step: "searching", label: "Truy vấn cơ sở dữ liệu gia phả...", at: 2500 },
-  { step: "verifying", label: "Xác minh danh tính thành viên...",  at: 5000 },
-  { step: "narrating", label: "Tổng hợp hồ sơ thành viên...",      at: 8000 },
-];
-
 function encodeChunk(chunk: StreamChunk): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(chunk) + "\n");
-}
-
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 interface BackendResponse {
@@ -64,11 +52,13 @@ export async function POST(request: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       let fullResponseText = "";
-      const startTime = Date.now();
 
       try {
-        // Fire backend request immediately
-        const backendPromise = fetch(`${BACK_END_AI_URL}/chat`, {
+        // Gửi trạng thái tìm kiếm tức thì
+        controller.enqueue(encodeChunk({ type: "agent_step", step: "searching", label: "Đang tra cứu cây gia phả..." }));
+
+        // Gọi trực tiếp Genealogy Engine backend
+        const backendRes = await fetch(`${BACK_END_AI_URL}/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -76,20 +66,6 @@ export async function POST(request: NextRequest) {
             ...(historyMessages.length > 0 ? { messages: historyMessages } : {}),
           }),
         });
-
-        // Emit simulated steps concurrently
-        let stepIdx = 0;
-        const emitNextStep = async (): Promise<void> => {
-          if (stepIdx >= SIMULATED_STEPS.length) return;
-          const { step, label, at } = SIMULATED_STEPS[stepIdx++];
-          const elapsed = Date.now() - startTime;
-          const remaining = at - elapsed;
-          if (remaining > 0) await wait(remaining);
-          controller.enqueue(encodeChunk({ type: "agent_step", step, label }));
-          return emitNextStep();
-        };
-
-        const [backendRes] = await Promise.all([backendPromise, emitNextStep()]);
 
         if (!backendRes.ok) {
           throw new Error(`Backend HTTP ${backendRes.status}`);
@@ -101,7 +77,7 @@ export async function POST(request: NextRequest) {
         } else if (typeof raw === "string") {
           fullResponseText = raw as string;
         } else {
-          fullResponseText = "Không tìm thấy câu trả lời.";
+          fullResponseText = "Không tìm thấy câu trả lời trong gia phả.";
         }
 
         controller.enqueue(encodeChunk({ type: "text", delta: fullResponseText }));

@@ -422,11 +422,9 @@ function mapPostsWithDetails(rawPosts: any[]): BlogPostWithDetails[] {
             .filter(Boolean);
 
         // Remove junction data from result
-        const {
-            blog_post_categories: _pc,
-            blog_post_tags: _pt,
-            ...postData
-        } = post;
+        const postData = { ...post };
+        delete (postData as Record<string, unknown>).blog_post_categories;
+        delete (postData as Record<string, unknown>).blog_post_tags;
 
         return {
             ...postData,

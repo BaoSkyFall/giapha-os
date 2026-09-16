@@ -33,6 +33,7 @@ interface MindmapTreeProps {
   upperRoot?: Person | null;
   onChangeRoot?: (rootId: string | null) => void;
   canEdit?: boolean;
+  onExpandSubtree?: (personId: string) => Promise<void> | void;
 }
 
 interface MindmapContextData {
@@ -45,6 +46,7 @@ interface MindmapContextData {
   showAvatar: boolean;
   expandSignal: { type: "expand" | "collapse"; ts: number } | null;
   setMemberModalId: (id: string | null) => void;
+  onExpandSubtree?: (personId: string) => Promise<void> | void;
 }
 
 // Helper function to resolve tree connections for a person
@@ -112,7 +114,13 @@ const MindmapNode = memo(
           <div className="size-5 flex items-center justify-center shrink-0 z-10 bg-transparent">
             {hasChildren ? (
               <button
-                onClick={() => setIsExpanded(!isExpanded)}
+                onClick={() => {
+                  const next = !isExpanded;
+                  setIsExpanded(next);
+                  if (next && ctx.onExpandSubtree) {
+                    void ctx.onExpandSubtree(personId);
+                  }
+                }}
                 className="size-5 flex items-center justify-center bg-white hover:bg-amber-50 border border-stone-200 rounded shadow-sm text-stone-500 hover:text-amber-600 focus:outline-none transition-colors"
                 aria-label={isExpanded ? "Thu gọn" : "Mở rộng"}
               >
@@ -316,6 +324,7 @@ export default function MindmapTree({
   upperRoot,
   onChangeRoot,
   canEdit,
+  onExpandSubtree,
 }: MindmapTreeProps) {
   const { showAvatar, setShowAvatar, setMemberModalId } = useDashboard();
   const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
@@ -376,6 +385,7 @@ export default function MindmapTree({
       showAvatar,
       expandSignal,
       setMemberModalId,
+      onExpandSubtree,
     };
   }, [
     personsMap,
@@ -386,6 +396,7 @@ export default function MindmapTree({
     showAvatar,
     expandSignal,
     setMemberModalId,
+    onExpandSubtree,
   ]);
 
   if (roots.length === 0) {

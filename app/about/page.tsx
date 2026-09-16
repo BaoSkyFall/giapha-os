@@ -7,8 +7,6 @@ import { motion, Variants } from "framer-motion";
 import {
   CalendarDays,
   Download,
-  Github,
-  Mail,
   Network,
   Search,
   ShieldAlert,
