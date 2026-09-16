@@ -1,8 +1,13 @@
-﻿import { DashboardProvider } from "@/components/DashboardContext";
+import { DashboardProvider } from "@/components/DashboardContext";
 import DashboardViews from "@/components/DashboardViews";
 import MemberDetailModal from "@/components/MemberDetailModal";
 import ViewToggle from "@/components/ViewToggle";
 import { Person, Relationship } from "@/types";
+import {
+  fetchGenealogySubtree,
+  FOUNDER_ROOT_ID,
+  LIST_PERSON_COLUMNS,
+} from "@/utils/genealogyService";
 import { getProfile, getSupabase } from "@/utils/supabase/queries";
 import {
   matchesSearchQuery,
@@ -127,11 +132,12 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
     const rangeTo = rangeFrom + MEMBER_LIST_PAGE_SIZE - 1;
 
     // Single source of truth for the list query (structured filters + sort).
-    // `withSearch` adds the server-side, trigram-indexed name match on the
-    // normalized `name_search` column (docs/members-search-migration.sql),
-    // replacing the old fetch-all-then-filter-in-JS scan.
+    // Tối ưu P0.1: Chỉ SELECT các cột tối thiểu hiển thị trên card (LIST_PERSON_COLUMNS),
+    // loại bỏ hoàn toàn các trường nặng như note (tiểu sử dài HTML), address, phone...
     const buildListQuery = (withSearch: boolean) => {
-      let query = supabase.from("persons").select("*", { count: "exact" });
+      let query = supabase
+        .from("persons")
+        .select(LIST_PERSON_COLUMNS, { count: "exact" });
 
       if (withSearch) {
         for (const token of searchTokens) {
@@ -224,7 +230,7 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
         listTotal = count ?? 0;
       } else {
         // Fallback when `name_search` is missing (migration not applied yet):
-        // structured-filtered scan + JS name filter. Delete once migration live.
+        // structured-filtered scan + JS name filter.
         const SEARCH_PAGE_SIZE = 1000;
         const seenIds = new Set<string>();
         const matched: Person[] = [];
@@ -258,60 +264,14 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
       }
     }
   } else {
-    // Tree/mindmap view needs the full graph (root picker, ancestor walking,
-    // adjacency). Fetch all persons + relationships, but fan the paged requests
-    // out in PARALLEL instead of sequentially. Measured on ~4k rows this cut the
-    // data fetch from ~1.7s to ~0.6s (see scripts/bench-members.mjs).
-    const PAGE_SIZE = 1000;
+    // Tối ưu P0.3: Tree / Mindmap view KHÔNG tải toàn bộ 100% DB nữa!
+    // Chỉ nạp root được chỉ định (hoặc mặc định Thủy Tổ) kèm Subtree 2 thế hệ
+    // đầu tiên. Khi user bấm mở rộng nhánh nào, client sẽ fetch on-demand.
+    const targetRootId = params.rootId?.trim() || FOUNDER_ROOT_ID;
+    const subtree = await fetchGenealogySubtree(supabase, targetRootId, 2);
 
-    const [{ count: personCount }, { count: relCount }] = await Promise.all([
-      supabase.from("persons").select("id", { count: "exact", head: true }),
-      supabase.from("relationships").select("id", { count: "exact", head: true }),
-    ]);
-
-    const personPages = Math.ceil((personCount ?? 0) / PAGE_SIZE);
-    const relPages = Math.ceil((relCount ?? 0) / PAGE_SIZE);
-
-    // Stable total order (birth_year + id / id) keeps the parallel page ranges
-    // disjoint and deterministic.
-    const [personResults, relResults] = await Promise.all([
-      Promise.all(
-        Array.from({ length: personPages }, (_, i) =>
-          supabase
-            .from("persons")
-            .select("*")
-            .order("birth_year", { ascending: true, nullsFirst: false })
-            .order("id", { ascending: true })
-            .range(i * PAGE_SIZE, i * PAGE_SIZE + PAGE_SIZE - 1),
-        ),
-      ),
-      Promise.all(
-        Array.from({ length: relPages }, (_, i) =>
-          supabase
-            .from("relationships")
-            .select("*")
-            .order("id", { ascending: true })
-            .range(i * PAGE_SIZE, i * PAGE_SIZE + PAGE_SIZE - 1),
-        ),
-      ),
-    ]);
-
-    const personsRaw: Person[] = [];
-    for (const { data } of personResults) {
-      if (data) personsRaw.push(...(data as Person[]));
-    }
-
-    // Deduplicate by id to guard against any paginated overlap.
-    const seenIds = new Set<string>();
-    persons = personsRaw.filter((person) => {
-      if (seenIds.has(person.id)) return false;
-      seenIds.add(person.id);
-      return true;
-    });
-
-    for (const { data } of relResults) {
-      if (data) relationships.push(...(data as Relationship[]));
-    }
+    persons = subtree.persons;
+    relationships.push(...subtree.relationships);
   }
 
   return (
