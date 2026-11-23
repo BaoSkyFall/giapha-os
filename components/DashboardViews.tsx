@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useDashboard } from "@/components/DashboardContext";
 import DashboardMemberList from "@/components/DashboardMemberList";
@@ -12,7 +12,6 @@ const FamilyTree = dynamic(() => import("@/components/FamilyTree"));
 const MindmapTree = dynamic(() => import("@/components/MindmapTree"));
 
 const FOUNDER_ROOT_ID = "0911c310-31cd-43c2-a705-67770bd074df";
-const HEAVY_ROOT_IDS = new Set(["0911c310-31cd-43c2-a705-67770bd074df", "fc22c7b0-5e7a-4c13-977e-0cdcc29cd5fa", "2a15f9c1-47a8-4106-85e8-1f223725e124"]);
 
 interface DashboardViewsProps {
   persons: Person[];
@@ -47,6 +46,8 @@ export default function DashboardViews({
   } = useDashboard();
   const scrollContainerRef = useRef<HTMLElement>(null);
   const [livePersons, setLivePersons] = useState<Person[]>(persons);
+  const [liveRelationships, setLiveRelationships] =
+    useState<Relationship[]>(relationships);
   const [liveListPersons, setLiveListPersons] = useState<Person[]>(
     listPersons ?? persons,
   );
@@ -54,15 +55,59 @@ export default function DashboardViews({
     listQueryState?.total ?? (listPersons ?? persons).length,
   );
 
+  const loadedSubtreeSetRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     setLivePersons(persons);
   }, [persons]);
+
+  useEffect(() => {
+    setLiveRelationships(relationships);
+  }, [relationships]);
 
   useEffect(() => {
     const nextListPersons = listPersons ?? persons;
     setLiveListPersons(nextListPersons);
     setLiveListTotal(listQueryState?.total ?? nextListPersons.length);
   }, [listPersons, persons, listQueryState?.total]);
+
+  // Progressive on-demand expansion of subtree
+  const handleExpandSubtree = useCallback(async (personId: string) => {
+    if (loadedSubtreeSetRef.current.has(personId)) return;
+    loadedSubtreeSetRef.current.add(personId);
+
+    try {
+      const res = await fetch(`/api/genealogy/subtree?rootId=${personId}&depth=1`);
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        ok?: boolean;
+        persons?: Person[];
+        relationships?: Relationship[];
+      };
+
+      if (!data.ok) return;
+
+      if (Array.isArray(data.persons) && data.persons.length > 0) {
+        setLivePersons((prev) => {
+          const map = new Map<string, Person>();
+          for (const p of prev) map.set(p.id, p);
+          for (const p of data.persons!) map.set(p.id, p);
+          return Array.from(map.values());
+        });
+      }
+
+      if (Array.isArray(data.relationships) && data.relationships.length > 0) {
+        setLiveRelationships((prev) => {
+          const map = new Map<string, Relationship>();
+          for (const r of prev) map.set(r.id, r);
+          for (const r of data.relationships!) map.set(r.id, r);
+          return Array.from(map.values());
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load subtree for person:", personId, err);
+    }
+  }, []);
 
   useEffect(() => {
     if (!memberMutation || memberMutation.kind !== "upsert") return;
@@ -108,60 +153,62 @@ export default function DashboardViews({
 
   const selectedRootChildCount = useMemo(() => {
     if (!rootId) return 0;
-    return relationships.filter(
+    return liveRelationships.filter(
       (relationship) =>
         (relationship.type === "biological_child" ||
           relationship.type === "adopted_child") &&
         relationship.person_a === rootId,
     ).length;
-  }, [relationships, rootId]);
+  }, [liveRelationships, rootId]);
 
   const resolveUpperRoot = useCallback(
     (personId: string): Person | null => {
-    const parentLinks = relationships.filter(
-      (relationship) =>
-        (relationship.type === "biological_child" ||
-          relationship.type === "adopted_child") &&
-        relationship.person_b === personId,
-    );
-    if (parentLinks.length === 0) return null;
+      const parentLinks = liveRelationships.filter(
+        (relationship) =>
+          (relationship.type === "biological_child" ||
+            relationship.type === "adopted_child") &&
+          relationship.person_b === personId,
+      );
+      if (parentLinks.length === 0) return null;
 
-    const parentCandidates = parentLinks
-      .map((link) => {
-        const person = personsMap.get(link.person_a);
-        if (!person) return null;
-        return { person, relationType: link.type };
-      })
-      .filter(
-        (
-          value,
-        ): value is {
-          person: Person;
-          relationType: Relationship["type"];
-        } => value !== null,
-      )
-      .sort((a, b) => {
-        if (a.relationType !== b.relationType) {
-          return a.relationType === "biological_child" ? -1 : 1;
-        }
+      const parentCandidates = parentLinks
+        .map((link) => {
+          const person = personsMap.get(link.person_a);
+          if (!person) return null;
+          return { person, relationType: link.type };
+        })
+        .filter(
+          (
+            value,
+          ): value is {
+            person: Person;
+            relationType: Relationship["type"];
+          } => value !== null,
+        )
+        .sort((a, b) => {
+          if (a.relationType !== b.relationType) {
+            return a.relationType === "biological_child" ? -1 : 1;
+          }
 
-        if (a.person.is_in_law !== b.person.is_in_law) {
-          return a.person.is_in_law ? 1 : -1;
-        }
+          if (a.person.is_in_law !== b.person.is_in_law) {
+            return a.person.is_in_law ? 1 : -1;
+          }
 
-        const aGeneration = a.person.generation ?? Number.MAX_SAFE_INTEGER;
-        const bGeneration = b.person.generation ?? Number.MAX_SAFE_INTEGER;
-        if (aGeneration !== bGeneration) return aGeneration - bGeneration;
+          const aGeneration = a.person.generation ?? Number.MAX_SAFE_INTEGER;
+          const bGeneration = b.person.generation ?? Number.MAX_SAFE_INTEGER;
+          if (aGeneration !== bGeneration) return aGeneration - bGeneration;
 
-        const aYear = a.person.birth_year ?? Number.MAX_SAFE_INTEGER;
-        const bYear = b.person.birth_year ?? Number.MAX_SAFE_INTEGER;
-        if (aYear !== bYear) return aYear - bYear;
+          const aYear = a.person.birth_year ?? Number.MAX_SAFE_INTEGER;
+          const bYear = b.person.birth_year ?? Number.MAX_SAFE_INTEGER;
+          if (aYear !== bYear) return aYear - bYear;
 
-        return a.person.id.localeCompare(b.person.id);
-      });
+          return a.person.id.localeCompare(b.person.id);
+        });
 
-    return parentCandidates[0]?.person ?? null;
-  }, [personsMap, relationships]);
+      return parentCandidates[0]?.person ?? null;
+    },
+    [personsMap, liveRelationships],
+  );
 
   const selectedRootUpperRoot = useMemo(() => {
     if (!selectedRoot) return null;
@@ -194,10 +241,6 @@ export default function DashboardViews({
     Boolean(contextRoot) &&
     Boolean(contextUpperRoot) &&
     contextRoot?.id !== FOUNDER_ROOT_ID;
-  const showHeavyRootWarning =
-    shouldRequireRoot &&
-    Boolean(contextRoot?.id) &&
-    HEAVY_ROOT_IDS.has(contextRoot?.id ?? "");
 
   useEffect(() => {
     if (!isTreeMode || !rootId) return;
@@ -224,15 +267,6 @@ export default function DashboardViews({
                   className="flex items-center gap-2 flex-wrap justify-center"
                 />
               </div>
-
-              {showHeavyRootWarning && (
-                <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                  <p>
-                    Gốc hiển thị này làm cây gia phả lớn và web load chậm. Nếu thấy giật lag, vui lòng đổi gốc hiển thị nhỏ hơn.
-                  </p>
-                </div>
-              )}
 
               {showContextRootHint && selectedRoot && contextRoot && (
                 <div className="flex items-start gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-sm text-violet-900">
@@ -300,21 +334,23 @@ export default function DashboardViews({
               {currentView === "tree" && (
                 <FamilyTree
                   personsMap={personsMap}
-                  relationships={relationships}
+                  relationships={liveRelationships}
                   roots={roots}
                   upperRoot={showGoUpperArrow ? contextUpperRoot : null}
                   onChangeRoot={setRootId}
                   canEdit={canEdit}
+                  onExpandSubtree={handleExpandSubtree}
                 />
               )}
               {currentView === "mindmap" && (
                 <MindmapTree
                   personsMap={personsMap}
-                  relationships={relationships}
+                  relationships={liveRelationships}
                   roots={roots}
                   upperRoot={showGoUpperArrow ? contextUpperRoot : null}
                   onChangeRoot={setRootId}
                   canEdit={canEdit}
+                  onExpandSubtree={handleExpandSubtree}
                 />
               )}
             </div>

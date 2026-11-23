@@ -1,4 +1,4 @@
-import { createPost, deletePost, updatePost } from "@/utils/supabase/blog";
+import { createPost } from "@/utils/supabase/blog";
 import { getIsAdmin } from "@/utils/supabase/queries";
 import { NextRequest, NextResponse } from "next/server";
 
