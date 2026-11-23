@@ -109,7 +109,7 @@ export default async function HomePage() {
       <Header siteName={config.siteName} />
 
       <main className="flex-1 flex flex-col w-full">
-        <LandingHero events={upcomingEvents} highlightedPosts={highlightedPosts} />
+        <LandingHero siteName={config.siteName} events={upcomingEvents} highlightedPosts={highlightedPosts} />
       </main>
 
       <Footer />
