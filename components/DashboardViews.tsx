@@ -237,7 +237,7 @@ export default function DashboardViews({
     return resolveUpperRoot(contextRoot.id);
   }, [contextRoot, resolveUpperRoot]);
 
-  const roots = contextRoot ? [contextRoot] : [];
+  const roots = useMemo(() => (contextRoot ? [contextRoot] : []), [contextRoot]);
   const isTreeMode = currentView === "tree" || currentView === "mindmap";
   const shouldRequireRoot = isTreeMode && !isViewLoading;
   const showMissingRootHint = shouldRequireRoot && !effectiveRootId;

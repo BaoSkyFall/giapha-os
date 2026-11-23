@@ -71,10 +71,6 @@ export interface VisibleSubgraph {
 }
 
 function compareChildren(a: ChildEdge, b: ChildEdge): number {
-  const genderRank = (g: string) => (g === "male" ? 0 : g === "female" ? 1 : 2);
-  const gDiff = genderRank(a.person.gender) - genderRank(b.person.gender);
-  if (gDiff !== 0) return gDiff;
-
   const aOrder = a.person.birth_order ?? Number.MAX_SAFE_INTEGER;
   const bOrder = b.person.birth_order ?? Number.MAX_SAFE_INTEGER;
   if (aOrder !== bOrder) return aOrder - bOrder;
@@ -82,6 +78,10 @@ function compareChildren(a: ChildEdge, b: ChildEdge): number {
   const aYear = a.person.birth_year ?? Number.MAX_SAFE_INTEGER;
   const bYear = b.person.birth_year ?? Number.MAX_SAFE_INTEGER;
   if (aYear !== bYear) return aYear - bYear;
+
+  const genderRank = (g: string) => (g === "male" ? 0 : g === "female" ? 1 : 2);
+  const gDiff = genderRank(a.person.gender) - genderRank(b.person.gender);
+  if (gDiff !== 0) return gDiff;
 
   return a.person.id.localeCompare(b.person.id);
 }
@@ -269,7 +269,8 @@ export function extractVisibleSubgraph(
   }
 
   const queue: QueueItem[] = [];
-  const visitedPrimaryIds = new Set<string>();
+  // Bảo đảm mỗi canonical person ID chỉ xuất hiện tối đa 1 lần trong cây (dù hôn nhân cận huyết)
+  const claimedPersonIds = new Set<string>();
 
   for (const rid of rootIds) {
     const rootPerson = graph.personsById.get(rid);
@@ -278,8 +279,8 @@ export function extractVisibleSubgraph(
       hiddenByFilterIds.add(rid);
       continue;
     }
-    if (!visitedPrimaryIds.has(rid)) {
-      visitedPrimaryIds.add(rid);
+    if (!claimedPersonIds.has(rid)) {
+      claimedPersonIds.add(rid);
       rootPrimaryIds.push(rid);
       queue.push({ personId: rid, depth: 1 });
     }
@@ -326,8 +327,9 @@ export function extractVisibleSubgraph(
         hiddenByFilterIds.add(sp.person.id);
         continue;
       }
-      // Không thêm spouse nếu spouse đã là một primary node ở nhánh khác
-      if (!visitedPrimaryIds.has(sp.person.id)) {
+      // Không nhân đôi spouse nếu spouse đã xuất hiện ở nhánh khác trong cây
+      if (!claimedPersonIds.has(sp.person.id)) {
+        claimedPersonIds.add(sp.person.id);
         spouseIds.push(sp.person.id);
         visiblePersonIds.add(sp.person.id);
         if (!personDepthById.has(sp.person.id)) {
@@ -355,12 +357,11 @@ export function extractVisibleSubgraph(
         }
         continue;
       }
-      if (visitedPrimaryIds.has(ch.person.id)) {
-        // Tránh cycle hoặc trùng primary node khi cây có hôn nhân cận huyết/nhiều đường nối
+      if (claimedPersonIds.has(ch.person.id)) {
         continue;
       }
 
-      visitedPrimaryIds.add(ch.person.id);
+      claimedPersonIds.add(ch.person.id);
       childIds.push(ch.person.id);
       visibleParentChildRelations++;
       queue.push({ personId: ch.person.id, depth: depth + 1 });

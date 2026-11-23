@@ -2,7 +2,15 @@
 
 import { Person } from "@/types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { createContext, useContext, useEffect, useState, useTransition } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from "react";
 import { ViewMode } from "./ViewToggle";
 
 export interface MemberMutation {
@@ -76,7 +84,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Sync to URL silently
-  const updateModalId = (id: string | null) => {
+  const updateModalId = useCallback((id: string | null) => {
     setMemberModalId(id);
     if (typeof window !== "undefined") {
       const newUrl = new URL(window.location.href);
@@ -87,9 +95,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       }
       window.history.replaceState(null, "", newUrl.toString());
     }
-  };
+  }, []);
 
-  const updateAvatar = (show: boolean) => {
+  const updateAvatar = useCallback((show: boolean) => {
     setShowAvatar(show);
     if (typeof window !== "undefined") {
       const newUrl = new URL(window.location.href);
@@ -100,26 +108,29 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       }
       window.history.replaceState(null, "", newUrl.toString());
     }
-  };
+  }, []);
 
-  const setView = (v: ViewMode) => {
-    setViewState(v);
+  const setView = useCallback(
+    (v: ViewMode) => {
+      setViewState(v);
 
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("view", v);
-    if ((v === "tree" || v === "mindmap") && rootId) {
-      params.set("rootId", rootId);
-    } else {
-      params.delete("rootId");
-    }
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("view", v);
+      if ((v === "tree" || v === "mindmap") && rootId) {
+        params.set("rootId", rootId);
+      } else {
+        params.delete("rootId");
+      }
 
-    const query = params.toString();
-    startViewTransition(() => {
-      router.push(query ? `${pathname}?${query}` : pathname);
-    });
-  };
+      const query = params.toString();
+      startViewTransition(() => {
+        router.push(query ? `${pathname}?${query}` : pathname);
+      });
+    },
+    [pathname, rootId, router, searchParams],
+  );
 
-  const setRootId = (id: string | null) => {
+  const setRootId = useCallback((id: string | null) => {
     setRootIdState(id);
     if (typeof window !== "undefined") {
       if (id) {
@@ -136,33 +147,52 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       }
       window.history.replaceState(null, "", newUrl.toString());
     }
-  };
+  }, []);
 
-  const publishMemberMutation = (mutation: Omit<MemberMutation, "at">) => {
-    setMemberMutation({
-      ...mutation,
-      at: Date.now(),
-    });
-  };
+  const publishMemberMutation = useCallback(
+    (mutation: Omit<MemberMutation, "at">) => {
+      setMemberMutation({
+        ...mutation,
+        at: Date.now(),
+      });
+    },
+    [],
+  );
+
+  const contextValue = useMemo<DashboardState>(
+    () => ({
+      memberModalId,
+      setMemberModalId: updateModalId,
+      showCreateMember,
+      setShowCreateMember,
+      showAvatar,
+      setShowAvatar: updateAvatar,
+      view,
+      setView,
+      isViewLoading,
+      rootId,
+      setRootId,
+      memberMutation,
+      publishMemberMutation,
+    }),
+    [
+      memberModalId,
+      updateModalId,
+      showCreateMember,
+      showAvatar,
+      updateAvatar,
+      view,
+      setView,
+      isViewLoading,
+      rootId,
+      setRootId,
+      memberMutation,
+      publishMemberMutation,
+    ],
+  );
 
   return (
-    <DashboardContext.Provider
-      value={{
-        memberModalId,
-        setMemberModalId: updateModalId,
-        showCreateMember,
-        setShowCreateMember,
-        showAvatar,
-        setShowAvatar: updateAvatar,
-        view,
-        setView,
-        isViewLoading,
-        rootId,
-        setRootId,
-        memberMutation,
-        publishMemberMutation,
-      }}
-    >
+    <DashboardContext.Provider value={contextValue}>
       {children}
     </DashboardContext.Provider>
   );

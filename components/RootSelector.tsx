@@ -32,11 +32,11 @@ export default function RootSelector({
         debounceMs: 300,
       }}
       featuredIds={FEATURED_ROOT_IDS}
-      placeholder="Chọn người..."
-      label="Gốc hiển thị"
-      className="w-[70vw] sm:w-80"
+      placeholder="Tìm người xem từ đó..."
+      label="Xem từ người"
+      className="w-full sm:w-72"
       showAllOption
-      allOptionLabel="Trống"
+      allOptionLabel="Thủy Tổ (Mặc định)"
     />
   );
 }

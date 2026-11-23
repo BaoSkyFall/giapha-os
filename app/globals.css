@@ -124,3 +124,22 @@ select {
 .rich-text-content hr {
   @apply border-stone-200 my-4;
 }
+
+@keyframes n8nLineageFlow {
+  from {
+    stroke-dashoffset: 28;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.n8n-lineage-flow {
+  animation: n8nLineageFlow 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .n8n-lineage-flow {
+    animation: none;
+  }
+}
