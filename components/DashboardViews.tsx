@@ -265,7 +265,7 @@ export default function DashboardViews({
       <main
         ref={scrollContainerRef}
         className={`flex-1 bg-[#FAF8F3] flex flex-col ${
-          isTreeMode ? "h-[calc(100dvh-64px)] overflow-hidden" : "overflow-auto"
+          isTreeMode ? "h-[calc(100dvh-70px)] overflow-hidden" : "overflow-auto"
         }`}
       >
         {!isViewLoading && currentView !== "list" && livePersons.length > 0 && (

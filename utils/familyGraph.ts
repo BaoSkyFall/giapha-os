@@ -46,12 +46,14 @@ export interface VisibleFamilyUnit {
   childIds: string[];
   depth: number;
   hasHiddenChildren: boolean;
+  hiddenDescendantCount: number;
+  hiddenMaxDepth: number;
 }
 
 export interface SubgraphMetrics {
   totalPersonsInDatabase: number;
   personsInLoadedGraph: number;
-  visibleUniquePersons: number;
+  subgraphUniquePersons: number;
   visibleFamilyUnits: number;
   visibleParentChildRelations: number;
   hiddenByDepth: number;
@@ -283,6 +285,30 @@ export function extractVisibleSubgraph(
     }
   }
 
+  // Precompute descendant counts & max depth per person (cycle-safe)
+  const memoStats = new Map<string, { count: number; maxDepth: number }>();
+  const visitingStats = new Set<string>();
+  const getSubtreeStats = (pid: string): { count: number; maxDepth: number } => {
+    const cached = memoStats.get(pid);
+    if (cached) return cached;
+    if (visitingStats.has(pid)) return { count: 0, maxDepth: 0 };
+    visitingStats.add(pid);
+
+    const children = graph.childrenByPersonId.get(pid) ?? [];
+    let count = 0;
+    let maxD = 0;
+    for (const ch of children) {
+      const spCount = (graph.spousesByPersonId.get(ch.person.id) ?? []).length;
+      const sub = getSubtreeStats(ch.person.id);
+      count += 1 + spCount + sub.count;
+      if (1 + sub.maxDepth > maxD) maxD = 1 + sub.maxDepth;
+    }
+    visitingStats.delete(pid);
+    const res = { count, maxDepth: maxD };
+    memoStats.set(pid, res);
+    return res;
+  };
+
   let head = 0;
   while (head < queue.length) {
     const { personId, depth } = queue[head++];
@@ -340,12 +366,18 @@ export function extractVisibleSubgraph(
       queue.push({ personId: ch.person.id, depth: depth + 1 });
     }
 
+    const subtreeStats = hasHiddenChildren
+      ? getSubtreeStats(personId)
+      : { count: 0, maxDepth: 0 };
+
     unitsByPrimaryId.set(personId, {
       primaryId: personId,
       spouseIds,
       childIds,
       depth,
       hasHiddenChildren,
+      hiddenDescendantCount: subtreeStats.count,
+      hiddenMaxDepth: subtreeStats.maxDepth,
     });
   }
 
@@ -357,7 +389,7 @@ export function extractVisibleSubgraph(
     metrics: {
       totalPersonsInDatabase: totalPersonsInDatabase ?? graph.personsById.size,
       personsInLoadedGraph: graph.personsById.size,
-      visibleUniquePersons: visiblePersonIds.size,
+      subgraphUniquePersons: visiblePersonIds.size,
       visibleFamilyUnits: unitsByPrimaryId.size,
       visibleParentChildRelations,
       hiddenByDepth: hiddenByDepthIds.size,

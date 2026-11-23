@@ -79,11 +79,12 @@ export default function FamilyTree({
   const hasDraggedRef = useRef(false);
 
   // Depth & Filters
-  // Toàn bộ 4.031 người được tải sẵn vào graph; mặc định mở 3 đời gọn đẹp kiểu n8n canvas
-  // (bấm "Tất cả (4.031)" hoặc tìm tên bất kỳ ai để bung nhánh ngay lập tức)
-  const [depthPreset, setDepthPreset] = useState<DepthPreset>(3);
+  // Level A ("all" = Tổng quan toàn bộ 4.031 người theo Chi/Phái, tránh đường ngang 533.000px)
+  // Level B (1 | 2 | 3 | "custom" = Cây chi tiết từng nhánh)
+  const [depthPreset, setDepthPreset] = useState<DepthPreset>("all");
   const [customDepth, setCustomDepth] = useState<number>(4);
   const [collapsedNodeIds, setCollapsedNodeIds] = useState<Set<string>>(() => new Set());
+  const [branchHistory, setBranchHistory] = useState<Array<{ id: string; name: string }>>([]);
   const [hideSpouses, setHideSpouses] = useState(false);
   const [hideMales, setHideMales] = useState(false);
   const [hideFemales, setHideFemales] = useState(false);
@@ -110,7 +111,8 @@ export default function FamilyTree({
   const rootKey = useMemo(() => rootIds.join("|"), [rootIds]);
 
   const effectiveMaxDepth = useMemo<number | null>(() => {
-    if (depthPreset === "all") return null;
+    // Ở chế độ Tổng quan ("all"), giữ 3 tầng kết hợp Branch Cluster Badge để không phình 533.000px
+    if (depthPreset === "all") return 3;
     if (depthPreset === "custom") return Math.max(1, customDepth || 1);
     return depthPreset;
   }, [depthPreset, customDepth]);
@@ -302,6 +304,12 @@ export default function FamilyTree({
     const viewMaxY = (viewportSize.height - pan.y + buffer) / scale;
 
     const nodes: PositionedPersonNode[] = [];
+    let inViewportCount = 0;
+    const strictMinX = -pan.x / scale;
+    const strictMaxX = (viewportSize.width - pan.x) / scale;
+    const strictMinY = -pan.y / scale;
+    const strictMaxY = (viewportSize.height - pan.y) / scale;
+
     for (const n of layout.nodes) {
       if (
         n.x + n.width >= viewMinX &&
@@ -310,6 +318,14 @@ export default function FamilyTree({
         n.y <= viewMaxY
       ) {
         nodes.push(n);
+        if (
+          n.x + n.width >= strictMinX &&
+          n.x <= strictMaxX &&
+          n.y + n.height >= strictMinY &&
+          n.y <= strictMaxY
+        ) {
+          inViewportCount++;
+        }
       }
     }
 
@@ -325,7 +341,7 @@ export default function FamilyTree({
       }
     }
 
-    return { nodes, edges };
+    return { nodes, edges, inViewportCount };
   }, [layout.nodes, layout.edges, pan.x, pan.y, scale, viewportSize.width, viewportSize.height]);
 
   // 7. Search on tree (tìm trong toàn bộ cây đang tải)
@@ -461,7 +477,7 @@ export default function FamilyTree({
             <div className="flex items-center bg-white border border-[#E8E2D8] rounded-lg overflow-hidden h-9 text-xs font-medium">
               {(
                 [
-                  { id: "all", label: `Tất cả (${subgraph.metrics.personsInLoadedGraph})` },
+                  { id: "all", label: `Tổng quan (${subgraph.metrics.totalPersonsInDatabase})` },
                   { id: 1, label: "1 đời" },
                   { id: 2, label: "2 đời" },
                   { id: 3, label: "3 đời" },
@@ -704,8 +720,7 @@ export default function FamilyTree({
             >
               <Activity className="size-3.5" />
               <span className="hidden lg:inline">
-                {subgraph.metrics.visibleUniquePersons.toLocaleString("vi-VN")}/
-                {subgraph.metrics.totalPersonsInDatabase.toLocaleString("vi-VN")}
+                Subgraph {subgraph.metrics.subgraphUniquePersons} / {subgraph.metrics.totalPersonsInDatabase.toLocaleString("vi-VN")}
               </span>
             </button>
 
@@ -895,22 +910,46 @@ export default function FamilyTree({
                   </div>
                 </div>
 
-                {/* Expand/Collapse Branch Pill */}
+                {/* Expand / Drill-down Branch Pill */}
                 {!node.isSpouse && rawChildCount > 0 && (
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      toggleCollapseNode(person.id);
+                      if (unit?.hasHiddenChildren && unit.hiddenDescendantCount > 0 && onChangeRoot) {
+                        const currentRoot = roots[0];
+                        if (currentRoot) {
+                          setBranchHistory((prev) => [
+                            ...prev,
+                            { id: currentRoot.id, name: currentRoot.full_name },
+                          ]);
+                        }
+                        onChangeRoot(person.id);
+                      } else {
+                        toggleCollapseNode(person.id);
+                      }
                     }}
-                    className="absolute -bottom-3 left-1/2 -translate-x-1/2 h-5 px-1.5 rounded-full bg-white border border-[#E8E2D8] hover:border-[#A91E22] text-[10px] font-semibold text-[#5C5750] hover:text-[#A91E22] flex items-center gap-0.5 shadow-xs z-20"
+                    className={`absolute -bottom-3 left-1/2 -translate-x-1/2 h-5 px-2 rounded-full border text-[10px] font-semibold flex items-center gap-0.5 shadow-xs z-20 whitespace-nowrap ${
+                      unit?.hasHiddenChildren && unit.hiddenDescendantCount > 0
+                        ? "bg-[#FDF2F2] border-[#A91E22] text-[#A91E22] hover:bg-[#A91E22] hover:text-white"
+                        : "bg-white border-[#E8E2D8] hover:border-[#A91E22] text-[#5C5750] hover:text-[#A91E22]"
+                    }`}
                     title={
-                      isCollapsed || unit?.hasHiddenChildren
-                        ? `Mở rộng (${rawChildCount} con)`
-                        : "Thu gọn nhánh con"
+                      unit?.hasHiddenChildren && unit.hiddenDescendantCount > 0
+                        ? `Mở nhánh ${person.full_name} (${unit.hiddenDescendantCount} hậu duệ · ${unit.hiddenMaxDepth} đời)`
+                        : isCollapsed
+                          ? `Mở rộng (${rawChildCount} con)`
+                          : "Thu gọn nhánh con"
                     }
                   >
-                    {isCollapsed || unit?.hasHiddenChildren ? (
+                    {unit?.hasHiddenChildren && unit.hiddenDescendantCount > 0 ? (
+                      <>
+                        <Plus className="size-2.5" />
+                        <span>
+                          {unit.hiddenDescendantCount.toLocaleString("vi-VN")} hậu duệ
+                        </span>
+                      </>
+                    ) : isCollapsed ? (
                       <>
                         <Plus className="size-2.5" />
                         <span>{rawChildCount}</span>
@@ -925,17 +964,35 @@ export default function FamilyTree({
           })}
         </div>
 
-        {/* Bottom-left Live Status Chip (dịch phải tránh DevTools N badge) */}
+        {/* Breadcrumb quay lại Overview khi đang drill-down nhánh */}
+        {branchHistory.length > 0 && onChangeRoot && (
+          <div className="absolute top-3 left-3 z-20 flex items-center gap-1.5 bg-white border border-[#E8E2D8] rounded-lg px-3 py-1.5 text-xs shadow-xs">
+            <button
+              type="button"
+              onClick={() => {
+                const first = branchHistory[0];
+                setBranchHistory([]);
+                onChangeRoot(first.id);
+              }}
+              className="font-semibold text-[#A91E22] hover:underline"
+            >
+              Tổng quan ({subgraph.metrics.totalPersonsInDatabase.toLocaleString("vi-VN")})
+            </button>
+            <span className="text-[#8A8378]">/</span>
+            <span className="font-medium text-[#292725] truncate max-w-[180px]">
+              {roots[0]?.full_name}
+            </span>
+          </div>
+        )}
+
+        {/* Bottom-left Live Status Chip (5 chỉ số tách bạch) */}
         <div className="absolute bottom-3 left-14 z-20 flex items-center gap-2 bg-white border border-[#E8E2D8] rounded-lg px-3 py-1.5 text-xs text-[#5C5750] shadow-xs">
           <Layers className="size-3.5 text-[#A91E22]" />
           <span>
-            Đang hiển thị{" "}
-            <strong className="text-[#292725]">
-              {subgraph.metrics.visibleUniquePersons.toLocaleString("vi-VN")}
-            </strong>{" "}
-            / {subgraph.metrics.totalPersonsInDatabase.toLocaleString("vi-VN")} thành
-            viên · {layout.generationCount} đời · Render{" "}
-            {visibleElements.nodes.length} card
+            Tổng DB: <strong className="text-[#292725]">{subgraph.metrics.totalPersonsInDatabase.toLocaleString("vi-VN")}</strong>
+            {" · "}Subgraph: <strong className="text-[#292725]">{subgraph.metrics.subgraphUniquePersons}</strong>
+            {" · "}Mounted: <strong className="text-[#292725]">{visibleElements.nodes.length}</strong>
+            {" · "}Khung nhìn: <strong className="text-[#292725]">{visibleElements.inViewportCount}</strong>
           </span>
         </div>
 
@@ -996,9 +1053,13 @@ export default function FamilyTree({
               <dd className="text-right font-semibold text-[#292725]">
                 {subgraph.metrics.personsInLoadedGraph}
               </dd>
-              <dt>Hiển thị (duy nhất):</dt>
+              <dt>Subgraph đang mở:</dt>
               <dd className="text-right font-semibold text-[#292725]">
-                {subgraph.metrics.visibleUniquePersons}
+                {subgraph.metrics.subgraphUniquePersons}
+              </dd>
+              <dt>Card đã mount / Khung nhìn:</dt>
+              <dd className="text-right font-semibold text-[#292725]">
+                {visibleElements.nodes.length} / {visibleElements.inViewportCount}
               </dd>
               <dt>Family Units:</dt>
               <dd className="text-right font-semibold text-[#292725]">
