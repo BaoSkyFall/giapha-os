@@ -9,7 +9,13 @@ export const getSupabase = cache(async () => {
   return createClient(cookieStore);
 });
 
+const hasSupabaseEnv = Boolean(
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+);
+
 export const getUser = cache(async () => {
+  if (!hasSupabaseEnv) return null;
   const supabase = await getSupabase();
   const {
     data: { user },
@@ -19,6 +25,7 @@ export const getUser = cache(async () => {
 });
 
 export const getProfile = cache(async (userId?: string) => {
+  if (!hasSupabaseEnv) return null;
   let id = userId;
   if (!id) {
     const user = await getUser();

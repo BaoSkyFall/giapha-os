@@ -4,9 +4,9 @@ import MemberDetailModal from "@/components/MemberDetailModal";
 import ViewToggle from "@/components/ViewToggle";
 import { Person, Relationship } from "@/types";
 import {
-  fetchGenealogySubtree,
-  FOUNDER_ROOT_ID,
+  fetchFullGenealogyGraph,
   LIST_PERSON_COLUMNS,
+  loadLocalDumpData,
 } from "@/utils/genealogyService";
 import { getProfile, getSupabase } from "@/utils/supabase/queries";
 import {
@@ -125,8 +125,46 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
   const relationships: Relationship[] = [];
   let listPersons: Person[] = [];
   let listTotal = 0;
+  let totalPersonsInDatabase = 0;
+  let dataSource: "supabase" | "local_dump" = "supabase";
+
+  const hasSupabaseEnv = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
 
   if (currentView === "list") {
+    if (!hasSupabaseEnv || process.env.USE_LOCAL_DUMP === "true") {
+      const localData = loadLocalDumpData();
+      if (localData) {
+        dataSource = "local_dump";
+        totalPersonsInDatabase = localData.persons.length;
+        const filtered = localData.persons.filter((p) => {
+          if (hasListSearch) {
+            if (
+              !matchesSearchQuery(
+                [p.full_name, p.birth_year, p.generation],
+                listSearch,
+              )
+            ) {
+              return false;
+            }
+          }
+          if (listGeneration !== null && p.generation !== listGeneration) return false;
+          if (listBranch.length > 0 && !(p.branch ?? "").toLowerCase().includes(listBranch.toLowerCase())) return false;
+          if (listFilter === "male" && p.gender !== "male") return false;
+          if (listFilter === "female" && p.gender !== "female") return false;
+          if (listFilter === "in_law_female" && !(p.gender === "female" && p.is_in_law)) return false;
+          if (listFilter === "in_law_male" && !(p.gender === "male" && p.is_in_law)) return false;
+          if (listFilter === "deceased" && !p.is_deceased) return false;
+          if (listFilter === "first_child" && p.birth_order !== 1) return false;
+          return true;
+        });
+        listTotal = filtered.length;
+        const rangeFrom = (listPage - 1) * MEMBER_LIST_PAGE_SIZE;
+        listPersons = filtered.slice(rangeFrom, rangeFrom + MEMBER_LIST_PAGE_SIZE);
+      }
+    } else {
     const searchTokens = hasListSearch ? tokenizeForSearch(listSearch) : [];
     const rangeFrom = (listPage - 1) * MEMBER_LIST_PAGE_SIZE;
     const rangeTo = rangeFrom + MEMBER_LIST_PAGE_SIZE - 1;
@@ -263,15 +301,14 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
         listPersons = matched.slice(rangeFrom, rangeTo + 1);
       }
     }
+    }
   } else {
-    // Tối ưu P0.3: Tree / Mindmap view KHÔNG tải toàn bộ 100% DB nữa!
-    // Chỉ nạp root được chỉ định (hoặc mặc định Thủy Tổ) kèm Subtree 2 thế hệ
-    // đầu tiên. Khi user bấm mở rộng nhánh nào, client sẽ fetch on-demand.
-    const targetRootId = params.rootId?.trim() || FOUNDER_ROOT_ID;
-    const subtree = await fetchGenealogySubtree(supabase, targetRootId, 2);
-
-    persons = subtree.persons;
-    relationships.push(...subtree.relationships);
+    // Mặc định kéo toàn bộ đồ thị gia phả (~4.000+ thành viên) để người dùng xem đầy đủ ngay khi vào trang
+    const fullGraph = await fetchFullGenealogyGraph(supabase);
+    persons = fullGraph.persons;
+    relationships.push(...fullGraph.relationships);
+    totalPersonsInDatabase = fullGraph.totalPersonsInDatabase;
+    dataSource = fullGraph.dataSource;
   }
 
   return (
@@ -281,6 +318,8 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
         persons={persons}
         relationships={relationships}
         canEdit={canEdit}
+        totalPersonsInDatabase={totalPersonsInDatabase || persons.length}
+        dataSource={dataSource}
         listPersons={listPersons}
         listQueryState={{
           searchTerm: listSearch,

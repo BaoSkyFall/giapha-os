@@ -13,7 +13,9 @@ export async function updateSession(request: NextRequest) {
       p !== "/missing-db-config" &&
       !p.startsWith("/tra-cuu-ai") &&
       !p.startsWith("/ai-advisor") &&
-      !p.startsWith("/api/chat")
+      !p.startsWith("/api/chat") &&
+      !p.startsWith("/dashboard/members") &&
+      !p.startsWith("/api/genealogy")
     ) {
       const url = request.nextUrl.clone();
       url.pathname = "/missing-db-config";

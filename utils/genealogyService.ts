@@ -1,5 +1,7 @@
 import { Person, Relationship } from "@/types";
 import { SupabaseClient } from "@supabase/supabase-js";
+import fs from "node:fs";
+import path from "node:path";
 
 export const LIST_PERSON_COLUMNS =
   "id, full_name, gender, birth_year, birth_month, birth_day, death_year, death_month, death_day, avatar_url, is_deceased, is_in_law, birth_order, generation, branch";
@@ -15,10 +17,137 @@ export interface SubtreeResult {
   relationships: Relationship[];
 }
 
+export interface FullGraphResult {
+  persons: Person[];
+  relationships: Relationship[];
+  totalPersonsInDatabase: number;
+  dataSource: "supabase" | "local_dump";
+}
+
+const LOCAL_DUMP_CANDIDATES = [
+  path.resolve(process.cwd(), "local_dump_data.json"),
+  path.resolve(process.cwd(), "..", "rag-langchain-giapha", "local_dump_data.json"),
+];
+
+export function loadLocalDumpData(): {
+  persons: Person[];
+  relationships: Relationship[];
+} | null {
+  for (const candidate of LOCAL_DUMP_CANDIDATES) {
+    try {
+      if (fs.existsSync(candidate)) {
+        const raw = fs.readFileSync(candidate, "utf-8");
+        const parsed = JSON.parse(raw) as {
+          persons?: Person[];
+          relationships?: Relationship[];
+        };
+        if (Array.isArray(parsed.persons) && parsed.persons.length > 0) {
+          return {
+            persons: parsed.persons,
+            relationships: Array.isArray(parsed.relationships)
+              ? parsed.relationships
+              : [],
+          };
+        }
+      }
+    } catch {
+      // ignore invalid dump candidate
+    }
+  }
+  return null;
+}
+
+async function fetchAllPaginated<T>(
+  queryFactory: (from: number, to: number) => PromiseLike<{ data: unknown[] | null; error: unknown }>,
+  pageSize = 1000,
+): Promise<T[]> {
+  const all: T[] = [];
+  let offset = 0;
+  while (true) {
+    const { data, error } = await queryFactory(offset, offset + pageSize - 1);
+    if (error || !data) break;
+    all.push(...(data as T[]));
+    if (data.length < pageSize) break;
+    offset += pageSize;
+  }
+  return all;
+}
+
+/**
+ * Tải toàn bộ đồ thị gia phả (~4.000+ thành viên) với phân trang 1000 dòng/lượt.
+ * Hỗ trợ fallback về local_dump_data.json khi chạy local offline hoặc USE_LOCAL_DUMP=true.
+ */
+export async function fetchFullGenealogyGraph(
+  supabase: SupabaseClient,
+): Promise<FullGraphResult> {
+  const preferLocalDump =
+    process.env.USE_LOCAL_DUMP === "true" ||
+    !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (preferLocalDump) {
+    const localData = loadLocalDumpData();
+    if (localData) {
+      return {
+        persons: localData.persons,
+        relationships: localData.relationships,
+        totalPersonsInDatabase: localData.persons.length,
+        dataSource: "local_dump",
+      };
+    }
+  }
+
+  try {
+    const [persons, relationships] = await Promise.all([
+      fetchAllPaginated<Person>((from, to) =>
+        supabase
+          .from("persons")
+          .select(TREE_PERSON_COLUMNS)
+          .order("id", { ascending: true })
+          .range(from, to),
+      ),
+      fetchAllPaginated<Relationship>((from, to) =>
+        supabase
+          .from("relationships")
+          .select("*")
+          .order("id", { ascending: true })
+          .range(from, to),
+      ),
+    ]);
+
+    if (persons.length > 0) {
+      return {
+        persons,
+        relationships,
+        totalPersonsInDatabase: persons.length,
+        dataSource: "supabase",
+      };
+    }
+  } catch {
+    // fallback to local dump if available
+  }
+
+  const localFallback = loadLocalDumpData();
+  if (localFallback) {
+    return {
+      persons: localFallback.persons,
+      relationships: localFallback.relationships,
+      totalPersonsInDatabase: localFallback.persons.length,
+      dataSource: "local_dump",
+    };
+  }
+
+  return {
+    persons: [],
+    relationships: [],
+    totalPersonsInDatabase: 0,
+    dataSource: "supabase",
+  };
+}
+
 /**
  * Tải cây con (subtree) theo bán kính depth (mặc định 2) từ rootId.
- * Truy vấn tuần tự theo thế hệ để chỉ kéo dữ liệu thực sự cần hiển thị,
- * không bao giờ tải 100% DB.
+ * Giữ lại để tương thích ngược với API /api/genealogy/subtree.
  */
 export async function fetchGenealogySubtree(
   supabase: SupabaseClient,
@@ -28,7 +157,6 @@ export async function fetchGenealogySubtree(
   const collectedPersons = new Map<string, Person>();
   const collectedRelationships = new Map<string, Relationship>();
 
-  // 1. Fetch root
   const { data: rootPerson, error: rootError } = await supabase
     .from("persons")
     .select(TREE_PERSON_COLUMNS)
@@ -61,7 +189,6 @@ export async function fetchGenealogySubtree(
       visitedParentIds.add(id);
     }
 
-    // Parallel fetch: spouses and children
     const [marriageResults, childResults] = await Promise.all([
       supabase
         .from("relationships")
@@ -116,7 +243,6 @@ export async function fetchGenealogySubtree(
     currentLevelPersonIds = nextLevelPersonIds;
   }
 
-  // Also fetch parent relationships of root (for "Lên đời trước" context)
   const { data: upperRels } = await supabase
     .from("relationships")
     .select("*")

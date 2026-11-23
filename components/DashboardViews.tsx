@@ -17,6 +17,8 @@ interface DashboardViewsProps {
   persons: Person[];
   relationships: Relationship[];
   canEdit?: boolean;
+  totalPersonsInDatabase?: number;
+  dataSource?: "supabase" | "local_dump";
   listPersons?: Person[];
   listQueryState?: {
     searchTerm: string;
@@ -34,6 +36,8 @@ export default function DashboardViews({
   persons,
   relationships,
   canEdit = false,
+  totalPersonsInDatabase,
+  dataSource = "supabase",
   listPersons,
   listQueryState,
 }: DashboardViewsProps) {
@@ -146,20 +150,27 @@ export default function DashboardViews({
     return map;
   }, [livePersons]);
 
+  const effectiveRootId = useMemo(() => {
+    if (rootId) return rootId;
+    if (personsMap.has(FOUNDER_ROOT_ID)) return FOUNDER_ROOT_ID;
+    const gen1 = livePersons.find((p) => p.generation === 1);
+    return gen1?.id ?? livePersons[0]?.id ?? null;
+  }, [rootId, personsMap, livePersons]);
+
   const selectedRoot = useMemo(() => {
-    if (!rootId) return null;
-    return personsMap.get(rootId) ?? null;
-  }, [personsMap, rootId]);
+    if (!effectiveRootId) return null;
+    return personsMap.get(effectiveRootId) ?? null;
+  }, [personsMap, effectiveRootId]);
 
   const selectedRootChildCount = useMemo(() => {
-    if (!rootId) return 0;
+    if (!effectiveRootId) return 0;
     return liveRelationships.filter(
       (relationship) =>
         (relationship.type === "biological_child" ||
           relationship.type === "adopted_child") &&
-        relationship.person_a === rootId,
+        relationship.person_a === effectiveRootId,
     ).length;
-  }, [liveRelationships, rootId]);
+  }, [liveRelationships, effectiveRootId]);
 
   const resolveUpperRoot = useCallback(
     (personId: string): Person | null => {
@@ -229,7 +240,7 @@ export default function DashboardViews({
   const roots = contextRoot ? [contextRoot] : [];
   const isTreeMode = currentView === "tree" || currentView === "mindmap";
   const shouldRequireRoot = isTreeMode && !isViewLoading;
-  const showMissingRootHint = shouldRequireRoot && !rootId;
+  const showMissingRootHint = shouldRequireRoot && !effectiveRootId;
   const showInvalidRootHint = shouldRequireRoot && Boolean(rootId) && !selectedRoot;
   const showContextRootHint =
     shouldRequireRoot &&
@@ -256,11 +267,16 @@ export default function DashboardViews({
         className="flex-1 overflow-auto bg-rice-paper/50 flex flex-col"
       >
         {!isViewLoading && currentView !== "list" && livePersons.length > 0 && (
-          <div className="sticky top-0 z-30 w-full border-b border-stone-200/70 bg-rice-paper/95 backdrop-blur">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3 w-full flex flex-col gap-3">
-              <div className="flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">
+          <div className="shrink-0 z-30 w-full border-b border-[#E8E2D8] bg-[#FAF8F3]">
+            <div className="w-full px-4 sm:px-6 lg:px-8 pt-2.5 pb-2.5 flex flex-col gap-2">
+              <div className="flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 relative z-20">
                 <div className="flex items-center gap-2">
-                  <RootSelector persons={livePersons} currentRootId={rootId} />
+                  <RootSelector persons={livePersons} currentRootId={effectiveRootId} />
+                  {dataSource === "local_dump" && (
+                    <span className="hidden md:inline-flex items-center rounded-md border border-[#C99B35]/40 bg-[#FBF6EA] px-2 py-0.5 text-xs font-medium text-[#8C6818]">
+                      Dữ liệu local ({livePersons.length.toLocaleString("vi-VN")} người)
+                    </span>
+                  )}
                 </div>
                 <div
                   id="tree-toolbar-portal"
@@ -330,7 +346,7 @@ export default function DashboardViews({
           currentView !== "list" &&
           !showMissingRootHint &&
           !showInvalidRootHint && (
-            <div className="flex-1 w-full relative z-10">
+            <div className="flex-1 min-h-0 flex flex-col w-full relative z-10">
               {currentView === "tree" && (
                 <FamilyTree
                   personsMap={personsMap}
@@ -339,6 +355,7 @@ export default function DashboardViews({
                   upperRoot={showGoUpperArrow ? contextUpperRoot : null}
                   onChangeRoot={setRootId}
                   canEdit={canEdit}
+                  totalPersonsInDatabase={totalPersonsInDatabase}
                   onExpandSubtree={handleExpandSubtree}
                 />
               )}
