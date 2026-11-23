@@ -357,7 +357,6 @@ export default function DashboardViews({
                   upperRoot={showGoUpperArrow ? contextUpperRoot : null}
                   onChangeRoot={setRootId}
                   canEdit={canEdit}
-                  totalPersonsInDatabase={totalPersonsInDatabase}
                   onExpandSubtree={handleExpandSubtree}
                 />
               )}
