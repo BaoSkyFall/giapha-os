@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "eval:ai": "python ../evals/runners/run_eval.py",
     "auth:check-phone-readiness": "node scripts/check-phone-login-readiness.mjs",
     "auth:prepare-phone-mapping": "node scripts/apply-phone-mapping.mjs --file=scripts/phone-mapping.template.json",
     "auth:apply-phone-mapping": "node scripts/apply-phone-mapping.mjs --execute --file=scripts/phone-mapping.template.json --confirm=YES_I_UNDERSTAND",
@@ -42,7 +44,7 @@
     "eslint": "^9.39.3",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4.2.1",
-    "typescript": "^5.9.3"
+    "typescript": "5.9.3"
   },
   "ignoreScripts": [
     "sharp",

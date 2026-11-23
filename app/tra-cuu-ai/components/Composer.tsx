@@ -38,7 +38,7 @@ export default function Composer({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      if (e.nativeEvent.isComposing) return;
+      if (e.nativeEvent.isComposing || e.keyCode === 229) return;
       e.preventDefault();
       submit();
     }

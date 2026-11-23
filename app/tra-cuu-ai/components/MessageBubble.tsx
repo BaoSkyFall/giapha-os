@@ -11,8 +11,10 @@ import {
   Flag,
   Sparkles,
   UserCheck,
+  RotateCcw,
 } from "lucide-react";
 import type { ChatMessage, CandidatePerson } from "@/types/ai-advisor";
+import ChatMessageRenderer from "@/components/chat/ChatMessageRenderer";
 import VerificationBadge from "./VerificationBadge";
 import PersonCard, { extractPersonId } from "./PersonCard";
 import RelationshipCard from "./RelationshipCard";
@@ -20,9 +22,11 @@ import SourceCitationPanel from "./SourceCitationPanel";
 
 interface MessageBubbleProps {
   message: ChatMessage;
+  isStreaming?: boolean;
   onSelectCandidate: (personId: string, name: string) => void;
   onSelectSuggestion: (query: string) => void;
   onReportCorrection: (message: ChatMessage) => void;
+  onRegenerate?: () => void;
 }
 
 function DisambiguationList({
@@ -68,9 +72,11 @@ function DisambiguationList({
 
 export default function MessageBubble({
   message,
+  isStreaming = false,
   onSelectCandidate,
   onSelectSuggestion,
   onReportCorrection,
+  onRegenerate,
 }: MessageBubbleProps) {
   const [copied, setCopied] = useState(false);
   const [helpful, setHelpful] = useState(false);
@@ -124,10 +130,8 @@ export default function MessageBubble({
           />
         </div>
 
-        {/* Main response text */}
-        <div className="text-sm sm:text-base text-[#292725] leading-relaxed whitespace-pre-wrap text-pretty">
-          {message.content}
-        </div>
+        {/* Main response text (CommonMark / GFM + Sanitized Rich Text) */}
+        <ChatMessageRenderer content={message.content} isStreaming={isStreaming} />
 
         {/* Structured Cards */}
         {primaryPerson && <PersonCard person={primaryPerson} />}
@@ -197,6 +201,17 @@ export default function MessageBubble({
             <span>Hữu ích</span>
           </button>
 
+          {onRegenerate && !isStreaming && (
+            <button
+              type="button"
+              onClick={onRegenerate}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5C5750] hover:text-[#292725] hover:bg-[#F3EFE6] transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Tạo lại</span>
+            </button>
+          )}
+
           {primaryPersonId && (
             <>
               <Link
@@ -207,7 +222,7 @@ export default function MessageBubble({
                 <span>Xem hồ sơ</span>
               </Link>
               <Link
-                href={`/dashboard/tree?focus=${encodeURIComponent(primaryPersonId)}`}
+                href={`/dashboard/members?focus=${encodeURIComponent(primaryPersonId)}`}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-[#5C5750] hover:text-[#A91E22] hover:bg-[#FDF2F2] transition-colors"
               >
                 <GitFork className="w-3.5 h-3.5" />

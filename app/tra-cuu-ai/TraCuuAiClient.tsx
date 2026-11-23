@@ -93,6 +93,7 @@ export default function TraCuuAiClient({
   const [activeSessionSource, setActiveSessionSource] =
     useState<SessionSource>("local");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [streamingContent, setStreamingContent] = useState<string>("");
   const [isThinking, setIsThinking] = useState(false);
   const [thinkingLabel, setThinkingLabel] = useState("Đang tra cứu gia phả...");
   const [hasError, setHasError] = useState(false);
@@ -169,7 +170,7 @@ export default function TraCuuAiClient({
       scrollToBottom("smooth");
       shouldForceScrollRef.current = false;
     }
-  }, [messages, isThinking, isNearBottom, scrollToBottom]);
+  }, [messages, streamingContent, isThinking, isNearBottom, scrollToBottom]);
 
   // Session management
   const handleNewSession = useCallback(() => {
@@ -275,6 +276,27 @@ export default function TraCuuAiClient({
 
       let accumulatedText = "";
       let structuredResult: StructuredAnswerPayload | undefined;
+      let rafId: number | null = null;
+      let dirtyStream = false;
+
+      const flushStreamingPreview = () => {
+        if (!dirtyStream) return;
+        dirtyStream = false;
+        setStreamingContent(accumulatedText);
+      };
+
+      const scheduleStreamingPreview = () => {
+        dirtyStream = true;
+        if (rafId !== null) return;
+        if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+          rafId = window.requestAnimationFrame(() => {
+            rafId = null;
+            flushStreamingPreview();
+          });
+        } else {
+          flushStreamingPreview();
+        }
+      };
 
       const fetchController = new AbortController();
       abortControllerRef.current = fetchController;
@@ -324,11 +346,13 @@ export default function TraCuuAiClient({
             } else if (chunk.type === "text") {
               if (!structuredResult) {
                 accumulatedText += chunk.delta;
+                scheduleStreamingPreview();
               }
             } else if (chunk.type === "structured") {
               structuredResult = chunk.payload;
               if (chunk.payload?.message) {
                 accumulatedText = chunk.payload.message;
+                scheduleStreamingPreview();
               }
             } else if (chunk.type === "error") {
               accumulatedText = chunk.message;
@@ -336,6 +360,27 @@ export default function TraCuuAiClient({
             }
           }
         }
+
+        // Flush any remaining buffered line
+        if (buffer.trim()) {
+          try {
+            const tailChunk = JSON.parse(buffer.trim()) as StreamChunk;
+            if (tailChunk.type === "text" && !structuredResult) {
+              accumulatedText += tailChunk.delta;
+            } else if (tailChunk.type === "structured" && tailChunk.payload?.message) {
+              structuredResult = tailChunk.payload;
+              accumulatedText = tailChunk.payload.message;
+            }
+          } catch {
+            // ignore incomplete trailing JSON
+          }
+        }
+
+        if (rafId !== null && typeof window !== "undefined") {
+          window.cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+        setStreamingContent("");
 
         if (accumulatedText) {
           const assistantMsg: ChatMessage = {
@@ -383,6 +428,11 @@ export default function TraCuuAiClient({
           });
         }
       } catch (error) {
+        if (rafId !== null && typeof window !== "undefined") {
+          window.cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+        setStreamingContent("");
         const isAbort =
           error instanceof DOMException && error.name === "AbortError";
         if (isAbort) {
@@ -390,9 +440,9 @@ export default function TraCuuAiClient({
             ...prev,
             {
               role: "assistant",
-              content: "Đã hủy yêu cầu tra cứu.",
+              content: accumulatedText || "Đã dừng tạo câu trả lời.",
               timestamp: new Date().toISOString(),
-              verification_status: "not_found",
+              verification_status: accumulatedText ? "partial" : "not_found",
             },
           ]);
         } else {
@@ -411,6 +461,7 @@ export default function TraCuuAiClient({
       } finally {
         clearTimeout(fetchTimeoutId);
         abortControllerRef.current = null;
+        setStreamingContent("");
         setIsThinking(false);
       }
     },
@@ -421,7 +472,7 @@ export default function TraCuuAiClient({
     abortControllerRef.current?.abort();
   }, []);
 
-  const handleRetry = useCallback(() => {
+  const handleRegenerate = useCallback(() => {
     if (!lastQuery || isThinking) return;
     executeSend(lastQuery.message, lastQuery.selectedPersonId);
   }, [lastQuery, isThinking, executeSend]);
@@ -540,18 +591,39 @@ export default function TraCuuAiClient({
             {messages.length === 0 ? (
               <WelcomeState onSelectQuery={(q) => executeSend(q)} />
             ) : (
-              messages.map((msg, idx) => (
-                <MessageBubble
-                  key={`${msg.timestamp}-${idx}`}
-                  message={msg}
-                  onSelectCandidate={handleSelectCandidate}
-                  onSelectSuggestion={(q) => executeSend(q)}
-                  onReportCorrection={(m) => setReportingMessage(m)}
-                />
-              ))
+              messages.map((msg, idx) => {
+                const isLastAssistant =
+                  msg.role === "assistant" && idx === messages.length - 1;
+                return (
+                  <MessageBubble
+                    key={`${msg.timestamp}-${idx}`}
+                    message={msg}
+                    onSelectCandidate={handleSelectCandidate}
+                    onSelectSuggestion={(q) => executeSend(q)}
+                    onReportCorrection={(m) => setReportingMessage(m)}
+                    onRegenerate={
+                      isLastAssistant && lastQuery ? handleRegenerate : undefined
+                    }
+                  />
+                );
+              })
             )}
 
-            {isThinking && (
+            {isThinking && streamingContent && (
+              <MessageBubble
+                message={{
+                  role: "assistant",
+                  content: streamingContent,
+                  timestamp: "streaming",
+                }}
+                isStreaming
+                onSelectCandidate={handleSelectCandidate}
+                onSelectSuggestion={(q) => executeSend(q)}
+                onReportCorrection={(m) => setReportingMessage(m)}
+              />
+            )}
+
+            {isThinking && !streamingContent && (
               <div className="flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#FFFFFF] border border-[#E8E2D8] text-xs sm:text-sm text-[#5C5750] w-fit">
                 <Loader2 className="w-4 h-4 text-[#A91E22] animate-spin shrink-0" />
                 <span>{thinkingLabel}</span>
@@ -583,7 +655,7 @@ export default function TraCuuAiClient({
           hasError={hasError}
           onSend={(q) => executeSend(q)}
           onCancel={handleCancel}
-          onRetry={handleRetry}
+          onRetry={handleRegenerate}
         />
       </div>
 

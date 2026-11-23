@@ -3,11 +3,11 @@
 import { FAQ_CHIPS, type FaqChip } from "./data";
 import { useState, useCallback, useRef, useEffect } from "react";
 import Link from "next/link";
+import ChatMessageRenderer from "@/components/chat/ChatMessageRenderer";
 import type {
   ChatMessage,
   StreamChunk,
   CandidatePerson,
-  PersonProfileData,
   PersonDetail,
   RelationshipData,
   StructuredAnswerPayload,
@@ -226,15 +226,6 @@ function escapeHtml(text: string): string {
     .replace(/'/g, "&#39;");
 }
 
-function formatMarkdownBold(text: string): string {
-  return escapeHtml(text)
-    .replace(
-      /\*\*(.*?)\*\*/g,
-      "<strong class='text-stone-900 font-semibold'>$1</strong>"
-    )
-    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
-}
-
 function AssistantMessage({
   msg,
   onSelectCandidate,
@@ -245,7 +236,6 @@ function AssistantMessage({
   onSuggestionClick: (query: string) => void;
 }) {
   const [showReasoning, setShowReasoning] = useState(false);
-  const lines = (msg.content || "").split("\n").filter((l) => l.trim() !== "");
   const primaryPerson = msg.data?.primary_person;
   const relationship = msg.data?.relationship;
   const reasoningSteps = msg.reasoning_steps || [];
@@ -293,29 +283,7 @@ function AssistantMessage({
                 )}
               </div>
             )}
-            <div className="text-stone-800 text-sm md:text-base leading-relaxed space-y-2 text-pretty">
-              {lines.map((line, i) =>
-                line.startsWith("- ") || line.startsWith("• ") ? (
-                  <li key={i} className="flex items-start gap-2.5 list-none">
-                    <span className="w-4 h-4 rounded-full bg-[#E8B931]/20 flex items-center justify-center mt-1 shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#8B6A00]" />
-                    </span>
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: formatMarkdownBold(line.slice(2)),
-                      }}
-                    />
-                  </li>
-                ) : (
-                  <p
-                    key={i}
-                    dangerouslySetInnerHTML={{
-                      __html: formatMarkdownBold(line),
-                    }}
-                  />
-                )
-              )}
-            </div>
+            <ChatMessageRenderer content={msg.content || ""} />
 
             {/* Disambiguation Cards */}
             {msg.candidates && msg.candidates.length > 0 ? (
