@@ -42,22 +42,29 @@ function sanitizeHistoryMessages(
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
-  const isAuthenticated = !!user;
-
-  // Verify active profile & role from Supabase (fail-closed to "public")
+  let user = null;
   let verifiedRole: "public" | "member" | "admin" = "public";
-  const authSupabase = isAuthenticated ? await getSupabase() : null;
-  if (isAuthenticated && authSupabase) {
-    const { data: profile, error: profileError } = await authSupabase
-      .from("profiles")
-      .select("is_active, role")
-      .eq("id", user!.id)
-      .single();
-    if (!profileError && profile?.is_active === true) {
-      verifiedRole = profile.role === "admin" ? "admin" : "member";
+  try {
+    user = await getUser();
+    const isAuthenticated = !!user;
+
+    // Verify active profile & role from Supabase (fail-closed to "public")
+    const authSupabase = isAuthenticated ? await getSupabase() : null;
+    if (isAuthenticated && authSupabase) {
+      const { data: profile, error: profileError } = await authSupabase
+        .from("profiles")
+        .select("is_active, role")
+        .eq("id", user!.id)
+        .single();
+      if (!profileError && profile?.is_active === true) {
+        verifiedRole = profile.role === "admin" ? "admin" : "member";
+      }
     }
+  } catch {
+    user = null;
+    verifiedRole = "public";
   }
+  const isAuthenticated = !!user;
 
   let body: ChatRequestBody;
   try {
@@ -109,24 +116,49 @@ export async function POST(request: NextRequest) {
     async start(controller) {
       let fullResponseText = "";
       let structuredPayload: StructuredAnswerPayload | undefined;
+      let streamClosed = false;
+
+      const safeEnqueue = (chunk: StreamChunk) => {
+        if (streamClosed || request.signal.aborted) return;
+        try {
+          controller.enqueue(encodeChunk(chunk));
+        } catch {
+          streamClosed = true;
+        }
+      };
+
+      const safeClose = () => {
+        if (streamClosed) return;
+        streamClosed = true;
+        try {
+          controller.close();
+        } catch {
+          // ignore already-closed controller
+        }
+      };
 
       try {
-        controller.enqueue(
-          encodeChunk({
-            type: "agent_step",
-            step: "searching",
-            label: "Đang tra cứu cây gia phả...",
-          })
-        );
+        if (request.signal.aborted) {
+          safeClose();
+          return;
+        }
+
+        safeEnqueue({
+          type: "agent_step",
+          step: "searching",
+          label: "Đang tra cứu cây gia phả...",
+        });
 
         const controllerAbort = new AbortController();
+        const onClientAbort = () => controllerAbort.abort();
+        request.signal.addEventListener("abort", onClientAbort, { once: true });
         const timeoutId = setTimeout(
           () => controllerAbort.abort(),
           BACKEND_TIMEOUT_MS
         );
-        let backendRes: Response;
+        let raw: StructuredAnswerPayload;
         try {
-          backendRes = await fetch(`${BACK_END_AI_URL}/chat`, {
+          const backendRes = await fetch(`${BACK_END_AI_URL}/chat`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -145,15 +177,16 @@ export async function POST(request: NextRequest) {
                 : {}),
             }),
           });
+
+          if (!backendRes.ok) {
+            throw new Error(`Backend HTTP ${backendRes.status}`);
+          }
+
+          raw = (await backendRes.json()) as StructuredAnswerPayload;
         } finally {
           clearTimeout(timeoutId);
+          request.signal.removeEventListener("abort", onClientAbort);
         }
-
-        if (!backendRes.ok) {
-          throw new Error(`Backend HTTP ${backendRes.status}`);
-        }
-
-        const raw = (await backendRes.json()) as StructuredAnswerPayload;
         const normalizedPayload: StructuredAnswerPayload = {
           ...raw,
           provenance: raw.provenance,
@@ -176,16 +209,12 @@ export async function POST(request: NextRequest) {
             "Thông tin đã được cập nhật từ hệ thống gia phả.";
         }
 
-        controller.enqueue(
-          encodeChunk({
-            type: "structured",
-            payload: normalizedPayload,
-          })
-        );
+        safeEnqueue({
+          type: "structured",
+          payload: normalizedPayload,
+        });
 
-        controller.enqueue(
-          encodeChunk({ type: "text", delta: fullResponseText })
-        );
+        safeEnqueue({ type: "text", delta: fullResponseText });
 
         let finalSessionId = session_id ?? "unknown";
         if (persistToSupabase && supabase) {

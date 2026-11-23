@@ -9,16 +9,20 @@ export const createClient = (
   cookieStore: Awaited<ReturnType<typeof cookies>>,
 ) => {
   if (!supabaseUrl || !supabaseKey) {
-    // Return a dummy client to avoid crashing the render if accessed before redirect
+    // Chainable no-op query builder to avoid crashing SSR/routes when Supabase env is absent
+    const emptyResult = { data: null, error: null, count: 0 };
+    const createChain = (): Record<string, unknown> => {
+      const chain: Record<string, unknown> = {
+        then: (resolve: (val: typeof emptyResult) => void) => Promise.resolve(emptyResult).then(resolve),
+      };
+      for (const method of ["select", "eq", "neq", "ilike", "in", "or", "not", "is", "gt", "lt", "gte", "lte", "order", "range", "limit", "single", "maybeSingle", "insert", "update", "upsert", "delete"]) {
+        chain[method] = () => (method === "single" || method === "maybeSingle" ? Promise.resolve(emptyResult) : createChain());
+      }
+      return chain;
+    };
     return {
-      from: () => ({
-        select: () => ({
-          eq: () => ({ single: async () => ({ data: null, error: null }) }),
-          order: () => ({ data: null, error: null }),
-        }),
-        insert: () => ({ error: null }),
-        delete: () => ({ neq: () => ({ error: null }) }),
-      }),
+      from: () => createChain(),
+      rpc: async () => emptyResult,
       auth: {
         getUser: async () => ({ data: { user: null }, error: null }),
       },
