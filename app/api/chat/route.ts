@@ -8,6 +8,8 @@ import type {
 import { NextRequest } from "next/server";
 
 const BACK_END_AI_URL = process.env.BACK_END_AI_URL ?? "http://localhost:5000";
+const AI_SERVICE_INTERNAL_KEY = process.env.AI_SERVICE_INTERNAL_KEY ?? "";
+const BACKEND_TIMEOUT_MS = 15_000;
 
 function encodeChunk(chunk: StreamChunk): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(chunk) + "\n");
@@ -58,17 +60,28 @@ export async function POST(request: NextRequest) {
         );
 
         // Gọi trực tiếp Genealogy Engine backend (Zero LLM, sub-50ms)
-        const backendRes = await fetch(`${BACK_END_AI_URL}/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            question: message || "",
-            selected_person_id: selected_person_id || undefined,
-            session_id: session_id || undefined,
-            role: isAuthenticated ? "member" : "public",
-            ...(historyMessages.length > 0 ? { messages: historyMessages } : {}),
-          }),
-        });
+        const controllerAbort = new AbortController();
+        const timeoutId = setTimeout(() => controllerAbort.abort(), BACKEND_TIMEOUT_MS);
+        let backendRes: Response;
+        try {
+          backendRes = await fetch(`${BACK_END_AI_URL}/chat`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(AI_SERVICE_INTERNAL_KEY ? { "X-Internal-Key": AI_SERVICE_INTERNAL_KEY } : {}),
+            },
+            signal: controllerAbort.signal,
+            body: JSON.stringify({
+              question: message || "",
+              selected_person_id: selected_person_id || undefined,
+              session_id: session_id || undefined,
+              role: isAuthenticated ? "member" : "public",
+              ...(historyMessages.length > 0 ? { messages: historyMessages } : {}),
+            }),
+          });
+        } finally {
+          clearTimeout(timeoutId);
+        }
 
         if (!backendRes.ok) {
           throw new Error(`Backend HTTP ${backendRes.status}`);

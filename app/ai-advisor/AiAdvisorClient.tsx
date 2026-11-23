@@ -206,7 +206,7 @@ function PersonProfileCard({ person }: { person?: PersonDetail | null }) {
       </div>
       <div className="flex items-center gap-2 shrink-0">
         <Link
-          href={`/dashboard/members?id=${personId}`}
+          href={`/dashboard/members?rootId=${personId}`}
           className="px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 shadow-sm"
         >
           <span className="material-symbols-outlined text-[14px]">account_tree</span>
@@ -509,7 +509,11 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
         ? "supabase"
         : "local";
 
-      const historySnapshot = messages.map((m) => ({ role: m.role, content: m.content }));
+      const historySnapshot = messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+        ...(m.data ? { data: m.data } : {}),
+      }));
 
       const displayPrompt = userMessage.trim() || `Chọn thành viên tra cứu [${selectedPersonId}]`;
       const newUserMsg: ChatMessage = {
@@ -530,10 +534,14 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
       let accumulatedText = "";
       let structuredResult: StructuredAnswerPayload | undefined;
 
+      const fetchController = new AbortController();
+      const fetchTimeoutId = setTimeout(() => fetchController.abort(), 20_000);
+
       try {
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: fetchController.signal,
           body: JSON.stringify({
             message: userMessage,
             selected_person_id: selectedPersonId,
@@ -595,21 +603,24 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
 
           if (sessionSource === "local") {
             saveLocalMessages(currentSessionId, finalMessages);
-            setSessions((prev) => {
-              const title =
-                prev.find((s) => s.id === currentSessionId)?.title ?? userMessage.slice(0, 60);
-              const meta: SessionMeta = {
-                id: currentSessionId,
-                title,
-                updatedAt: new Date().toISOString(),
-                source: "local",
-              };
-              const filtered = prev.filter((s) => s.id !== currentSessionId);
-              const next = [meta, ...filtered];
-              saveLocalSessionIndex(next);
-              return next;
-            });
           }
+          setSessions((prev) => {
+            const title =
+              prev.find((s) => s.id === currentSessionId)?.title ??
+              (userMessage.trim() || "Tra cứu gia phả").slice(0, 60);
+            const meta: SessionMeta = {
+              id: currentSessionId,
+              title,
+              updatedAt: new Date().toISOString(),
+              source: sessionSource,
+            };
+            const filtered = prev.filter((s) => s.id !== currentSessionId);
+            const next = [meta, ...filtered];
+            if (sessionSource === "local") {
+              saveLocalSessionIndex(next);
+            }
+            return next;
+          });
         }
       } catch (error) {
         console.error({ error }, "executeSend failed");
@@ -623,6 +634,7 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
           },
         ]);
       } finally {
+        clearTimeout(fetchTimeoutId);
         setIsThinking(false);
       }
     },
@@ -638,9 +650,11 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
 
   const handleSelectCandidate = useCallback(
     (personId: string, name: string) => {
-      executeSend(`Tra cứu thông tin ${name}`, personId);
+      const lastUserMsg = [...messages].reverse().find((m) => m.role === "user")?.content?.trim();
+      const preservedQuestion = lastUserMsg || `Tra cứu thông tin ${name}`;
+      executeSend(preservedQuestion, personId);
     },
-    [executeSend]
+    [executeSend, messages]
   );
 
   const handleSuggestionClick = useCallback(
