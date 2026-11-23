@@ -3,12 +3,11 @@
 import { FamilyEvent } from "@/utils/eventHelpers";
 import { motion, Variants } from "framer-motion";
 import { ArrowRight, CalendarDays, Search, TreePine, UserRound } from "lucide-react";
-import MuxPlayer from "@mux/mux-player-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Manrope, Playfair_Display } from "next/font/google";
+import HomeHero from "@/components/HomeHero";
 import { useMemo, useState } from "react";
-import type { ComponentProps, ElementType } from "react";
+import type { ElementType } from "react";
 
 const fadeIn: Variants = {
   hidden: { opacity: 0, y: 24 },
@@ -29,26 +28,7 @@ const staggerContainer: Variants = {
     },
   },
 };
-const playfairVietnamese = Playfair_Display({
-  subsets: ["latin", "vietnamese"],
-  weight: ["400"],
-  display: "swap",
-});
-
-const manrope = Manrope({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
-
-const HERO_PLAYBACK_ID = "02gzwandixH4J534bd00JsCvlFfw6ha101WQ00C9b3sGibM";
 const TIMELINE_EVENT_LIMIT = 5;
-
-const muxBackgroundStyle = {
-  "--controls": "none",
-  "--media-object-fit": "cover",
-  "--media-object-position": "center",
-} satisfies NonNullable<ComponentProps<typeof MuxPlayer>["style"]>;
 
 const features = [
   {
@@ -91,6 +71,7 @@ interface LandingHighlightedPost {
 }
 
 interface LandingHeroProps {
+  siteName: string;
   events: SerializedEvent[];
   highlightedPosts: LandingHighlightedPost[];
 }
@@ -105,6 +86,7 @@ function formatPublishDate(value: string | null) {
 }
 
 export default function LandingHero({
+  siteName,
   events,
   highlightedPosts,
 }: LandingHeroProps) {
@@ -134,45 +116,7 @@ export default function LandingHero({
 
   return (
     <>
-      {/* Hero Section */}
-      <motion.section
-        className="relative h-screen overflow-hidden border-b border-black/10"
-        initial="hidden"
-        animate="visible"
-        variants={staggerContainer}
-      >
-        <MuxPlayer
-          playbackId={HERO_PLAYBACK_ID}
-          className="absolute inset-0 z-0 h-full w-full object-cover"
-          metadata={{
-            video_title: "Gia pha hero background",
-            viewer_user_id: "public-landing",
-          }}
-          streamType="on-demand"
-          autoPlay
-          loop
-          muted
-          playsInline
-          preload="auto"
-          style={muxBackgroundStyle}
-        />
-
-        <div className="absolute left-1/2 top-[calc(50%-136.5px)] z-10 w-full max-w-[984px] -translate-x-1/2 -translate-y-1/2 px-6">
-          <motion.div className="mx-auto w-full text-center" variants={fadeIn}>
-            <h1
-              className={`${playfairVietnamese.className} mx-auto mt-5 max-w-[860px] text-[27px] leading-[1.25] text-[#212121] opacity-90 md:text-[34px] md:leading-[1.2] lg:text-[47px] lg:leading-[1.15]`}
-            >
-              Cây có gốc mới nở cành xanh ngọn <br/> Nước có nguồn mới bể rộng sông sâu.
-            </h1>
-
-            <p
-              className={`${manrope.className} mx-auto mt-6 max-w-[510px] bg-linear-to-r from-[rgba(37,44,50,0.7)] to-[rgba(55,65,74,0.7)] bg-clip-text text-[18px] font-normal tracking-[-0.4px] text-transparent opacity-70 md:mt-8 md:text-[20px]`}
-            >
-              {"Gìn giữ cội nguồn, nối bước cha ông, phát huy giá trị di sản văn hóa dòng họ."}
-            </p>
-          </motion.div>
-        </div>
-      </motion.section>
+      <HomeHero siteName={siteName} />
       {/* Features Section */}
       <motion.section
         className="py-20 bg-white"
