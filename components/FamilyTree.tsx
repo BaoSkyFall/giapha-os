@@ -259,7 +259,7 @@ export default function FamilyTree({
   const initialCenteredRef = useRef<string>("");
   useEffect(() => {
     if (!rootKey || layout.nodes.length === 0) return;
-    const fitKey = `${rootKey}:${String(depthPreset)}`;
+    const fitKey = `${rootKey}:${String(depthPreset)}:${String(effectiveMaxDepth)}`;
     if (initialCenteredRef.current === fitKey) return;
 
     const rafId = requestAnimationFrame(() => {
@@ -435,18 +435,19 @@ export default function FamilyTree({
   };
 
   const collapseAll = () => {
-    const toCollapse = new Set<string>();
-    for (const [id, unit] of subgraph.unitsByPrimaryId.entries()) {
-      if (unit.depth >= 2 && unit.childIds.length > 0) {
-        toCollapse.add(id);
-      }
-    }
-    setCollapsedNodeIds(toCollapse);
+    setCollapsedNodeIds(new Set());
+    const currentDepth = effectiveMaxDepth ?? 3;
+    const nextDepth = Math.max(2, currentDepth - 1);
+    setDepthPreset("custom");
+    setCustomDepth(nextDepth);
   };
 
   const expandAll = () => {
     setCollapsedNodeIds(new Set());
-    setDepthPreset("all");
+    const currentDepth = effectiveMaxDepth ?? 3;
+    const nextDepth = Math.min(20, currentDepth + 1);
+    setDepthPreset("custom");
+    setCustomDepth(nextDepth);
   };
 
   const selectedPerson = selectedPersonId
@@ -898,6 +899,7 @@ export default function FamilyTree({
                     )}
                     <button
                       type="button"
+                      onMouseDown={(e) => e.stopPropagation()}
                       onClick={(e) => {
                         e.stopPropagation();
                         setMemberModalId(person.id);
@@ -914,6 +916,7 @@ export default function FamilyTree({
                 {!node.isSpouse && rawChildCount > 0 && (
                   <button
                     type="button"
+                    onMouseDown={(e) => e.stopPropagation()}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (unit?.hasHiddenChildren && unit.hiddenDescendantCount > 0 && onChangeRoot) {
