@@ -78,8 +78,10 @@ export default function FamilyTree({
   const dragOriginRef = useRef({ mouseX: 0, mouseY: 0, panX: 0, panY: 0 });
   const hasDraggedRef = useRef(false);
 
-  // Depth & Filters (Mặc định "all" — hiển thị toàn bộ gia phả ~4.000+ người)
-  const [depthPreset, setDepthPreset] = useState<DepthPreset>("all");
+  // Depth & Filters
+  // Toàn bộ 4.031 người được tải sẵn vào graph; mặc định mở 3 đời gọn đẹp kiểu n8n canvas
+  // (bấm "Tất cả (4.031)" hoặc tìm tên bất kỳ ai để bung nhánh ngay lập tức)
+  const [depthPreset, setDepthPreset] = useState<DepthPreset>(3);
   const [customDepth, setCustomDepth] = useState<number>(4);
   const [collapsedNodeIds, setCollapsedNodeIds] = useState<Set<string>>(() => new Set());
   const [hideSpouses, setHideSpouses] = useState(false);
@@ -255,26 +257,41 @@ export default function FamilyTree({
   const initialCenteredRef = useRef<string>("");
   useEffect(() => {
     if (!rootKey || layout.nodes.length === 0) return;
-    if (initialCenteredRef.current === rootKey) return;
-    const firstRoot = roots[0]?.id;
-    if (!firstRoot) return;
-    const node = layout.nodesByPersonId.get(firstRoot);
-    if (!node || !viewportRef.current) return;
+    const fitKey = `${rootKey}:${String(depthPreset)}`;
+    if (initialCenteredRef.current === fitKey) return;
 
     const rafId = requestAnimationFrame(() => {
-      if (!viewportRef.current) return;
+      if (!viewportRef.current || layout.worldWidth <= 0 || layout.worldHeight <= 0) return;
       const rect = viewportRef.current.getBoundingClientRect();
-      if (rect.width <= 0) return;
-      initialCenteredRef.current = rootKey;
-      const defaultScale = 0.85;
-      setScale(defaultScale);
+      if (rect.width <= 0 || rect.height <= 0) return;
+      initialCenteredRef.current = fitKey;
+
+      if (depthPreset === "all" && layout.worldWidth > rect.width * 8) {
+        const firstRoot = roots[0]?.id;
+        const node = firstRoot ? layout.nodesByPersonId.get(firstRoot) : null;
+        if (node) {
+          const defaultScale = 0.85;
+          setScale(defaultScale);
+          setPan({
+            x: rect.width / 2 - (node.x + node.width / 2) * defaultScale,
+            y: 36,
+          });
+          return;
+        }
+      }
+
+      const pad = 48;
+      const scaleX = (rect.width - pad) / layout.worldWidth;
+      const scaleY = (rect.height - pad) / layout.worldHeight;
+      const nextScale = Math.max(0.25, Math.min(1.0, Math.min(scaleX, scaleY)));
+      setScale(nextScale);
       setPan({
-        x: rect.width / 2 - (node.x + node.width / 2) * defaultScale,
-        y: 36,
+        x: (rect.width - layout.worldWidth * nextScale) / 2,
+        y: Math.max(24, (rect.height - layout.worldHeight * nextScale) / 2),
       });
     });
     return () => cancelAnimationFrame(rafId);
-  }, [rootKey, roots, layout.nodes.length, layout.nodesByPersonId]);
+  }, [rootKey, depthPreset, roots, layout.nodes.length, layout.nodesByPersonId, layout.worldWidth, layout.worldHeight]);
 
   // 6. Viewport Culling (chỉ render DOM node & SVG edge trong khung nhìn + buffer 360px)
   const visibleElements = useMemo(() => {
@@ -332,8 +349,12 @@ export default function FamilyTree({
 
     if (layout.nodesByPersonId.has(person.id)) {
       centerOnPerson(person.id, Math.max(scale, 0.9));
-    } else if (onChangeRoot) {
-      onChangeRoot(person.id);
+    } else {
+      // Nếu người được tìm nằm sâu hơn depth hiện tại, tự động mở rộng lên "all" hoặc chuyển root
+      setDepthPreset("all");
+      if (onChangeRoot) {
+        onChangeRoot(person.id);
+      }
     }
   };
 
@@ -693,7 +714,7 @@ export default function FamilyTree({
           portalNode,
         )}
 
-      {/* Main Pan/Zoom Viewport */}
+      {/* Main Pan/Zoom Viewport (n8n-style Infinite Dot-Grid Canvas) */}
       <div
         ref={viewportRef}
         onWheel={handleWheel}
@@ -701,7 +722,12 @@ export default function FamilyTree({
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        className={`flex-1 h-full relative overflow-hidden ${
+        style={{
+          backgroundImage: "radial-gradient(#D6CEC0 1.2px, transparent 1.2px)",
+          backgroundSize: `${Math.max(12, 22 * scale)}px ${Math.max(12, 22 * scale)}px`,
+          backgroundPosition: `${pan.x}px ${pan.y}px`,
+        }}
+        className={`flex-1 h-full relative overflow-hidden bg-[#FAF8F3] ${
           isDragging ? "cursor-grabbing" : "cursor-grab"
         }`}
       >
@@ -899,8 +925,8 @@ export default function FamilyTree({
           })}
         </div>
 
-        {/* Bottom-left Live Status Chip */}
-        <div className="absolute bottom-3 left-3 z-20 flex items-center gap-2 bg-white border border-[#E8E2D8] rounded-lg px-3 py-1.5 text-xs text-[#5C5750] shadow-xs">
+        {/* Bottom-left Live Status Chip (dịch phải tránh DevTools N badge) */}
+        <div className="absolute bottom-3 left-14 z-20 flex items-center gap-2 bg-white border border-[#E8E2D8] rounded-lg px-3 py-1.5 text-xs text-[#5C5750] shadow-xs">
           <Layers className="size-3.5 text-[#A91E22]" />
           <span>
             Đang hiển thị{" "}
@@ -909,8 +935,40 @@ export default function FamilyTree({
             </strong>{" "}
             / {subgraph.metrics.totalPersonsInDatabase.toLocaleString("vi-VN")} thành
             viên · {layout.generationCount} đời · Render{" "}
-            {visibleElements.nodes.length} card trong khung nhìn
+            {visibleElements.nodes.length} card
           </span>
+        </div>
+
+        {/* Bottom-right n8n-style Canvas Controls */}
+        <div className="absolute bottom-3 right-3 z-20 flex items-center bg-white border border-[#E8E2D8] rounded-lg shadow-xs overflow-hidden h-8">
+          <button
+            type="button"
+            onClick={() => setScale((s) => Math.max(0.12, s - 0.12))}
+            className="px-2 h-full hover:bg-[#F3EFE6] text-[#292725]"
+            title="Thu nhỏ"
+          >
+            <ZoomOut className="size-3.5" />
+          </button>
+          <span className="px-2 text-[11px] font-semibold text-[#5C5750] border-x border-[#E8E2D8]">
+            {Math.round(scale * 100)}%
+          </span>
+          <button
+            type="button"
+            onClick={() => setScale((s) => Math.min(2.0, s + 0.12))}
+            className="px-2 h-full hover:bg-[#F3EFE6] text-[#292725]"
+            title="Phóng to"
+          >
+            <ZoomIn className="size-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={fitToView}
+            className="px-2.5 h-full hover:bg-[#F3EFE6] text-[#292725] border-l border-[#E8E2D8] text-[11px] font-semibold flex items-center gap-1"
+            title="Vừa khung nhìn"
+          >
+            <Maximize2 className="size-3" />
+            Fit
+          </button>
         </div>
 
         {/* Diagnostics Drawer (Graph Metrics) */}

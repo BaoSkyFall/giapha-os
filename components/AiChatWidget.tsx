@@ -33,8 +33,13 @@ export default function AiChatWidget() {
   // Suppress unused-var warning — hasAutoOpened is intentionally tracked for future use
   void hasAutoOpened;
 
-  // Don't render on the AI Advisor / Tra cứu AI pages
-  if (pathname.startsWith("/tra-cuu-ai") || pathname.startsWith("/ai-advisor")) return null;
+  // Don't render on the AI Advisor / Tra cứu AI & interactive tree canvas pages
+  if (
+    pathname.startsWith("/tra-cuu-ai") ||
+    pathname.startsWith("/ai-advisor") ||
+    pathname.startsWith("/dashboard/members")
+  )
+    return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
