@@ -274,6 +274,62 @@ export default function FamilyTree({
     return depthPreset;
   }, [depthPreset, customDepth]);
 
+  // Thống kê tổng quan 13 thế hệ & các Chi/Phái thực tế từ 4.031 thành viên (cho chế độ Tổng quan)
+  const macroOverview = useMemo(() => {
+    const byGen = new Map<number, Person[]>();
+    let unknownGenCount = 0;
+    for (const p of allPersonsList) {
+      if (p.generation && p.generation > 0) {
+        if (!byGen.has(p.generation)) byGen.set(p.generation, []);
+        byGen.get(p.generation)!.push(p);
+      } else {
+        unknownGenCount++;
+      }
+    }
+    const generations = Array.from(byGen.entries())
+      .sort((a, b) => a[0] - b[0])
+      .map(([gen, members]) => ({ gen, count: members.length, members }));
+
+    // Đếm hậu duệ từng nhánh con trực tiếp của Thủy Tổ (hoặc root hiện tại)
+    const countSubtree = (rootId: string): { total: number; maxDepth: number } => {
+      const visited = new Set<string>([rootId]);
+      const q: Array<{ id: string; d: number }> = [{ id: rootId, d: 1 }];
+      let maxD = 1;
+      let head = 0;
+      while (head < q.length) {
+        const { id, d } = q[head++];
+        if (d > maxD) maxD = d;
+        for (const sp of normalizedGraph.spousesByPersonId.get(id) ?? []) {
+          visited.add(sp.person.id);
+        }
+        for (const ch of normalizedGraph.childrenByPersonId.get(id) ?? []) {
+          if (!visited.has(ch.person.id)) {
+            visited.add(ch.person.id);
+            q.push({ id: ch.person.id, d: d + 1 });
+          }
+        }
+      }
+      return { total: visited.size, maxDepth: maxD };
+    };
+
+    const currentRootId = roots[0]?.id ?? FOUNDER_ROOT_ID;
+    const directChildren = normalizedGraph.childrenByPersonId.get(currentRootId) ?? [];
+    const branches = directChildren.map((ch) => {
+      const stats = countSubtree(ch.person.id);
+      const spouses = normalizedGraph.spousesByPersonId.get(ch.person.id) ?? [];
+      return {
+        person: ch.person,
+        spouses: spouses.map((s) => s.person),
+        totalMembers: stats.total,
+        maxDepth: stats.maxDepth,
+      };
+    });
+
+    return { generations, unknownGenCount, branches };
+  }, [allPersonsList, normalizedGraph, roots]);
+
+  const [selectedOverviewGen, setSelectedOverviewGen] = useState<number | null>(null);
+
   // 2. Extract visible subgraph
   const subgraph = useMemo(
     () =>
@@ -1037,8 +1093,179 @@ export default function FamilyTree({
           portalNode,
         )}
 
-      {/* MODE B: Gia phả dọc (Elderly & Mobile Friendly Vertical Accordion) */}
-      {displayMode === "outline" ? (
+      {/* MODE C: Tổng quan toàn bộ 4.031 thành viên theo Chi/Phái & 13 Thế hệ */}
+      {displayMode === "canvas" && depthPreset === "all" ? (
+        <div className="flex-1 h-full overflow-y-auto px-4 sm:px-6 lg:px-8 py-5 bg-[#FAF8F3]">
+          <div className="max-w-6xl mx-auto space-y-6">
+            {/* Header tổng quan */}
+            <div className="bg-white border border-[#E8E2D8] rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#A91E22] bg-[#FDF2F2] px-2.5 py-1 rounded-md mb-1.5">
+                  <Layers className="size-3.5" />
+                  <span>Tổng quan toàn bộ dòng họ · {macroOverview.generations.length} thế hệ</span>
+                </div>
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#292725]">
+                  {roots[0]?.full_name} — {allPersonsList.length.toLocaleString("vi-VN")} thành viên
+                </h2>
+                <p className="text-xs sm:text-sm text-[#5C5750] mt-1">
+                  Chọn một Chi/Phái hoặc một Thế hệ bên dưới để đi thẳng vào sơ đồ cây chi tiết, tránh kéo dài đường ngang hàng trăm nghìn pixel.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDepthPreset(3)}
+                className="h-10 px-4 rounded-xl bg-[#A91E22] hover:bg-[#8C171B] text-white text-xs sm:text-sm font-semibold shrink-0 flex items-center justify-center gap-2"
+              >
+                <Network className="size-4" />
+                <span>Mở sơ đồ 3 đời</span>
+              </button>
+            </div>
+
+            {/* Các Chi / Phái trực tiếp từ gốc */}
+            <div>
+              <h3 className="text-xs font-bold text-[#8A8378] uppercase tracking-wider mb-3">
+                Các nhánh trực hệ từ {roots[0]?.full_name} ({macroOverview.branches.length} nhánh)
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {macroOverview.branches.map((b) => (
+                  <div
+                    key={b.person.id}
+                    className="bg-white border border-[#E8E2D8] hover:border-[#A91E22] rounded-xl p-4 flex flex-col justify-between gap-3 transition-colors shadow-xs"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-serif text-base font-bold text-[#292725]">
+                          {b.person.full_name}
+                        </h4>
+                        <span className="text-xs font-semibold bg-[#FBF6EA] text-[#8C6818] px-2 py-0.5 rounded shrink-0">
+                          {b.person.generation ? `Đời ${b.person.generation}` : "Nhánh"}
+                        </span>
+                      </div>
+                      {b.spouses.length > 0 && (
+                        <p className="text-xs text-[#5C5750] mt-1 flex items-center gap-1">
+                          <Heart className="size-3 text-[#A91E22] fill-[#A91E22]" />
+                          <span>{b.spouses.map((s) => s.full_name).join(", ")}</span>
+                        </p>
+                      )}
+                      <div className="mt-3 flex items-center gap-3 text-xs text-[#5C5750]">
+                        <span>
+                          Quy mô: <strong className="text-[#292725]">{b.totalMembers.toLocaleString("vi-VN")}</strong> người
+                        </span>
+                        <span>·</span>
+                        <span>
+                          Độ sâu: <strong className="text-[#292725]">{b.maxDepth}</strong> đời
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-2 border-t border-[#E8E2D8]">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDepthPreset(3);
+                          if (onChangeRoot) {
+                            setBranchHistory((prev) => [
+                              ...prev,
+                              { id: roots[0].id, name: roots[0].full_name },
+                            ]);
+                            onChangeRoot(b.person.id);
+                          }
+                        }}
+                        className="flex-1 h-9 rounded-lg bg-[#FDF2F2] hover:bg-[#A91E22] text-[#A91E22] hover:text-white text-xs font-semibold transition-colors"
+                      >
+                        Xem cây nhánh này
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setMemberModalId(b.person.id)}
+                        className="h-9 px-3 rounded-lg bg-[#FAF8F3] hover:bg-[#F3EFE6] border border-[#E8E2D8] text-xs font-semibold text-[#292725]"
+                      >
+                        Hồ sơ
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bản đồ 13 Thế hệ */}
+            <div>
+              <h3 className="text-xs font-bold text-[#8A8378] uppercase tracking-wider mb-3">
+                Phân bổ theo {macroOverview.generations.length} thế hệ (Bấm vào từng đời để xem thành viên)
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-2.5">
+                {macroOverview.generations.map((g) => {
+                  const active = selectedOverviewGen === g.gen;
+                  return (
+                    <button
+                      key={g.gen}
+                      type="button"
+                      onClick={() => setSelectedOverviewGen(active ? null : g.gen)}
+                      className={`p-3 rounded-xl border text-left transition-colors ${
+                        active
+                          ? "bg-[#A91E22] text-white border-[#A91E22]"
+                          : "bg-white border-[#E8E2D8] hover:border-[#C99B35] text-[#292725]"
+                      }`}
+                    >
+                      <div className={`text-xs font-semibold ${active ? "text-white/80" : "text-[#8C6818]"}`}>
+                        Đời {g.gen}
+                      </div>
+                      <div className="text-lg font-bold mt-0.5">
+                        {g.count.toLocaleString("vi-VN")}
+                      </div>
+                      <div className={`text-[11px] ${active ? "text-white/80" : "text-[#5C5750]"}`}>
+                        thành viên
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {selectedOverviewGen !== null && (
+                <div className="mt-4 bg-white border border-[#E8E2D8] rounded-xl p-4">
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#E8E2D8]">
+                    <h4 className="font-bold text-sm text-[#292725]">
+                      Thành viên Đời {selectedOverviewGen} (hiển thị tối đa 60 người đầu)
+                    </h4>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedOverviewGen(null)}
+                      className="text-xs text-[#5C5750] hover:text-[#292725]"
+                    >
+                      Đóng
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-72 overflow-y-auto">
+                    {(
+                      macroOverview.generations.find((x) => x.gen === selectedOverviewGen)
+                        ?.members ?? []
+                    )
+                      .slice(0, 60)
+                      .map((m) => (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => {
+                            setDepthPreset(3);
+                            if (onChangeRoot) onChangeRoot(m.id);
+                          }}
+                          className="text-left px-3 py-2 rounded-lg bg-[#FAF8F3] hover:bg-[#FDF2F2] border border-[#E8E2D8] hover:border-[#A91E22] flex items-center justify-between gap-2"
+                        >
+                          <span className="text-xs font-semibold text-[#292725] truncate">
+                            {m.full_name}
+                          </span>
+                          <span className="text-[11px] text-[#5C5750] shrink-0">
+                            {m.birth_year ?? "?"}
+                          </span>
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : displayMode === "outline" ? (
         <div className="flex-1 h-full overflow-y-auto px-3 sm:px-6 py-4 bg-[#FAF8F3]">
           <div className="max-w-3xl mx-auto">
             <div className="mb-3 flex items-center justify-between gap-2 text-xs text-[#5C5750]">
