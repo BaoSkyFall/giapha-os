@@ -19,6 +19,20 @@ export async function POST(request: NextRequest) {
   const user = await getUser();
   const isAuthenticated = !!user;
 
+  // Verify active profile & role from Supabase (fail-closed to "public")
+  let verifiedRole: "public" | "member" | "admin" = "public";
+  const authSupabase = isAuthenticated ? await getSupabase() : null;
+  if (isAuthenticated && authSupabase) {
+    const { data: profile } = await authSupabase
+      .from("profiles")
+      .select("is_active, role")
+      .eq("id", user!.id)
+      .single();
+    if (profile?.is_active) {
+      verifiedRole = profile.role === "admin" ? "admin" : "member";
+    }
+  }
+
   let body: ChatRequestBody;
   try {
     body = await request.json();
@@ -75,7 +89,7 @@ export async function POST(request: NextRequest) {
               question: message || "",
               selected_person_id: selected_person_id || undefined,
               session_id: session_id || undefined,
-              role: isAuthenticated ? "member" : "public",
+              role: verifiedRole,
               ...(historyMessages.length > 0 ? { messages: historyMessages } : {}),
             }),
           });
@@ -117,6 +131,7 @@ export async function POST(request: NextRequest) {
               role: m.role,
               content: m.content,
               timestamp: new Date().toISOString(),
+              ...(m.data ? { data: m.data } : {}),
             })),
             {
               role: "user" as const,
@@ -130,12 +145,13 @@ export async function POST(request: NextRequest) {
               response_type: structuredPayload?.type,
               candidates: structuredPayload?.candidates,
               suggestions: structuredPayload?.suggestions,
+              reasoning_steps: structuredPayload?.reasoning_steps,
               data: structuredPayload?.data,
               meta: structuredPayload?.meta,
             },
           ];
           const title = historyMessages.length === 0 ? (message || "Tra cứu gia phả").slice(0, 80) : undefined;
-          const { data: savedSession } = await supabase
+          const { data: savedSession, error: upsertError } = await supabase
             .from("chat_sessions")
             .upsert({
               ...(session_id ? { id: session_id } : {}),
@@ -146,6 +162,9 @@ export async function POST(request: NextRequest) {
             })
             .select("id")
             .single();
+          if (upsertError) {
+            console.error({ upsertError }, "chat_sessions upsert error");
+          }
           finalSessionId = savedSession?.id ?? session_id ?? "unknown";
         }
 

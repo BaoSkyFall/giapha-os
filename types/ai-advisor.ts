@@ -60,6 +60,12 @@ export interface ChatMessageData {
   [key: string]: unknown;
 }
 
+export interface ReasoningStep {
+  step: string;
+  title: string;
+  detail: string;
+}
+
 export interface StructuredAnswerPayload {
   type:
     | "answer"
@@ -76,11 +82,13 @@ export interface StructuredAnswerPayload {
   data?: ChatMessageData;
   candidates?: CandidatePerson[];
   suggestions?: string[];
+  reasoning_steps?: ReasoningStep[];
   meta?: {
     intent?: string;
     latency_ms?: number;
     confidence?: number;
     status?: string;
+    data_source?: string;
   };
 }
 
@@ -120,6 +128,7 @@ export interface ChatMessage {
     | "error";
   candidates?: CandidatePerson[];
   suggestions?: string[];
+  reasoning_steps?: ReasoningStep[];
   data?: ChatMessageData;
   meta?: Record<string, unknown>;
 }
@@ -146,6 +155,6 @@ export interface ChatRequestBody {
   message: string;
   selected_person_id?: string;
   session_id?: string;
-  messages?: Array<{ role: "user" | "assistant"; content: string }>; // conversation history
+  messages?: Array<{ role: "user" | "assistant"; content: string; data?: ChatMessageData }>; // conversation history
   session_source?: "local" | "supabase"; // determines persistence strategy
 }

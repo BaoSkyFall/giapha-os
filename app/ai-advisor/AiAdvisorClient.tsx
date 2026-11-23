@@ -206,7 +206,7 @@ function PersonProfileCard({ person }: { person?: PersonDetail | null }) {
       </div>
       <div className="flex items-center gap-2 shrink-0">
         <Link
-          href={`/dashboard/members?rootId=${personId}`}
+          href={`/dashboard/members?rootId=${personId}&view=tree`}
           className="px-3 py-1.5 bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1 shadow-sm"
         >
           <span className="material-symbols-outlined text-[14px]">account_tree</span>
@@ -214,6 +214,22 @@ function PersonProfileCard({ person }: { person?: PersonDetail | null }) {
         </Link>
       </div>
     </div>
+  );
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function formatMarkdownBold(text: string): string {
+  return escapeHtml(text).replace(
+    /\*\*(.*?)\*\*/g,
+    "<strong class='text-stone-900 font-semibold'>$1</strong>"
   );
 }
 
@@ -226,9 +242,12 @@ function AssistantMessage({
   onSelectCandidate: (personId: string, name: string) => void;
   onSuggestionClick: (query: string) => void;
 }) {
+  const [showReasoning, setShowReasoning] = useState(false);
   const lines = (msg.content || "").split("\n").filter((l) => l.trim() !== "");
   const primaryPerson = msg.data?.primary_person;
   const relationship = msg.data?.relationship;
+  const reasoningSteps = msg.reasoning_steps || [];
+  const latencyMs = typeof msg.meta?.latency_ms === "number" ? msg.meta.latency_ms : null;
 
   return (
     <div className="flex justify-start animate-in fade-in slide-in-from-bottom-3 duration-300">
@@ -241,6 +260,37 @@ function AssistantMessage({
         <div className="flex-1 bg-white shadow-sm rounded-2xl rounded-tl-none overflow-hidden border border-stone-200/90">
           <div className="h-1 bg-gradient-to-r from-[#E8B931] via-[#B31D1D] to-[#E8B931] opacity-70" />
           <div className="p-4 md:p-5">
+            {reasoningSteps.length > 0 && (
+              <div className="mb-3">
+                <button
+                  type="button"
+                  onClick={() => setShowReasoning((v) => !v)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 hover:bg-stone-200/80 text-stone-600 text-xs font-medium transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[14px] text-[#B31D1D]">psychology</span>
+                  <span>
+                    Tư duy tra cứu ({reasoningSteps.length} bước
+                    {latencyMs !== null ? ` • ${latencyMs} ms` : ""})
+                  </span>
+                  <span className="material-symbols-outlined text-[14px]">
+                    {showReasoning ? "expand_less" : "expand_more"}
+                  </span>
+                </button>
+                {showReasoning && (
+                  <div className="mt-2 p-2.5 rounded-xl bg-[#FBF9F5] border border-stone-200/80 space-y-1.5 text-xs text-stone-700">
+                    {reasoningSteps.map((s, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <span className="font-semibold text-[#B31D1D] shrink-0">{idx + 1}.</span>
+                        <div>
+                          <span className="font-semibold text-stone-900">{s.title}: </span>
+                          <span>{s.detail}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="text-stone-800 text-sm md:text-base leading-relaxed space-y-2 text-pretty">
               {lines.map((line, i) =>
                 line.startsWith("- ") || line.startsWith("• ") ? (
@@ -250,7 +300,7 @@ function AssistantMessage({
                     </span>
                     <span
                       dangerouslySetInnerHTML={{
-                        __html: line.slice(2).replace(/\*\*(.*?)\*\*/g, "<strong class='text-stone-900 font-semibold'>$1</strong>"),
+                        __html: formatMarkdownBold(line.slice(2)),
                       }}
                     />
                   </li>
@@ -258,7 +308,7 @@ function AssistantMessage({
                   <p
                     key={i}
                     dangerouslySetInnerHTML={{
-                      __html: line.replace(/\*\*(.*?)\*\*/g, "<strong class='text-stone-900 font-semibold'>$1</strong>"),
+                      __html: formatMarkdownBold(line),
                     }}
                   />
                 )
@@ -595,6 +645,7 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
             response_type: structuredResult?.type,
             candidates: structuredResult?.candidates,
             suggestions: structuredResult?.suggestions,
+            reasoning_steps: structuredResult?.reasoning_steps,
             data: structuredResult?.data,
             meta: structuredResult?.meta,
           };
