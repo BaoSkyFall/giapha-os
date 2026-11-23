@@ -84,7 +84,7 @@ function deleteLocalSession(sessionId: string): void {
 function UserMessage({ content }: { content: string }) {
   return (
     <div className="flex justify-end animate-in fade-in slide-in-from-bottom-3 duration-300">
-      <div className="max-w-[78%] bg-[#B31D1D] text-white shadow-md rounded-2xl rounded-tr-none px-5 py-3.5 border border-[#B31D1D]">
+      <div className="max-w-[85%] lg:max-w-[75%] bg-[#B31D1D] text-white shadow-md rounded-2xl rounded-tr-none px-5 py-3.5 border border-[#B31D1D]">
         <p className="text-sm md:text-base leading-relaxed text-white font-normal text-pretty">{content}</p>
       </div>
     </div>
@@ -227,10 +227,12 @@ function escapeHtml(text: string): string {
 }
 
 function formatMarkdownBold(text: string): string {
-  return escapeHtml(text).replace(
-    /\*\*(.*?)\*\*/g,
-    "<strong class='text-stone-900 font-semibold'>$1</strong>"
-  );
+  return escapeHtml(text)
+    .replace(
+      /\*\*(.*?)\*\*/g,
+      "<strong class='text-stone-900 font-semibold'>$1</strong>"
+    )
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
 }
 
 function AssistantMessage({
@@ -251,7 +253,7 @@ function AssistantMessage({
 
   return (
     <div className="flex justify-start animate-in fade-in slide-in-from-bottom-3 duration-300">
-      <div className="max-w-[85%] md:max-w-[80%] flex gap-3.5">
+      <div className="max-w-[85%] lg:max-w-[75%] flex gap-3.5">
         <div className="flex-shrink-0 mt-0.5">
           <div className="w-9 h-9 rounded-full bg-[#B31D1D] flex items-center justify-center shadow border border-[#E8B931]/40">
             <span className="material-symbols-outlined text-white text-lg">temple_buddhist</span>
@@ -269,8 +271,8 @@ function AssistantMessage({
                 >
                   <span className="material-symbols-outlined text-[14px] text-[#B31D1D]">psychology</span>
                   <span>
-                    Tư duy tra cứu ({reasoningSteps.length} bước
-                    {latencyMs !== null ? ` • ${latencyMs} ms` : ""})
+                    Tư duy tra cứu • {reasoningSteps.length} bước
+                    {latencyMs !== null ? ` • ${latencyMs} ms` : ""}
                   </span>
                   <span className="material-symbols-outlined text-[14px]">
                     {showReasoning ? "expand_less" : "expand_more"}
@@ -354,7 +356,7 @@ function AssistantMessage({
 function ThinkingState() {
   return (
     <div className="flex justify-start animate-in fade-in duration-300">
-      <div className="max-w-[80%] flex gap-3.5">
+      <div className="max-w-[85%] lg:max-w-[75%] flex gap-3.5">
         <div className="flex-shrink-0 mt-0.5">
           <div className="w-9 h-9 rounded-full bg-[#B31D1D]/10 flex items-center justify-center border border-[#B31D1D]/20">
             <span className="material-symbols-outlined text-[#B31D1D] text-lg animate-pulse">
@@ -394,8 +396,8 @@ function ChatInput({
   };
 
   return (
-    <div className="sticky bottom-0 bg-[#FBF9F5] border-t border-stone-200/80 p-4 md:p-5 flex-shrink-0 z-10 shadow-sm">
-      <div className="max-w-[960px] mx-auto flex flex-col gap-3">
+    <div className="sticky bottom-0 bg-[#FBF9F5] border-t border-stone-200/80 px-4 sm:px-6 lg:px-10 py-4 md:py-5 flex-shrink-0 z-10 shadow-sm">
+      <div className="w-full flex flex-col gap-3">
         <div className="flex flex-wrap gap-2 overflow-x-auto pb-1">
           {FAQ_CHIPS.slice(0, 4).map((chip) => (
             <button
@@ -462,7 +464,7 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
   const [activeSessionSource, setActiveSessionSource] = useState<SessionSource>("local");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isThinking, setIsThinking] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const localSessions = loadLocalSessionIndex();
@@ -480,7 +482,10 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
   }, [supabaseSessions]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesContainerRef.current?.scrollTo({
+      top: messagesContainerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages, isThinking]);
 
   // ── Session management ──────────────────────────────────────
@@ -723,7 +728,7 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
     <div className="flex flex-col flex-1 min-h-0 bg-[#FBF9F5]" style={{ scrollbarGutter: "stable" }}>
       {/* ── Sub-header bar ── */}
       <div className="flex-shrink-0 border-b border-stone-200/90 bg-white shadow-xs">
-        <div className="max-w-[960px] mx-auto px-4 h-14 flex items-center justify-between">
+        <div className="w-full px-4 sm:px-6 lg:px-10 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h1
               className="text-[#B31D1D] text-base md:text-lg font-bold leading-tight flex items-center gap-2"
@@ -793,16 +798,16 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
       </div>
 
       {/* ── Official Genealogy Notice (Replaces AI Disclaimer) ── */}
-      <div className="flex-shrink-0 bg-stone-100/70 border-b border-stone-200/80 px-4 py-2">
-        <p className="max-w-[960px] mx-auto text-stone-600 text-xs text-center leading-relaxed text-pretty">
+      <div className="flex-shrink-0 bg-stone-100/70 border-b border-stone-200/80 px-4 sm:px-6 lg:px-10 py-2">
+        <p className="w-full text-stone-600 text-xs text-center leading-relaxed text-pretty">
           🎋 <strong>Thông tin tra cứu chính thức:</strong> Toàn bộ dữ liệu được đối chiếu từ văn bản phả đồ Tộc Phạm Phú.
           Nếu phát hiện thông tin chưa cập nhật, xin vui lòng thông báo cho Ban quản trị dòng tộc.
         </p>
       </div>
 
       {/* ── Chat Canvas ── */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-6 relative">
-        <div className="max-w-[960px] mx-auto flex flex-col gap-5 min-h-full">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-10 py-4 md:py-6 relative">
+        <div className="w-full flex flex-col gap-5 min-h-full">
           {messages.length === 0 && !isThinking && (
             <div className="flex flex-col items-center justify-center flex-1 text-center py-16">
               <div className="w-16 h-16 rounded-2xl bg-[#B31D1D]/10 flex items-center justify-center mb-4 border border-[#B31D1D]/20">
@@ -881,7 +886,6 @@ export default function AiAdvisorClient({ isAuthenticated, supabaseSessions }: P
           )}
 
           {isThinking && <ThinkingState />}
-          <div ref={messagesEndRef} />
         </div>
       </div>
 

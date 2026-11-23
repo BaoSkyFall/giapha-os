@@ -3,6 +3,23 @@
 :root {
   --background: #F7F3EA;
   --foreground: #3E2723;
+
+  /* AI Workspace Tokens — Vietnamese Heritage × Modern Research Workspace */
+  --ai-bg-canvas: #FAF8F3;
+  --ai-bg-surface: #FFFFFF;
+  --ai-bg-subtle: #F3EFE6;
+  --ai-border: #E8E2D8;
+  --ai-border-strong: #D6CEC0;
+  --ai-text-primary: #292725;
+  --ai-text-secondary: #5C5750;
+  --ai-text-muted: #8A8378;
+  --ai-red: #A91E22;
+  --ai-red-hover: #8C171B;
+  --ai-red-tint: #FDF2F2;
+  --ai-gold: #C99B35;
+  --ai-gold-tint: #FBF6EA;
+  --ai-verified: #227C44;
+  --ai-verified-tint: #EEF7F1;
 }
 
 @theme inline {

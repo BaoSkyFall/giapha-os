@@ -66,6 +66,21 @@ export interface ReasoningStep {
   detail: string;
 }
 
+export interface ProvenanceSource {
+  source_id: string;
+  source_type: string;
+  title: string;
+  record_id?: string;
+  verified: boolean;
+}
+
+export type VerificationStatus =
+  | "verified"
+  | "partial"
+  | "demo"
+  | "not_found"
+  | string;
+
 export interface StructuredAnswerPayload {
   type:
     | "answer"
@@ -83,12 +98,20 @@ export interface StructuredAnswerPayload {
   candidates?: CandidatePerson[];
   suggestions?: string[];
   reasoning_steps?: ReasoningStep[];
+  verification_status?: VerificationStatus;
+  data_completeness?: number | string | null;
+  missing_fields?: string[];
+  provenance?: ProvenanceSource[];
+  reason_code?: string;
+  is_demo_data?: boolean;
+  sources?: Array<string | ProvenanceSource | Record<string, unknown>>;
   meta?: {
     intent?: string;
     latency_ms?: number;
     confidence?: number;
     status?: string;
     data_source?: string;
+    [key: string]: unknown;
   };
 }
 
@@ -130,6 +153,13 @@ export interface ChatMessage {
   suggestions?: string[];
   reasoning_steps?: ReasoningStep[];
   data?: ChatMessageData;
+  verification_status?: VerificationStatus;
+  data_completeness?: number | string | null;
+  missing_fields?: string[];
+  provenance?: ProvenanceSource[];
+  reason_code?: string;
+  is_demo_data?: boolean;
+  sources?: Array<string | ProvenanceSource | Record<string, unknown>>;
   meta?: Record<string, unknown>;
 }
 
