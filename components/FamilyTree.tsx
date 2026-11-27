@@ -5,7 +5,15 @@ import { createPortal } from "react-dom";
 
 import { Person, Relationship } from "@/types";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUp, Filter, Image as ImageIcon, ZoomIn, ZoomOut } from "lucide-react";
+import {
+  ArrowUp,
+  ChevronsDownUp,
+  ChevronsUpDown,
+  Filter,
+  Image as ImageIcon,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
 import { useDashboard } from "./DashboardContext";
 import ExportButton from "./ExportButton";
 import FamilyNodeCard from "./FamilyNodeCard";
@@ -19,6 +27,7 @@ export default function FamilyTree({
   upperRoot,
   onChangeRoot,
   canEdit,
+  onExpandSubtree,
 }: {
   personsMap: Map<string, Person>;
   relationships: Relationship[];
@@ -26,6 +35,7 @@ export default function FamilyTree({
   upperRoot?: Person | null;
   onChangeRoot?: (rootId: string | null) => void;
   canEdit?: boolean;
+  onExpandSubtree?: (personId: string) => Promise<void> | void;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isPressed, setIsPressed] = useState(false);
@@ -39,12 +49,42 @@ export default function FamilyTree({
   const [hideMales, setHideMales] = useState(false);
   const [hideFemales, setHideFemales] = useState(false);
 
-  const { showAvatar, setShowAvatar } = useDashboard();
+  const { showAvatar, setShowAvatar, setMemberModalId } = useDashboard();
   const filtersRef = useRef<HTMLDivElement>(null);
   const [portalNode, setPortalNode] = useState<HTMLElement | null>(null);
 
+  // Progressive on-demand expansion state
+  const [expandedNodeIds, setExpandedNodeIds] = useState<Set<string>>(() => {
+    return new Set(roots.map((r) => r.id));
+  });
+
+  const adj = useMemo(
+    () => buildAdjacencyLists(relationships, personsMap),
+    [relationships, personsMap],
+  );
+
+  const rootKey = useMemo(() => roots.map((root) => root.id).join("|"), [roots]);
+
+  // When root changes, default expand root + direct children (2 generations)
   useEffect(() => {
-    setPortalNode(document.getElementById("tree-toolbar-portal"));
+    const initialExpanded = new Set<string>();
+    for (const r of roots) {
+      initialExpanded.add(r.id);
+      const children = adj.childrenByPersonId.get(r.id) ?? [];
+      for (const c of children) {
+        initialExpanded.add(c.id);
+      }
+    }
+    const rafId = requestAnimationFrame(() => {
+      setExpandedNodeIds(initialExpanded);
+    });
+    return () => cancelAnimationFrame(rafId);
+  }, [rootKey, roots, adj]);
+
+  useEffect(() => {
+    const rafId = requestAnimationFrame(() => {
+      setPortalNode(document.getElementById("tree-toolbar-portal"));
+    });
     const handleClickOutside = (event: MouseEvent) => {
       if (
         filtersRef.current &&
@@ -54,7 +94,10 @@ export default function FamilyTree({
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      cancelAnimationFrame(rafId);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, []);
 
   const handleZoomIn = () => setScale((s) => Math.min(s + 0.1, 2));
@@ -62,7 +105,6 @@ export default function FamilyTree({
   const handleResetZoom = () => setScale(1);
 
   const savedScrollLeftRef = useRef<number | null>(null);
-  const rootKey = useMemo(() => roots.map((root) => root.id).join("|"), [roots]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -131,10 +173,46 @@ export default function FamilyTree({
     }
   };
 
-  const adj = useMemo(
-    () => buildAdjacencyLists(relationships, personsMap),
-    [relationships, personsMap],
-  );
+  const toggleExpand = (personId: string) => {
+    setExpandedNodeIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(personId)) {
+        next.delete(personId);
+      } else {
+        next.add(personId);
+        if (onExpandSubtree) {
+          void onExpandSubtree(personId);
+        }
+      }
+      return next;
+    });
+  };
+
+  const expandAll = () => {
+    // Nếu cây <= 500 người thì mở hết; nếu cây lớn (~4.000 người) mở thêm 1 tầng các nhánh đang mở để mượt 60fps
+    if (personsMap.size <= 500) {
+      const all = new Set<string>();
+      for (const id of personsMap.keys()) {
+        all.add(id);
+      }
+      setExpandedNodeIds(all);
+      return;
+    }
+    setExpandedNodeIds((prev) => {
+      const next = new Set(prev);
+      for (const id of prev) {
+        const children = adj.childrenByPersonId.get(id) ?? [];
+        for (const ch of children) {
+          next.add(ch.id);
+        }
+      }
+      return next;
+    });
+  };
+
+  const collapseAll = () => {
+    setExpandedNodeIds(new Set(roots.map((r) => r.id)));
+  };
 
   const getTreeData = (personId: string) =>
     getFilteredTreeData(personId, personsMap, adj, {
@@ -155,18 +233,33 @@ export default function FamilyTree({
     const data = getTreeData(personId);
     if (!data.person) return null;
 
+    const hasChildren = data.children.length > 0;
+    const isExpanded = expandedNodeIds.has(personId);
+
     return (
       <li>
         <div className="node-container inline-flex flex-col items-center">
           {/* Main Person & Spouses Row */}
           <div className="flex relative z-10 bg-white rounded-2xl shadow-md border border-stone-200/80 transition-opacity">
-            <FamilyNodeCard person={data.person} />
+            <FamilyNodeCard
+              person={data.person}
+              isExpandable={hasChildren}
+              isExpanded={isExpanded}
+              onClickCard={() => {
+                if (hasChildren) {
+                  toggleExpand(personId);
+                } else {
+                  setMemberModalId(data.person.id);
+                }
+              }}
+              onClickName={(e) => {
+                e.stopPropagation();
+                setMemberModalId(data.person.id);
+              }}
+            />
 
             {data.spouses.length > 0 && (
               <>
-                {/* <div className="mt-6 size-5 sm:w-6 sm:h-6 rounded-full shadow-sm bg-white border border-stone-200 z-20 flex items-center justify-center text-[10px] sm:text-xs">
-                  💍
-                </div> */}
                 {data.spouses.map((spouseData, idx) => (
                   <div key={spouseData.person.id} className="flex relative">
                     <FamilyNodeCard
@@ -177,6 +270,10 @@ export default function FamilyTree({
                         spouseData.person.gender === "male" ? "Chồng" : "Vợ"
                       }
                       note={spouseData.note}
+                      onClickName={(e) => {
+                        e.stopPropagation();
+                        setMemberModalId(spouseData.person.id);
+                      }}
                     />
                   </div>
                 ))}
@@ -185,8 +282,8 @@ export default function FamilyTree({
           </div>
         </div>
 
-        {/* Render Children (if any) */}
-        {data.children.length > 0 && (
+        {/* Render Children (only if expanded to prevent DOM explosion) */}
+        {hasChildren && isExpanded && (
           <ul>
             {data.children.map((child) => (
               <React.Fragment key={child.id}>
@@ -215,8 +312,28 @@ export default function FamilyTree({
             className="flex flex-wrap justify-center items-center gap-2 w-max"
             ref={filtersRef}
           >
+            {/* Expand/Collapse Controls */}
+            <div className="flex items-center bg-white shadow-sm border border-stone-200 rounded-full overflow-hidden transition-opacity h-10">
+              <button
+                onClick={collapseAll}
+                className="px-3 md:px-4 h-full flex items-center gap-1.5 hover:bg-stone-100 text-stone-600 transition-colors font-medium text-xs sm:text-sm"
+                title="Thu gọn về 2 đời"
+              >
+                <ChevronsDownUp className="size-4" />
+                <span className="hidden sm:inline">Thu gọn</span>
+              </button>
+              <button
+                onClick={expandAll}
+                className="px-3 md:px-4 h-full flex items-center gap-1.5 hover:bg-stone-100 text-stone-600 transition-colors font-medium border-l border-stone-200 text-xs sm:text-sm"
+                title="Mở rộng thêm nhánh"
+              >
+                <ChevronsUpDown className="size-4" />
+                <span className="hidden sm:inline">Mở rộng</span>
+              </button>
+            </div>
+
             {/* Zoom Controls */}
-            <div className="flex items-center bg-white/80 backdrop-blur-md shadow-sm border border-stone-200/60 rounded-full overflow-hidden transition-opacity h-10">
+            <div className="flex items-center bg-white shadow-sm border border-stone-200 rounded-full overflow-hidden transition-opacity h-10">
               <button
                 onClick={handleZoomOut}
                 className="px-3 h-full hover:bg-stone-100/50 text-stone-600 transition-colors disabled:opacity-50"
@@ -247,8 +364,8 @@ export default function FamilyTree({
               <button
                 onClick={() => setShowFilters(!showFilters)}
                 className={`flex items-center gap-2 px-4 h-10 rounded-full font-semibold text-sm shadow-sm border transition-all duration-300 ${showFilters
-                  ? "bg-amber-100/90 text-amber-800 border-amber-200"
-                  : "bg-white/80 text-stone-600 border-stone-200/60 hover:bg-white hover:text-stone-900 hover:shadow-md backdrop-blur-md"
+                  ? "bg-amber-100 text-amber-800 border-amber-200"
+                  : "bg-white text-stone-600 border-stone-200 hover:bg-stone-50 hover:text-stone-900 hover:shadow-md"
                   }`}
               >
                 <Filter className="size-4" />
@@ -262,7 +379,7 @@ export default function FamilyTree({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute top-full right-0 mt-2 w-48 bg-white/95 backdrop-blur-xl shadow-xl border border-stone-200/60 rounded-2xl p-4 flex flex-col gap-3 z-50"
+                    className="absolute top-full right-0 mt-2 w-48 bg-white shadow-xl border border-stone-200 rounded-2xl p-4 flex flex-col gap-3 z-50"
                   >
                     <div className="text-xs font-bold text-stone-400 uppercase tracking-wider mb-1">
                       HIỂN THỊ

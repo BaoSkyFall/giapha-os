@@ -3,34 +3,67 @@ import type {
   ChatRequestBody,
   StreamChunk,
   ChatMessage,
-  AgentStep,
+  StructuredAnswerPayload,
 } from "@/types/ai-advisor";
 import { NextRequest } from "next/server";
 
 const BACK_END_AI_URL = process.env.BACK_END_AI_URL ?? "http://localhost:5000";
-
-const SIMULATED_STEPS: Array<{ step: AgentStep; label: string; at: number }> = [
-  { step: "parsing",   label: "Đang phân tích câu hỏi...",         at: 300  },
-  { step: "searching", label: "Truy vấn cơ sở dữ liệu gia phả...", at: 2500 },
-  { step: "verifying", label: "Xác minh danh tính thành viên...",  at: 5000 },
-  { step: "narrating", label: "Tổng hợp hồ sơ thành viên...",      at: 8000 },
-];
+const AI_SERVICE_INTERNAL_KEY = process.env.AI_SERVICE_INTERNAL_KEY ?? "";
+const BACKEND_TIMEOUT_MS = 15_000;
+const MAX_MESSAGE_LENGTH = 1000;
+const MAX_HISTORY_MESSAGES = 20;
 
 function encodeChunk(chunk: StreamChunk): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(chunk) + "\n");
 }
 
-function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-interface BackendResponse {
-  answer?: string;
-  sources?: string[];
+function sanitizeHistoryMessages(
+  rawMessages: unknown
+): Array<{ role: "user" | "assistant"; content: string }> {
+  if (!Array.isArray(rawMessages)) return [];
+  const valid: Array<{ role: "user" | "assistant"; content: string }> = [];
+  for (const item of rawMessages) {
+    if (!item || typeof item !== "object") continue;
+    const record = item as Record<string, unknown>;
+    const role = record.role;
+    const content = record.content;
+    if (
+      (role === "user" || role === "assistant") &&
+      typeof content === "string" &&
+      content.trim().length > 0
+    ) {
+      valid.push({
+        role,
+        content: content.slice(0, 4000),
+      });
+    }
+  }
+  return valid.slice(-MAX_HISTORY_MESSAGES);
 }
 
 export async function POST(request: NextRequest) {
-  const user = await getUser();
+  let user = null;
+  let verifiedRole: "public" | "member" | "admin" = "public";
+  try {
+    user = await getUser();
+    const isAuthenticated = !!user;
+
+    // Verify active profile & role from Supabase (fail-closed to "public")
+    const authSupabase = isAuthenticated ? await getSupabase() : null;
+    if (isAuthenticated && authSupabase) {
+      const { data: profile, error: profileError } = await authSupabase
+        .from("profiles")
+        .select("is_active, role")
+        .eq("id", user!.id)
+        .single();
+      if (!profileError && profile?.is_active === true) {
+        verifiedRole = profile.role === "admin" ? "admin" : "member";
+      }
+    }
+  } catch {
+    user = null;
+    verifiedRole = "public";
+  }
   const isAuthenticated = !!user;
 
   let body: ChatRequestBody;
@@ -45,17 +78,35 @@ export async function POST(request: NextRequest) {
 
   const {
     message,
+    selected_person_id,
     session_id,
-    messages: historyMessages = [],
+    messages: rawHistoryMessages,
     session_source = "local",
   } = body;
 
-  if (!message?.trim()) {
-    return new Response(JSON.stringify({ error: "message is required" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+  if (typeof message === "string" && message.length > MAX_MESSAGE_LENGTH) {
+    return new Response(
+      JSON.stringify({
+        error: `Câu hỏi vượt quá giới hạn ${MAX_MESSAGE_LENGTH} ký tự.`,
+      }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
+
+  if (!message?.trim() && !selected_person_id) {
+    return new Response(
+      JSON.stringify({ error: "message or selected_person_id is required" }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  const sanitizedHistory = sanitizeHistoryMessages(rawHistoryMessages);
 
   // Only persist to Supabase when: user is logged in AND session was started as "supabase"
   const persistToSupabase = isAuthenticated && session_source === "supabase";
@@ -64,62 +115,144 @@ export async function POST(request: NextRequest) {
   const stream = new ReadableStream({
     async start(controller) {
       let fullResponseText = "";
-      const startTime = Date.now();
+      let structuredPayload: StructuredAnswerPayload | undefined;
+      let streamClosed = false;
+
+      const safeEnqueue = (chunk: StreamChunk) => {
+        if (streamClosed || request.signal.aborted) return;
+        try {
+          controller.enqueue(encodeChunk(chunk));
+        } catch {
+          streamClosed = true;
+        }
+      };
+
+      const safeClose = () => {
+        if (streamClosed) return;
+        streamClosed = true;
+        try {
+          controller.close();
+        } catch {
+          // ignore already-closed controller
+        }
+      };
 
       try {
-        // Fire backend request immediately
-        const backendPromise = fetch(`${BACK_END_AI_URL}/chat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            question: message,
-            ...(historyMessages.length > 0 ? { messages: historyMessages } : {}),
-          }),
+        if (request.signal.aborted) {
+          safeClose();
+          return;
+        }
+
+        safeEnqueue({
+          type: "agent_step",
+          step: "searching",
+          label: "Đang tra cứu cây gia phả...",
         });
 
-        // Emit simulated steps concurrently
-        let stepIdx = 0;
-        const emitNextStep = async (): Promise<void> => {
-          if (stepIdx >= SIMULATED_STEPS.length) return;
-          const { step, label, at } = SIMULATED_STEPS[stepIdx++];
-          const elapsed = Date.now() - startTime;
-          const remaining = at - elapsed;
-          if (remaining > 0) await wait(remaining);
-          controller.enqueue(encodeChunk({ type: "agent_step", step, label }));
-          return emitNextStep();
+        const controllerAbort = new AbortController();
+        const onClientAbort = () => controllerAbort.abort();
+        request.signal.addEventListener("abort", onClientAbort, { once: true });
+        const timeoutId = setTimeout(
+          () => controllerAbort.abort(),
+          BACKEND_TIMEOUT_MS
+        );
+        let raw: StructuredAnswerPayload;
+        try {
+          const backendRes = await fetch(`${BACK_END_AI_URL}/chat`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(AI_SERVICE_INTERNAL_KEY
+                ? { "X-Internal-Key": AI_SERVICE_INTERNAL_KEY }
+                : {}),
+            },
+            signal: controllerAbort.signal,
+            body: JSON.stringify({
+              question: (message || "").trim(),
+              selected_person_id: selected_person_id || undefined,
+              session_id: session_id || undefined,
+              role: verifiedRole,
+              ...(sanitizedHistory.length > 0
+                ? { messages: sanitizedHistory }
+                : {}),
+            }),
+          });
+
+          if (!backendRes.ok) {
+            throw new Error(`Backend HTTP ${backendRes.status}`);
+          }
+
+          raw = (await backendRes.json()) as StructuredAnswerPayload;
+        } finally {
+          clearTimeout(timeoutId);
+          request.signal.removeEventListener("abort", onClientAbort);
+        }
+        const normalizedPayload: StructuredAnswerPayload = {
+          ...raw,
+          provenance: raw.provenance,
+          verification_status: raw.verification_status,
+          data_completeness: raw.data_completeness,
+          missing_fields: raw.missing_fields,
+          reason_code: raw.reason_code,
+          is_demo_data: raw.is_demo_data,
+          sources: raw.sources,
+          meta: raw.meta,
         };
+        structuredPayload = normalizedPayload;
 
-        const [backendRes] = await Promise.all([backendPromise, emitNextStep()]);
-
-        if (!backendRes.ok) {
-          throw new Error(`Backend HTTP ${backendRes.status}`);
-        }
-
-        const raw = await backendRes.json() as BackendResponse;
-        if (typeof raw?.answer === "string" && raw.answer.trim()) {
+        if (typeof raw?.message === "string" && raw.message.trim()) {
+          fullResponseText = raw.message.trim();
+        } else if (typeof raw?.answer === "string" && raw.answer.trim()) {
           fullResponseText = raw.answer.trim();
-        } else if (typeof raw === "string") {
-          fullResponseText = raw as string;
         } else {
-          fullResponseText = "Không tìm thấy câu trả lời.";
+          fullResponseText =
+            "Thông tin đã được cập nhật từ hệ thống gia phả.";
         }
 
-        controller.enqueue(encodeChunk({ type: "text", delta: fullResponseText }));
+        safeEnqueue({
+          type: "structured",
+          payload: normalizedPayload,
+        });
 
-        // ── Supabase persistence (logged-in + supabase-source sessions only) ──
+        safeEnqueue({ type: "text", delta: fullResponseText });
+
         let finalSessionId = session_id ?? "unknown";
         if (persistToSupabase && supabase) {
           const allMessages: ChatMessage[] = [
-            ...historyMessages.map((m) => ({
+            ...sanitizedHistory.map((m) => ({
               role: m.role,
               content: m.content,
               timestamp: new Date().toISOString(),
             })),
-            { role: "user" as const,      content: message,          timestamp: new Date().toISOString() },
-            { role: "assistant" as const, content: fullResponseText, timestamp: new Date().toISOString() },
+            {
+              role: "user" as const,
+              content: (message || "").trim() || "Tra cứu theo lựa chọn",
+              timestamp: new Date().toISOString(),
+            },
+            {
+              role: "assistant" as const,
+              content: fullResponseText,
+              timestamp: new Date().toISOString(),
+              response_type: structuredPayload?.type,
+              candidates: structuredPayload?.candidates,
+              suggestions: structuredPayload?.suggestions,
+              reasoning_steps: structuredPayload?.reasoning_steps,
+              data: structuredPayload?.data,
+              verification_status: structuredPayload?.verification_status,
+              data_completeness: structuredPayload?.data_completeness,
+              missing_fields: structuredPayload?.missing_fields,
+              provenance: structuredPayload?.provenance,
+              reason_code: structuredPayload?.reason_code,
+              is_demo_data: structuredPayload?.is_demo_data,
+              sources: structuredPayload?.sources,
+              meta: structuredPayload?.meta,
+            },
           ];
-          const title = historyMessages.length === 0 ? message.slice(0, 80) : undefined;
-          const { data: savedSession } = await supabase
+          const title =
+            sanitizedHistory.length === 0
+              ? ((message || "").trim() || "Tra cứu gia phả").slice(0, 80)
+              : undefined;
+          const { data: savedSession, error: upsertError } = await supabase
             .from("chat_sessions")
             .upsert({
               ...(session_id ? { id: session_id } : {}),
@@ -130,17 +263,23 @@ export async function POST(request: NextRequest) {
             })
             .select("id")
             .single();
+          if (upsertError) {
+            console.error({ upsertError }, "chat_sessions upsert error");
+          }
           finalSessionId = savedSession?.id ?? session_id ?? "unknown";
         }
 
-        controller.enqueue(encodeChunk({ type: "done", sessionId: finalSessionId }));
+        controller.enqueue(
+          encodeChunk({ type: "done", sessionId: finalSessionId })
+        );
       } catch (error) {
         console.error({ error }, "POST /api/chat proxy error");
         controller.enqueue(
           encodeChunk({
             type: "error",
-            message: "Có lỗi kết nối với trợ lý AI. Vui lòng thử lại.",
-            code: "BACKEND_ERROR",
+            message:
+              "Không thể kết nối đến máy chủ tra cứu gia phả (Genealogy Knowledge Engine). Vui lòng thử lại sau giây lát.",
+            code: "NETWORK_ERROR",
           })
         );
       } finally {

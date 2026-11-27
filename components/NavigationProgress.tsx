@@ -15,12 +15,11 @@ export default function NavigationProgress() {
         if (previousPathname.current === pathname) return;
         previousPathname.current = pathname;
 
-        // Start progress animation
-        setIsVisible(true);
-        setProgress(0);
-
-        // Quick jump to ~30%
-        requestAnimationFrame(() => setProgress(30));
+        // Start progress animation via RAF
+        const frameId = requestAnimationFrame(() => {
+            setIsVisible(true);
+            setProgress(30);
+        });
 
         // Then gradually to ~70%
         const t1 = setTimeout(() => setProgress(70), 150);
@@ -37,6 +36,7 @@ export default function NavigationProgress() {
         }, 500);
 
         return () => {
+            cancelAnimationFrame(frameId);
             clearTimeout(t1);
             clearTimeout(t2);
             clearTimeout(t3);

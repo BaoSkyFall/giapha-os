@@ -12,29 +12,37 @@ import { usePathname } from "next/navigation";
  */
 export default function AiChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
-  const [hasAutoOpened, setHasAutoOpened] = useState(false);
 
   const pathname = usePathname();
 
   // Auto-open the bubble after 3s on first visit (once per browser session)
   useEffect(() => {
-    const alreadyShown = sessionStorage.getItem("ai-widget-shown");
-    if (alreadyShown) return;
+    try {
+      const alreadyShown = sessionStorage.getItem("ai-widget-shown");
+      if (alreadyShown) return;
 
-    const timer = setTimeout(() => {
-      setIsOpen(true);
-      setHasAutoOpened(true);
-      sessionStorage.setItem("ai-widget-shown", "1");
-    }, 3000);
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+        try {
+          sessionStorage.setItem("ai-widget-shown", "1");
+        } catch {
+          // ignore storage restrictions
+        }
+      }, 3000);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    } catch {
+      return undefined;
+    }
   }, []);
 
-  // Suppress unused-var warning — hasAutoOpened is intentionally tracked for future use
-  void hasAutoOpened;
-
-  // Don't render on the AI Advisor page itself
-  if (pathname.startsWith("/ai-advisor")) return null;
+  // Don't render on the AI Advisor / Tra cứu AI & interactive tree canvas pages
+  if (
+    pathname.startsWith("/tra-cuu-ai") ||
+    pathname.startsWith("/ai-advisor") ||
+    pathname.startsWith("/dashboard/members")
+  )
+    return null;
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
@@ -96,7 +104,7 @@ export default function AiChatWidget() {
 
               {/* CTA */}
               <Link
-                href="/ai-advisor"
+                href="/tra-cuu-ai"
                 className="flex items-center justify-center gap-2 w-full bg-[#B31D1D] hover:bg-[#9a1818] text-white text-sm font-semibold py-2.5 rounded-lg transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
               >
                 Khám Phá

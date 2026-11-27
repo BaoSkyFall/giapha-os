@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useDashboard } from "@/components/DashboardContext";
 import DashboardMemberList from "@/components/DashboardMemberList";
@@ -12,12 +12,13 @@ const FamilyTree = dynamic(() => import("@/components/FamilyTree"));
 const MindmapTree = dynamic(() => import("@/components/MindmapTree"));
 
 const FOUNDER_ROOT_ID = "0911c310-31cd-43c2-a705-67770bd074df";
-const HEAVY_ROOT_IDS = new Set(["0911c310-31cd-43c2-a705-67770bd074df", "fc22c7b0-5e7a-4c13-977e-0cdcc29cd5fa", "2a15f9c1-47a8-4106-85e8-1f223725e124"]);
 
 interface DashboardViewsProps {
   persons: Person[];
   relationships: Relationship[];
   canEdit?: boolean;
+  totalPersonsInDatabase?: number;
+  dataSource?: "supabase" | "local_dump";
   listPersons?: Person[];
   listQueryState?: {
     searchTerm: string;
@@ -35,6 +36,8 @@ export default function DashboardViews({
   persons,
   relationships,
   canEdit = false,
+  totalPersonsInDatabase,
+  dataSource = "supabase",
   listPersons,
   listQueryState,
 }: DashboardViewsProps) {
@@ -47,6 +50,8 @@ export default function DashboardViews({
   } = useDashboard();
   const scrollContainerRef = useRef<HTMLElement>(null);
   const [livePersons, setLivePersons] = useState<Person[]>(persons);
+  const [liveRelationships, setLiveRelationships] =
+    useState<Relationship[]>(relationships);
   const [liveListPersons, setLiveListPersons] = useState<Person[]>(
     listPersons ?? persons,
   );
@@ -54,15 +59,59 @@ export default function DashboardViews({
     listQueryState?.total ?? (listPersons ?? persons).length,
   );
 
+  const loadedSubtreeSetRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
     setLivePersons(persons);
   }, [persons]);
+
+  useEffect(() => {
+    setLiveRelationships(relationships);
+  }, [relationships]);
 
   useEffect(() => {
     const nextListPersons = listPersons ?? persons;
     setLiveListPersons(nextListPersons);
     setLiveListTotal(listQueryState?.total ?? nextListPersons.length);
   }, [listPersons, persons, listQueryState?.total]);
+
+  // Progressive on-demand expansion of subtree
+  const handleExpandSubtree = useCallback(async (personId: string) => {
+    if (loadedSubtreeSetRef.current.has(personId)) return;
+    loadedSubtreeSetRef.current.add(personId);
+
+    try {
+      const res = await fetch(`/api/genealogy/subtree?rootId=${personId}&depth=1`);
+      if (!res.ok) return;
+      const data = (await res.json()) as {
+        ok?: boolean;
+        persons?: Person[];
+        relationships?: Relationship[];
+      };
+
+      if (!data.ok) return;
+
+      if (Array.isArray(data.persons) && data.persons.length > 0) {
+        setLivePersons((prev) => {
+          const map = new Map<string, Person>();
+          for (const p of prev) map.set(p.id, p);
+          for (const p of data.persons!) map.set(p.id, p);
+          return Array.from(map.values());
+        });
+      }
+
+      if (Array.isArray(data.relationships) && data.relationships.length > 0) {
+        setLiveRelationships((prev) => {
+          const map = new Map<string, Relationship>();
+          for (const r of prev) map.set(r.id, r);
+          for (const r of data.relationships!) map.set(r.id, r);
+          return Array.from(map.values());
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load subtree for person:", personId, err);
+    }
+  }, []);
 
   useEffect(() => {
     if (!memberMutation || memberMutation.kind !== "upsert") return;
@@ -101,67 +150,76 @@ export default function DashboardViews({
     return map;
   }, [livePersons]);
 
+  const effectiveRootId = useMemo(() => {
+    if (rootId) return rootId;
+    if (personsMap.has(FOUNDER_ROOT_ID)) return FOUNDER_ROOT_ID;
+    const gen1 = livePersons.find((p) => p.generation === 1);
+    return gen1?.id ?? livePersons[0]?.id ?? null;
+  }, [rootId, personsMap, livePersons]);
+
   const selectedRoot = useMemo(() => {
-    if (!rootId) return null;
-    return personsMap.get(rootId) ?? null;
-  }, [personsMap, rootId]);
+    if (!effectiveRootId) return null;
+    return personsMap.get(effectiveRootId) ?? null;
+  }, [personsMap, effectiveRootId]);
 
   const selectedRootChildCount = useMemo(() => {
-    if (!rootId) return 0;
-    return relationships.filter(
+    if (!effectiveRootId) return 0;
+    return liveRelationships.filter(
       (relationship) =>
         (relationship.type === "biological_child" ||
           relationship.type === "adopted_child") &&
-        relationship.person_a === rootId,
+        relationship.person_a === effectiveRootId,
     ).length;
-  }, [relationships, rootId]);
+  }, [liveRelationships, effectiveRootId]);
 
   const resolveUpperRoot = useCallback(
     (personId: string): Person | null => {
-    const parentLinks = relationships.filter(
-      (relationship) =>
-        (relationship.type === "biological_child" ||
-          relationship.type === "adopted_child") &&
-        relationship.person_b === personId,
-    );
-    if (parentLinks.length === 0) return null;
+      const parentLinks = liveRelationships.filter(
+        (relationship) =>
+          (relationship.type === "biological_child" ||
+            relationship.type === "adopted_child") &&
+          relationship.person_b === personId,
+      );
+      if (parentLinks.length === 0) return null;
 
-    const parentCandidates = parentLinks
-      .map((link) => {
-        const person = personsMap.get(link.person_a);
-        if (!person) return null;
-        return { person, relationType: link.type };
-      })
-      .filter(
-        (
-          value,
-        ): value is {
-          person: Person;
-          relationType: Relationship["type"];
-        } => value !== null,
-      )
-      .sort((a, b) => {
-        if (a.relationType !== b.relationType) {
-          return a.relationType === "biological_child" ? -1 : 1;
-        }
+      const parentCandidates = parentLinks
+        .map((link) => {
+          const person = personsMap.get(link.person_a);
+          if (!person) return null;
+          return { person, relationType: link.type };
+        })
+        .filter(
+          (
+            value,
+          ): value is {
+            person: Person;
+            relationType: Relationship["type"];
+          } => value !== null,
+        )
+        .sort((a, b) => {
+          if (a.relationType !== b.relationType) {
+            return a.relationType === "biological_child" ? -1 : 1;
+          }
 
-        if (a.person.is_in_law !== b.person.is_in_law) {
-          return a.person.is_in_law ? 1 : -1;
-        }
+          if (a.person.is_in_law !== b.person.is_in_law) {
+            return a.person.is_in_law ? 1 : -1;
+          }
 
-        const aGeneration = a.person.generation ?? Number.MAX_SAFE_INTEGER;
-        const bGeneration = b.person.generation ?? Number.MAX_SAFE_INTEGER;
-        if (aGeneration !== bGeneration) return aGeneration - bGeneration;
+          const aGeneration = a.person.generation ?? Number.MAX_SAFE_INTEGER;
+          const bGeneration = b.person.generation ?? Number.MAX_SAFE_INTEGER;
+          if (aGeneration !== bGeneration) return aGeneration - bGeneration;
 
-        const aYear = a.person.birth_year ?? Number.MAX_SAFE_INTEGER;
-        const bYear = b.person.birth_year ?? Number.MAX_SAFE_INTEGER;
-        if (aYear !== bYear) return aYear - bYear;
+          const aYear = a.person.birth_year ?? Number.MAX_SAFE_INTEGER;
+          const bYear = b.person.birth_year ?? Number.MAX_SAFE_INTEGER;
+          if (aYear !== bYear) return aYear - bYear;
 
-        return a.person.id.localeCompare(b.person.id);
-      });
+          return a.person.id.localeCompare(b.person.id);
+        });
 
-    return parentCandidates[0]?.person ?? null;
-  }, [personsMap, relationships]);
+      return parentCandidates[0]?.person ?? null;
+    },
+    [personsMap, liveRelationships],
+  );
 
   const selectedRootUpperRoot = useMemo(() => {
     if (!selectedRoot) return null;
@@ -179,10 +237,10 @@ export default function DashboardViews({
     return resolveUpperRoot(contextRoot.id);
   }, [contextRoot, resolveUpperRoot]);
 
-  const roots = contextRoot ? [contextRoot] : [];
+  const roots = useMemo(() => (contextRoot ? [contextRoot] : []), [contextRoot]);
   const isTreeMode = currentView === "tree" || currentView === "mindmap";
   const shouldRequireRoot = isTreeMode && !isViewLoading;
-  const showMissingRootHint = shouldRequireRoot && !rootId;
+  const showMissingRootHint = shouldRequireRoot && !effectiveRootId;
   const showInvalidRootHint = shouldRequireRoot && Boolean(rootId) && !selectedRoot;
   const showContextRootHint =
     shouldRequireRoot &&
@@ -194,10 +252,6 @@ export default function DashboardViews({
     Boolean(contextRoot) &&
     Boolean(contextUpperRoot) &&
     contextRoot?.id !== FOUNDER_ROOT_ID;
-  const showHeavyRootWarning =
-    shouldRequireRoot &&
-    Boolean(contextRoot?.id) &&
-    HEAVY_ROOT_IDS.has(contextRoot?.id ?? "");
 
   useEffect(() => {
     if (!isTreeMode || !rootId) return;
@@ -210,29 +264,27 @@ export default function DashboardViews({
     <>
       <main
         ref={scrollContainerRef}
-        className="flex-1 overflow-auto bg-rice-paper/50 flex flex-col"
+        className={`flex-1 bg-[#FAF8F3] flex flex-col ${
+          isTreeMode ? "h-[calc(100dvh-70px)] overflow-hidden" : "overflow-auto"
+        }`}
       >
         {!isViewLoading && currentView !== "list" && livePersons.length > 0 && (
-          <div className="sticky top-0 z-30 w-full border-b border-stone-200/70 bg-rice-paper/95 backdrop-blur">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-3 w-full flex flex-col gap-3">
-              <div className="flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-4 relative z-20">
+          <div className="shrink-0 z-30 w-full border-b border-[#E8E2D8] bg-[#FAF8F3]">
+            <div className="w-full px-4 sm:px-6 lg:px-8 pt-2.5 pb-2.5 flex flex-col gap-2">
+              <div className="flex flex-col sm:flex-row flex-wrap items-center sm:justify-between gap-3 relative z-20">
                 <div className="flex items-center gap-2">
-                  <RootSelector persons={livePersons} currentRootId={rootId} />
+                  <RootSelector persons={livePersons} currentRootId={effectiveRootId} />
+                  {dataSource === "local_dump" && (
+                    <span className="hidden md:inline-flex items-center rounded-md border border-[#C99B35]/40 bg-[#FBF6EA] px-2 py-0.5 text-xs font-medium text-[#8C6818]">
+                      Dữ liệu local ({livePersons.length.toLocaleString("vi-VN")} người)
+                    </span>
+                  )}
                 </div>
                 <div
                   id="tree-toolbar-portal"
                   className="flex items-center gap-2 flex-wrap justify-center"
                 />
               </div>
-
-              {showHeavyRootWarning && (
-                <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                  <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-                  <p>
-                    Gốc hiển thị này làm cây gia phả lớn và web load chậm. Nếu thấy giật lag, vui lòng đổi gốc hiển thị nhỏ hơn.
-                  </p>
-                </div>
-              )}
 
               {showContextRootHint && selectedRoot && contextRoot && (
                 <div className="flex items-start gap-2 rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-sm text-violet-900">
@@ -296,25 +348,27 @@ export default function DashboardViews({
           currentView !== "list" &&
           !showMissingRootHint &&
           !showInvalidRootHint && (
-            <div className="flex-1 w-full relative z-10">
+            <div className="flex-1 min-h-0 flex flex-col w-full relative z-10">
               {currentView === "tree" && (
                 <FamilyTree
                   personsMap={personsMap}
-                  relationships={relationships}
+                  relationships={liveRelationships}
                   roots={roots}
                   upperRoot={showGoUpperArrow ? contextUpperRoot : null}
                   onChangeRoot={setRootId}
                   canEdit={canEdit}
+                  onExpandSubtree={handleExpandSubtree}
                 />
               )}
               {currentView === "mindmap" && (
                 <MindmapTree
                   personsMap={personsMap}
-                  relationships={relationships}
+                  relationships={liveRelationships}
                   roots={roots}
                   upperRoot={showGoUpperArrow ? contextUpperRoot : null}
                   onChangeRoot={setRootId}
                   canEdit={canEdit}
+                  onExpandSubtree={handleExpandSubtree}
                 />
               )}
             </div>

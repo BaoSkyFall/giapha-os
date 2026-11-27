@@ -13,16 +13,31 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const isLocalOfflineDev =
+    process.env.NODE_ENV === "development" &&
+    (!process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
   const user = await getUser();
 
-  if (!user) {
+  if (!user && !isLocalOfflineDev) {
     redirect("/login");
   }
 
-  const profile = await getProfile(user.id);
-  const shouldShowSidebar = profile?.role === "admin";
+  const profile = user ? await getProfile(user.id) : null;
+  const effectiveProfile =
+    profile ??
+    (isLocalOfflineDev
+      ? {
+          id: "local-dev-viewer",
+          role: "member" as const,
+          is_active: true,
+          full_name: "Local Dev Viewer",
+        }
+      : null);
+  const shouldShowSidebar = effectiveProfile?.role === "admin";
 
-  if (!profile?.is_active) {
+  if (!effectiveProfile?.is_active) {
     return (
       <div className="min-h-screen bg-rice-paper text-altar-wood flex flex-col font-sans">
         <header className="sticky top-0 z-30 h-16 bg-heritage-red text-white px-6 flex items-center justify-between shadow-md">
@@ -73,7 +88,19 @@ export default async function DashboardLayout({
   }
 
   return (
-    <UserProvider user={user} profile={profile}>
+    <UserProvider
+      user={
+        user ?? {
+          id: "local-dev-viewer",
+          email: "local@tocphamphu.local",
+          app_metadata: {},
+          user_metadata: {},
+          aud: "authenticated",
+          created_at: "",
+        }
+      }
+      profile={effectiveProfile as never}
+    >
       <div className="h-screen flex flex-col overflow-hidden bg-rice-paper text-altar-wood font-sans">
         <DashboardHeader />
         <div className="flex flex-1 overflow-hidden">

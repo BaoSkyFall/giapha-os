@@ -1,8 +1,13 @@
-﻿import { DashboardProvider } from "@/components/DashboardContext";
+import { DashboardProvider } from "@/components/DashboardContext";
 import DashboardViews from "@/components/DashboardViews";
 import MemberDetailModal from "@/components/MemberDetailModal";
 import ViewToggle from "@/components/ViewToggle";
 import { Person, Relationship } from "@/types";
+import {
+  fetchFullGenealogyGraph,
+  LIST_PERSON_COLUMNS,
+  loadLocalDumpData,
+} from "@/utils/genealogyService";
 import { getProfile, getSupabase } from "@/utils/supabase/queries";
 import {
   matchesSearchQuery,
@@ -120,18 +125,57 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
   const relationships: Relationship[] = [];
   let listPersons: Person[] = [];
   let listTotal = 0;
+  let totalPersonsInDatabase = 0;
+  let dataSource: "supabase" | "local_dump" = "supabase";
+
+  const hasSupabaseEnv = Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  );
 
   if (currentView === "list") {
+    if (!hasSupabaseEnv || process.env.USE_LOCAL_DUMP === "true") {
+      const localData = loadLocalDumpData();
+      if (localData) {
+        dataSource = "local_dump";
+        totalPersonsInDatabase = localData.persons.length;
+        const filtered = localData.persons.filter((p) => {
+          if (hasListSearch) {
+            if (
+              !matchesSearchQuery(
+                [p.full_name, p.birth_year, p.generation],
+                listSearch,
+              )
+            ) {
+              return false;
+            }
+          }
+          if (listGeneration !== null && p.generation !== listGeneration) return false;
+          if (listBranch.length > 0 && !(p.branch ?? "").toLowerCase().includes(listBranch.toLowerCase())) return false;
+          if (listFilter === "male" && p.gender !== "male") return false;
+          if (listFilter === "female" && p.gender !== "female") return false;
+          if (listFilter === "in_law_female" && !(p.gender === "female" && p.is_in_law)) return false;
+          if (listFilter === "in_law_male" && !(p.gender === "male" && p.is_in_law)) return false;
+          if (listFilter === "deceased" && !p.is_deceased) return false;
+          if (listFilter === "first_child" && p.birth_order !== 1) return false;
+          return true;
+        });
+        listTotal = filtered.length;
+        const rangeFrom = (listPage - 1) * MEMBER_LIST_PAGE_SIZE;
+        listPersons = filtered.slice(rangeFrom, rangeFrom + MEMBER_LIST_PAGE_SIZE);
+      }
+    } else {
     const searchTokens = hasListSearch ? tokenizeForSearch(listSearch) : [];
     const rangeFrom = (listPage - 1) * MEMBER_LIST_PAGE_SIZE;
     const rangeTo = rangeFrom + MEMBER_LIST_PAGE_SIZE - 1;
 
     // Single source of truth for the list query (structured filters + sort).
-    // `withSearch` adds the server-side, trigram-indexed name match on the
-    // normalized `name_search` column (docs/members-search-migration.sql),
-    // replacing the old fetch-all-then-filter-in-JS scan.
+    // Tối ưu P0.1: Chỉ SELECT các cột tối thiểu hiển thị trên card (LIST_PERSON_COLUMNS),
+    // loại bỏ hoàn toàn các trường nặng như note (tiểu sử dài HTML), address, phone...
     const buildListQuery = (withSearch: boolean) => {
-      let query = supabase.from("persons").select("*", { count: "exact" });
+      let query = supabase
+        .from("persons")
+        .select(LIST_PERSON_COLUMNS, { count: "exact" });
 
       if (withSearch) {
         for (const token of searchTokens) {
@@ -224,7 +268,7 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
         listTotal = count ?? 0;
       } else {
         // Fallback when `name_search` is missing (migration not applied yet):
-        // structured-filtered scan + JS name filter. Delete once migration live.
+        // structured-filtered scan + JS name filter.
         const SEARCH_PAGE_SIZE = 1000;
         const seenIds = new Set<string>();
         const matched: Person[] = [];
@@ -257,61 +301,14 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
         listPersons = matched.slice(rangeFrom, rangeTo + 1);
       }
     }
+    }
   } else {
-    // Tree/mindmap view needs the full graph (root picker, ancestor walking,
-    // adjacency). Fetch all persons + relationships, but fan the paged requests
-    // out in PARALLEL instead of sequentially. Measured on ~4k rows this cut the
-    // data fetch from ~1.7s to ~0.6s (see scripts/bench-members.mjs).
-    const PAGE_SIZE = 1000;
-
-    const [{ count: personCount }, { count: relCount }] = await Promise.all([
-      supabase.from("persons").select("id", { count: "exact", head: true }),
-      supabase.from("relationships").select("id", { count: "exact", head: true }),
-    ]);
-
-    const personPages = Math.ceil((personCount ?? 0) / PAGE_SIZE);
-    const relPages = Math.ceil((relCount ?? 0) / PAGE_SIZE);
-
-    // Stable total order (birth_year + id / id) keeps the parallel page ranges
-    // disjoint and deterministic.
-    const [personResults, relResults] = await Promise.all([
-      Promise.all(
-        Array.from({ length: personPages }, (_, i) =>
-          supabase
-            .from("persons")
-            .select("*")
-            .order("birth_year", { ascending: true, nullsFirst: false })
-            .order("id", { ascending: true })
-            .range(i * PAGE_SIZE, i * PAGE_SIZE + PAGE_SIZE - 1),
-        ),
-      ),
-      Promise.all(
-        Array.from({ length: relPages }, (_, i) =>
-          supabase
-            .from("relationships")
-            .select("*")
-            .order("id", { ascending: true })
-            .range(i * PAGE_SIZE, i * PAGE_SIZE + PAGE_SIZE - 1),
-        ),
-      ),
-    ]);
-
-    const personsRaw: Person[] = [];
-    for (const { data } of personResults) {
-      if (data) personsRaw.push(...(data as Person[]));
-    }
-
-    // Deduplicate by id to guard against any paginated overlap.
-    const seenIds = new Set<string>();
-    persons = personsRaw.filter((person) => {
-      if (seenIds.has(person.id)) return false;
-      seenIds.add(person.id);
-      return true;
-    });
-
-    for (const { data } of relResults) {
-      if (data) relationships.push(...(data as Relationship[]));
-    }
+    // Mặc định kéo toàn bộ đồ thị gia phả (~4.000+ thành viên) để người dùng xem đầy đủ ngay khi vào trang
+    const fullGraph = await fetchFullGenealogyGraph(supabase);
+    persons = fullGraph.persons;
+    relationships.push(...fullGraph.relationships);
+    totalPersonsInDatabase = fullGraph.totalPersonsInDatabase;
+    dataSource = fullGraph.dataSource;
   }
 
   return (
@@ -321,6 +318,8 @@ export default async function FamilyTreePage({ searchParams }: PageProps) {
         persons={persons}
         relationships={relationships}
         canEdit={canEdit}
+        totalPersonsInDatabase={totalPersonsInDatabase || persons.length}
+        dataSource={dataSource}
         listPersons={listPersons}
         listQueryState={{
           searchTerm: listSearch,

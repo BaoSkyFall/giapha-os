@@ -1,4 +1,3 @@
-import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import config from "@/app/config";
 
@@ -13,10 +12,11 @@ export default function AiAdvisorLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-rice-paper flex flex-col">
+    <div className="h-dvh bg-rice-paper flex flex-col overflow-hidden">
       <Header siteName={config.siteName} />
-      <main className="flex-1 flex flex-col">{children}</main>
-      <Footer />
+      <main className="h-[calc(100dvh-64px)] flex-1 min-h-0 flex flex-col overflow-hidden">
+        {children}
+      </main>
     </div>
   );
 }

@@ -6,9 +6,17 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export async function updateSession(request: NextRequest) {
-  // If env vars are missing, we cannot create a supabase client
+  // If env vars are missing, allow offline-capable AI Advisor routes and /missing-db-config
   if (!supabaseUrl || !supabaseKey) {
-    if (request.nextUrl.pathname !== "/missing-db-config") {
+    const p = request.nextUrl.pathname;
+    if (
+      p !== "/missing-db-config" &&
+      !p.startsWith("/tra-cuu-ai") &&
+      !p.startsWith("/ai-advisor") &&
+      !p.startsWith("/api/chat") &&
+      !p.startsWith("/dashboard/members") &&
+      !p.startsWith("/api/genealogy")
+    ) {
       const url = request.nextUrl.clone();
       url.pathname = "/missing-db-config";
       return NextResponse.redirect(url);
